@@ -25,6 +25,7 @@ source-repository head
 library
   exposed-modules:
       Data.Variant
+      Habits.AppT
       Habits.Domain.Account
       Habits.Domain.AccountId
       Habits.Domain.AccountNew
@@ -34,19 +35,36 @@ library
       Habits.Domain.Email
       Habits.Domain.HabitDef
       Habits.Infra.Memory.AccountRepoMemory
-      Habits.Tools.MonadThrow
       Habits.UseCases.Register
       Habits.UseCases.Register.Class
       Habits.UseCases.Register.Live
+      Habits.UseCases.Register.RegisterError
+      Habits.UseCases.Register.RegisterRequest
+      Habits.UseCases.Register.RegisterResponse
       Habits.Web.Routes.Register
   other-modules:
       Paths_habits
   hs-source-dirs:
       src
+  default-extensions:
+      TypeOperators
+      InstanceSigs
+      KindSignatures
+      FlexibleContexts
+      FlexibleInstances
+      LambdaCase
+      NamedFieldPuns
+      OverloadedStrings
+      TypeApplications
+      RankNTypes
+      DataKinds
+      ScopedTypeVariables
+      MultiParamTypeClasses
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind
   build-depends:
       QuickCheck
     , base >=4.7 && <5
-    , control-monad-exception
     , data-has
     , exceptions
     , haskus-utils-variant
@@ -66,11 +84,25 @@ executable habits-exe
       Paths_habits
   hs-source-dirs:
       app
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:
+      TypeOperators
+      InstanceSigs
+      KindSignatures
+      FlexibleContexts
+      FlexibleInstances
+      LambdaCase
+      NamedFieldPuns
+      OverloadedStrings
+      TypeApplications
+      RankNTypes
+      DataKinds
+      ScopedTypeVariables
+      MultiParamTypeClasses
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base >=4.7 && <5
-    , control-monad-exception
     , data-has
     , exceptions
     , habits
@@ -89,18 +121,33 @@ test-suite habits-test
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Habits.UseCases.RegisterSpec
-      Playground
-      PlaygroundHaskus
-      PlaygroundVariant
+      Test.Habits.App
+      Test.Habits.AppEnv
+      Test.Habits.UseCases.RegisterSpec
+      Test.PlaygroundHaskus
+      Test.PlaygroundVariant
       Paths_habits
   hs-source-dirs:
       test
-  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  default-extensions:
+      TypeOperators
+      InstanceSigs
+      KindSignatures
+      FlexibleContexts
+      FlexibleInstances
+      LambdaCase
+      NamedFieldPuns
+      OverloadedStrings
+      TypeApplications
+      RankNTypes
+      DataKinds
+      ScopedTypeVariables
+      MultiParamTypeClasses
+      GeneralizedNewtypeDeriving
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base >=4.7 && <5
-    , control-monad-exception
     , data-has
     , exceptions
     , habits

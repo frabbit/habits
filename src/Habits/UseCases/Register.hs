@@ -1,35 +1,27 @@
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE DataKinds #-}
-module Habits.UseCases.Register where
-import           Habits.Domain.Email            ( Email(Email) )
+module Habits.UseCases.Register
+  ( RegisterError(..)
+  , RegisterResponse(..)
+  , RegisterRequest(..)
+  , Register(..)
+  , RegisterExec
+  ) where
 
-import           Control.Monad.Exception        ( Throws )
 import           Control.Monad.Trans.Except     ( ExceptT )
-import           Data.Text                      ( Text )
-import           Habits.Domain.AccountRepo      ( AddError )
-
-import           Control.Exception              ( Exception )
-import           Data.Typeable                  ( Typeable )
-import           Haskus.Utils.Variant.Excepts   ( Excepts )
-
-data RegisterError = RegisterError
-  deriving (Show, Typeable)
-
-instance Exception RegisterError
-
-
-data RegisterRequest = RegisterRequest
-  { email :: Email
-  , name  :: Text
-  }
-
-newtype RegisterResponse = RegisterResponse {
-  success::Bool
-} deriving (Show, Eq, Ord)
+import           Data.Variant                   ( CouldBe
+                                                , Variant
+                                                )
+import           Habits.UseCases.Register.RegisterError
+                                                ( RegisterError(..) )
+import           Habits.UseCases.Register.RegisterRequest
+                                                ( RegisterRequest(..) )
+import           Habits.UseCases.Register.RegisterResponse
+                                                ( RegisterResponse(..) )
 
 type RegisterExec m
-  = RegisterRequest -> Excepts '[RegisterError] m RegisterResponse
+  =  forall e
+   . (e `CouldBe` RegisterError)
+  => RegisterRequest
+  -> ExceptT (Variant e) m RegisterResponse
 
 newtype Register m = Register {
   execute :: RegisterExec m

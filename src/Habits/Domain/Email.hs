@@ -1,8 +1,6 @@
 module Habits.Domain.Email where
-{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 
-import Test.QuickCheck.Instances
-import           Control.Monad                  ( liftM )
+import Test.QuickCheck.Instances ()
 import           Data.Text                      ( Text )
 import           Test.QuickCheck                ( arbitrary, Arbitrary )
 newtype Email = Email Text deriving (Show, Eq, Ord)

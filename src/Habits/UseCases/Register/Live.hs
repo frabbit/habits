@@ -1,17 +1,14 @@
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE RankNTypes #-}
-{-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
-
 module Habits.UseCases.Register.Live where
+import           Data.Variant                   ( catchM
+                                                , throwM
+                                                )
 import           Habits.Domain.AccountNew       ( AccountNew
                                                   ( AccountNew
                                                   , email
                                                   , name
                                                   )
                                                 )
-import           Habits.Domain.AccountRepo      ( AddError(AddError) )
+import           Habits.Domain.AccountRepo      ( AddError )
 import           Habits.Domain.AccountRepo.Class
                                                 ( AccountRepo
                                                 , add
@@ -23,14 +20,11 @@ import           Habits.UseCases.Register       ( RegisterError(RegisterError)
                                                   ( RegisterResponse
                                                   )
                                                 )
-import           Haskus.Utils.Variant.Excepts   ( catchE
-                                                , throwE
-                                                , catchAllE
-                                                )
 
 
 register :: (Monad m, AccountRepo m) => RegisterExec m
-register req = do
-  catchAllE (\e -> throwE RegisterError) (add (AccountNew { email = Email "what@do.de", name = "aha" }))
+register _ = do
+  catchM (add (AccountNew { email = Email "what@do.de", name = "aha" }))
+         (\(_ :: AddError) -> throwM RegisterError)
   pure $ RegisterResponse True
 

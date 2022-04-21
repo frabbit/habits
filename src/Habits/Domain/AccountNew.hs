@@ -1,10 +1,7 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Habits.Domain.AccountNew where
 
 
 import           Data.Text                      ( Text )
-import           GHC.Generics                   ( Generic )
 import           Habits.Domain.Email            ( Email )
 import           Test.QuickCheck                ( Arbitrary
                                                 , arbitrary

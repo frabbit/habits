@@ -1,11 +1,5 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE BlockArguments #-}
-module PlaygroundHaskus where
-import           Haskus.Utils.Variant.Excepts   ( (:<)
-                                                , Excepts
-                                                , Remove
+module Test.PlaygroundHaskus where
+import           Haskus.Utils.Variant.Excepts   ( Excepts
                                                 , catchE
                                                 , failureE
                                                 , liftE
@@ -40,7 +34,7 @@ c = pure 1
 d :: Excepts '[ErrA , ErrD] IO Int
 d = do
   _ <- liftE a
-  _ <- catchE (mapError (\(e :: ErrB) -> ErrD)) b
-  _ <- catchE (\(e :: ErrC) -> noErrors 2) c
+  _ <- catchE (mapError (\(_ :: ErrB) -> ErrD)) b
+  _ <- catchE (\(_ :: ErrC) -> noErrors 2) c
 
   pure 1

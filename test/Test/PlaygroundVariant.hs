@@ -1,20 +1,8 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE ScopedTypeVariables #-}
-{-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# OPTIONS_GHC -Wno-simplifiable-class-constraints #-}
+module Test.PlaygroundVariant where
 
-
-module PlaygroundVariant where
-
-import           Control.Monad.Except           ( ExceptT(..)
-                                                , MonadTrans(lift)
-                                                )
+import           Control.Monad.Except           ( ExceptT(..) )
 import           Data.Variant                   ( CouldBe
                                                 , CouldBeAnyOf
-                                                , CouldBeF
                                                 , Variant
                                                 , catchM
                                                 , throwM
@@ -40,7 +28,7 @@ c = throwM ErrC
 d :: (e `CouldBeAnyOf` '[ErrA, ErrC, ErrD]) => ExceptT (Variant e) IO Int
 d = do
   _ <- a
-  _ <- catchM b (\(e :: ErrB) -> throwM ErrD)
+  _ <- catchM b (\(_ :: ErrB) -> throwM ErrD)
   _ <- c
 
   pure 1
