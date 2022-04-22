@@ -36,6 +36,7 @@ dependencies:
 - transformers-base
 - lifted-base
 - exceptions
+- unliftio
 
 
 default-extensions:
@@ -53,6 +54,7 @@ default-extensions:
   - ScopedTypeVariables
   - MultiParamTypeClasses
   - GeneralizedNewtypeDeriving
+  - FunctionalDependencies
 
 ghc-options:
   - -Wall
@@ -62,6 +64,8 @@ ghc-options:
   - -Wredundant-constraints
   - -Wno-simplifiable-class-constraints
   - -Wno-unused-do-bind
+  - -Wmissing-methods
+  - -Werror=missing-fields
 
 library:
   source-dirs: src

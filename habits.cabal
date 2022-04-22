@@ -61,7 +61,8 @@ library
       ScopedTypeVariables
       MultiParamTypeClasses
       GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind
+      FunctionalDependencies
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -Wmissing-methods -Werror=missing-fields
   build-depends:
       QuickCheck
     , base >=4.7 && <5
@@ -76,6 +77,7 @@ library
     , text
     , transformers
     , transformers-base
+    , unliftio
   default-language: Haskell2010
 
 executable habits-exe
@@ -99,7 +101,8 @@ executable habits-exe
       ScopedTypeVariables
       MultiParamTypeClasses
       GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
+      FunctionalDependencies
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -Wmissing-methods -Werror=missing-fields -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base >=4.7 && <5
@@ -115,6 +118,7 @@ executable habits-exe
     , text
     , transformers
     , transformers-base
+    , unliftio
   default-language: Haskell2010
 
 test-suite habits-test
@@ -123,6 +127,7 @@ test-suite habits-test
   other-modules:
       Test.Habits.App
       Test.Habits.AppEnv
+      Test.Habits.Domain.AccountRepositoryContractSpec
       Test.Habits.UseCases.RegisterSpec
       Test.PlaygroundHaskus
       Test.PlaygroundVariant
@@ -144,7 +149,8 @@ test-suite habits-test
       ScopedTypeVariables
       MultiParamTypeClasses
       GeneralizedNewtypeDeriving
-  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -threaded -rtsopts -with-rtsopts=-N
+      FunctionalDependencies
+  ghc-options: -Wall -Wcompat -Wincomplete-record-updates -Wincomplete-uni-patterns -Wredundant-constraints -Wno-simplifiable-class-constraints -Wno-unused-do-bind -Wmissing-methods -Werror=missing-fields -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       QuickCheck
     , base >=4.7 && <5
@@ -161,4 +167,5 @@ test-suite habits-test
     , text
     , transformers
     , transformers-base
+    , unliftio
   default-language: Haskell2010

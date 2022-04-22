@@ -6,16 +6,14 @@ import           Control.Lens                   ( makeLenses )
 import           Data.Has                       ( Has
                                                 , hasLens
                                                 )
-import qualified Habits.Domain.AccountRepo     as AR
-import qualified Habits.UseCases.Register      as R
 
 import qualified Habits.Domain.AccountRepo.Class
                                                as ARC
 
 
-import qualified Habits.UseCases.Register.Live as RegisterLive
-
-import           Habits.Domain.AccountId        ( AccountId(..) )
+import qualified Habits.Domain.AccountRepo     as AR
+import qualified Habits.UseCases.Register      as R
+import qualified Habits.UseCases.Register.Live as RL
 data AppEnv m = AppEnv
   { _accountRepo :: AR.AccountRepo m
   , _register    :: R.Register m
@@ -30,7 +28,4 @@ instance Has (R.Register m) (AppEnv m) where
   hasLens = register
 
 mkAppEnv :: (Monad m, ARC.AccountRepo m) => AppEnv m
-mkAppEnv = AppEnv
-  { _accountRepo = AR.AccountRepo { AR.add = \_ -> pure (AccountId "abc") }
-  , _register    = R.Register { R.execute = RegisterLive.register }
-  }
+mkAppEnv = AppEnv { _accountRepo = AR.mkStub, _register = RL.mkLive }

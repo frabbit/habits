@@ -4,8 +4,8 @@ import           Data.Variant                   ( catchM
                                                 )
 import           Habits.Domain.AccountNew       ( AccountNew
                                                   ( AccountNew
-                                                  , email
-                                                  , name
+                                                  , _email
+                                                  , _name
                                                   )
                                                 )
 import           Habits.Domain.AccountRepo      ( AddError )
@@ -14,17 +14,22 @@ import           Habits.Domain.AccountRepo.Class
                                                 , add
                                                 )
 import           Habits.Domain.Email            ( Email(Email) )
-import           Habits.UseCases.Register       ( RegisterError(RegisterError)
-                                                , RegisterExec
+import           Habits.UseCases.Register       ( Execute
+                                                , RegisterError(RegisterError)
                                                 , RegisterResponse
                                                   ( RegisterResponse
                                                   )
                                                 )
+import qualified Habits.UseCases.Register      as R
 
 
-register :: (Monad m, AccountRepo m) => RegisterExec m
-register _ = do
-  catchM (add (AccountNew { email = Email "what@do.de", name = "aha" }))
+execute :: (Monad m, AccountRepo m) => Execute m
+execute _ = do
+  catchM (add (AccountNew { _email = Email "what@do.de", _name = "aha" }))
          (\(_ :: AddError) -> throwM RegisterError)
   pure $ RegisterResponse True
 
+
+
+mkLive :: forall m . (Monad m, AccountRepo m) => R.Register m
+mkLive = R.Register { R._execute = R.WrapExecute execute }

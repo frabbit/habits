@@ -9,12 +9,13 @@ import           Data.Has                       ( Has
                                                 , getter
                                                 )
 import qualified Habits.UseCases.Register      as R
+import Control.Lens ((^.))
 
 class Register m where
-  execute :: R.RegisterExec m
+  execute :: R.Execute m
 
 instance (Monad m, MonadReader env m, Has (R.Register m) env) => Register m where
   execute x = do
     y <- lift $ asks getter
-    let R.Register { R.execute = exec } = y
-    exec x
+    let f =  y ^. R.execute
+    R.unWrapExecute f x
