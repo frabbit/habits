@@ -9,7 +9,6 @@ import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Data.Text.Lazy
   ( isInfixOf,
-    isSuffixOf,
   )
 import qualified Database.Persist.Postgresql as P
 import Habits.App (runApp)
@@ -21,14 +20,9 @@ import Habits.Domain.AccountRepositoryContract
   ( mkSpec,
   )
 import qualified Habits.Infra.Postgres.AccountRepoPostgres as ARP
-import Habits.Infra.Postgres.Schema (Account (Account))
 import qualified Habits.Infra.Postgres.Schema as S
 import Test.Hspec
   ( Spec,
-    around,
-    describe,
-    it,
-    shouldBe,
   )
 import qualified TestContainers.Docker as TD
 import TestContainers.Hspec
@@ -37,11 +31,9 @@ import TestContainers.Hspec
     containerIp,
     containerPort,
     containerRequest,
-    redis,
     run,
     setEnv,
     setExpose,
-    setRm,
     setWaitingFor,
     waitForLogLine,
     waitUntilMappedPortReachable,
@@ -52,7 +44,6 @@ import TestContainers.WaitStrategies
   ( waitDelay,
     waitPar,
     waitSeq,
-    waitWithExtraDelay,
   )
 
 postgres :: TD.ToImage

@@ -12,8 +12,6 @@ import           Control.Lens                   ( Lens'
                                                 , lens
                                                 )
 import           Control.Monad.Trans.Except     ( ExceptT )
-import           Control.Newtype                ( Newtype )
-import           Data.Coerce                    ( coerce )
 import           Data.Typeable                  ( Typeable )
 import           Data.Variant                   ( CouldBe
                                                 , Variant
@@ -21,10 +19,6 @@ import           Data.Variant                   ( CouldBe
 import           Habits.Domain.Account          ( Account )
 import           Habits.Domain.Email            ( Email(Email) )
 import           Habits.Domain.Password         ( Password(..) )
-import           Veins.Data.HList               ( HList )
-import qualified Veins.Data.HList              as HL
-import           Veins.Data.Type.List           ( Contains )
-import qualified Veins.Data.HList as HL
 
 data AddError = AddError
   deriving (Show, Typeable)

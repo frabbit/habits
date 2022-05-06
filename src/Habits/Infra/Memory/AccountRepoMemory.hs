@@ -1,27 +1,17 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module Habits.Infra.Memory.AccountRepoMemory where
-import           Control.Monad.Except           ( ExceptT )
 import           Control.Monad.IO.Class         ( MonadIO
                                                 , liftIO
                                                 )
-import           Control.Monad.RWS              ( MonadReader
-                                                , asks
-                                                )
-import           Data.Has                       ( Has
-                                                , getter
-                                                )
-import           Data.Variant                   ( CouldBe
-                                                , Variant
-                                                , throwM
+import           Data.Variant                   ( throwM
                                                 )
 import           Habits.Domain.Account          ( Account )
 import qualified Habits.Domain.Account         as A
 import           Habits.Domain.AccountId        ( AccountId(AccountId) )
-import           Habits.Domain.AccountNew       ( AccountNew )
 import           UnliftIO                       ( TVar
                                                 , atomically
-                                                , newTVar
-                                                , readTVar
+
+
                                                 )
 
 import           Control.Lens                   ( (^.) )
