@@ -1,15 +1,18 @@
 module PlaygroundHaskus where
-import           Haskus.Utils.Variant.Excepts   ( Excepts
-                                                , catchE
-                                                , failureE
-                                                , liftE
-                                                )
 
-
+import Haskus.Utils.Variant.Excepts
+  ( Excepts,
+    catchE,
+    failureE,
+    liftE,
+  )
 
 data ErrA = ErrA
+
 data ErrB = ErrB
+
 data ErrC = ErrC
+
 data ErrD = ErrD
 
 noErrors :: (Monad m) => a -> Excepts '[] m a
@@ -30,8 +33,7 @@ b = pure 1
 c :: Excepts '[ErrC] IO Int
 c = pure 1
 
-
-d :: Excepts '[ErrA , ErrD] IO Int
+d :: Excepts '[ErrA, ErrD] IO Int
 d = do
   _ <- liftE a
   _ <- catchE (mapError (\(_ :: ErrB) -> ErrD)) b

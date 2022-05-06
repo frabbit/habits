@@ -1,20 +1,21 @@
 module PlaygroundVariant where
 
-import           Control.Monad.Except           ( ExceptT(..) )
-import           Data.Variant                   ( CouldBe
-                                                , CouldBeAnyOf
-                                                , Variant
-                                                , catchM
-                                                , throwM
-                                                )
-
-
+import Control.Monad.Except (ExceptT (..))
+import Data.Variant
+  ( CouldBe,
+    CouldBeAnyOf,
+    Variant,
+    catchM,
+    throwM,
+  )
 
 data ErrA = ErrA
-data ErrB = ErrB
-data ErrC = ErrC
-data ErrD = ErrD
 
+data ErrB = ErrB
+
+data ErrC = ErrC
+
+data ErrD = ErrD
 
 a :: (e `CouldBe` ErrA) => ExceptT (Variant e) IO Int
 a = throwM ErrA
