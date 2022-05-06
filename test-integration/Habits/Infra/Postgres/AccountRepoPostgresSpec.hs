@@ -112,4 +112,4 @@ spec = mkSpec $ \x -> do
           env <- mkAppEnv
           accRepo <- ARP.mkAccountRepoPostgres pool
           let env' = env & L.set accountRepo accRepo
-          runApp env x
+          runApp env' x

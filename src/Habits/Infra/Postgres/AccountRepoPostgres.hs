@@ -39,9 +39,9 @@ accountIdToDomain key = AccountId $ S.unAccountKey key
 convertToDomain :: P.Entity S.Account -> Account
 convertToDomain (P.Entity key a) = A.Account
   { A._name      = S.accountName a
-  , A._email     = Email "abs@de.de"
+  , A._email     = Email $ S.accountEmail a
   , A._accountId = accountIdToDomain key
-  , A._password  = Password "abc"
+  , A._password  = Password $ S.accountPassword a
   }
 
 withPool :: (MonadIO m) => P'.Pool P.SqlBackend -> _ -> m _
@@ -59,6 +59,7 @@ mkAdd pool = pure $ AddW f
       P.insertKey accountKey $ S.Account
         { S.accountName  = view AN.name an
         , S.accountEmail = unEmail $ view AN.email an
+        , S.accountPassword = unPassword $ view AN.password an
         }
     pure $ accountIdToDomain accountKey
 

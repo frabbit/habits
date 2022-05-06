@@ -26,6 +26,7 @@ Account
     Id Text
     name Text
     email Text
+    password Text
     deriving Show
 |]
 
@@ -45,8 +46,8 @@ main = runStderrLoggingT $ withPostgresqlPool connStr 10 $ \pool -> liftIO $ do
     runMigration migrateAll'
     let johnId = AccountKey "john"
     let janeId = AccountKey "jane"
-    insertKey johnId $ Account "John Doe" "abc@de.de"
-    insertKey janeId $ Account "Jane Doe" "abc@de.de"
+    insertKey johnId $ Account "John Doe" "abc@de.de" "pw"
+    insertKey janeId $ Account "Jane Doe" "abc@de.de" "pw"
 
     john <- get johnId
     liftIO $ print (john :: Maybe Account)
