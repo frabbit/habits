@@ -25,7 +25,7 @@ import           Habits.Domain.AccountRepo      ( AccountNotFoundError
                                                   , _getById
                                                   )
                                                 , AddW(..)
-                                                , GetByIdW(..)
+                                                , GetByIdW(..), Add, GetById
                                                 )
 import           Habits.Domain.Email            ( Email(..) )
 import qualified Habits.Infra.Postgres.Schema  as S
@@ -50,6 +50,7 @@ withPool pool = liftIO . flip P.runSqlPersistMPool pool
 mkAdd :: forall m n . (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (AddW m)
 mkAdd pool = pure $ AddW f
  where
+  f :: Add m
   f an = do
     uuid <- liftIO nextRandom
 
@@ -66,6 +67,7 @@ mkAdd pool = pure $ AddW f
 mkGetById :: forall m n . (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (GetByIdW m)
 mkGetById pool = pure $ GetByIdW f
  where
+  f :: GetById m
   f (AccountId id') = do
     accountMaybe <- withPool pool $ do
       P.getEntity (S.AccountKey id')
