@@ -87,6 +87,8 @@ module Data.Variant
 
   , throwFM
   , throwM
+
+  , AllF
   ) where
 
 import Control.Monad.Error.Class (MonadError (..))

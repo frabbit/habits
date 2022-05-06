@@ -1,4 +1,4 @@
-module Test.PlaygroundHaskus where
+module PlaygroundHaskus where
 import           Haskus.Utils.Variant.Excepts   ( Excepts
                                                 , catchE
                                                 , failureE

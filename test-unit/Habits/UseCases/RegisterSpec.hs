@@ -1,4 +1,4 @@
-module Test.Habits.UseCases.RegisterSpec where
+module Habits.UseCases.RegisterSpec where
 
 import qualified Habits.UseCases.Register      as R
 
@@ -8,10 +8,10 @@ import qualified Habits.UseCases.Register.Class
 import           Habits.Domain.Email            ( Email(..) )
 
 import           Data.Variant                   ( catchM )
-import           Test.Habits.App                ( App
-                                                , runApp
+import           Habits.App                ( App
+                                                , runAppE
                                                 )
-import           Test.Habits.AppEnv             ( AppEnv(..)
+import           Habits.AppEnv             ( AppEnv(..)
                                                 , mkAppEnv
                                                 )
 import           Test.Hspec                     ( Spec
@@ -19,18 +19,20 @@ import           Test.Hspec                     ( Spec
                                                 , it
                                                 , shouldBe
                                                 )
+import Habits.Domain.Password (Password(Password))
+
+
 spec :: Spec
 spec = describe "RegisterSpec execute should" $ do
   it "return with success" $ do
-    res <- runApp env catchedApp
+    env <- mkAppEnv
+    res <- runAppE env catchedApp
     res `shouldBe` (R.RegisterResponse { R.success = True })
  where
   catchedApp = catchM
     (RC.execute
-      (R.RegisterRequest { R.name = "Peter", R.email = Email "abc@de.de" })
+      (R.RegisterRequest { R.name = "Peter", R.email = Email "abc@de.de", R.password = Password "abc" })
     )
     mapError
   mapError (_ :: R.RegisterError) =
     pure (R.RegisterResponse { R.success = True })
-  env :: AppEnv App
-  env = mkAppEnv

@@ -1,11 +1,11 @@
-module Habits.Domain.Email where
+module Habits.Domain.Password where
 
 import Test.QuickCheck.Instances ()
 import           Data.Text                      ( Text )
 import           Test.QuickCheck                ( arbitrary, Arbitrary )
 
-newtype Email = Email { unEmail :: Text } deriving (Show, Eq, Ord)
+newtype Password = Password { unPassword :: Text } deriving (Show, Eq, Ord)
 
-instance Arbitrary Email where
+instance Arbitrary Password where
   arbitrary = do
-    Email <$> arbitrary
+    Password <$> arbitrary

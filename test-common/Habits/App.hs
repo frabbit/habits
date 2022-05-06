@@ -1,4 +1,4 @@
-module Test.Habits.App where
+module Habits.App where
 
 
 import           Control.Monad.Reader.Class     ( MonadReader )
@@ -14,13 +14,13 @@ import           Habits.AppT                    ( AppT(..)
                                                 , runAppT
                                                 , runAppT'
                                                 )
-import           Test.Habits.AppEnv             ( AppEnv )
+import           Habits.AppEnv             ( AppEnv )
 
 newtype App a = App { unApp :: AppT (AppEnv App) IO a } deriving (Functor, Applicative, Monad, MonadIO, MonadReader (AppEnv App))
 
-runApp :: forall a . AppEnv App -> ExceptT (Variant '[]) App a -> IO a
-runApp env app = runAppT env (ExceptT . unApp . runExceptT $ app)
+runAppE :: forall a . AppEnv App -> ExceptT (Variant '[]) App a -> IO a
+runAppE env app = runAppT env (ExceptT . unApp . runExceptT $ app)
 
-runApp' :: forall a . AppEnv App -> App a -> IO a
-runApp' env app = runAppT' env (unApp app)
+runApp :: forall a . AppEnv App -> App a -> IO a
+runApp env app = runAppT' env (unApp app)
 

@@ -47,6 +47,17 @@ packages:
   original:
     hackage: haskus-utils-types-1.5.1@sha256:991c472f4e751e2f0d7aab6ad4220ef151d6160876dcf0511bbf876bbd432020,1298
 - completed:
+    name: testcontainers
+    version: 0.3.1.0
+    git: https://github.com/frabbit/testcontainers-hs.git
+    pantry-tree:
+      size: 1135
+      sha256: 814cce5fe24cb86c1b2419fae71854bc0c45e1a02494e3b8507eddb37b5590ad
+    commit: 27c37a93180289d42facc0f126436ed5ef0e9760
+  original:
+    git: https://github.com/frabbit/testcontainers-hs.git
+    commit: 27c37a93180289d42facc0f126436ed5ef0e9760
+- completed:
     name: oops
     version: 0.1.0.0
     git: https://github.com/i-am-tom/oops.git

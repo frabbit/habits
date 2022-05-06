@@ -1,0 +1,20 @@
+{
+	"files.exclude": {
+		"**/.git": true,
+		"**/.svn": true,
+		"**/.hg": true,
+		"**/CVS": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true,
+		".stack-work": true,
+	},
+	"haskell.plugin.tactics.config.auto_gas": 100,
+	"haskell.formattingProvider": "ormolu",
+	"haskell.toolchain": {
+		"ghc": null,
+		"cabal": null,
+		"stack": null
+	}
+
+
+}

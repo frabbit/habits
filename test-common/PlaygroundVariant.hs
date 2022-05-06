@@ -1,4 +1,4 @@
-module Test.PlaygroundVariant where
+module PlaygroundVariant where
 
 import           Control.Monad.Except           ( ExceptT(..) )
 import           Data.Variant                   ( CouldBe
