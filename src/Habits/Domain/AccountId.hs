@@ -1,8 +1,8 @@
 module Habits.Domain.AccountId where
 
 import Data.Text (Text)
-import Test.QuickCheck (Arbitrary (arbitrary))
 import Data.UUID (toText)
+import Test.QuickCheck (Arbitrary (arbitrary))
 import Test.QuickCheck.Instances.UUID ()
 
 newtype AccountId = AccountId Text deriving (Eq, Show, Ord)

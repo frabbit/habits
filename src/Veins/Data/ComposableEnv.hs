@@ -1,12 +1,12 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# HLINT ignore "Avoid lambda" #-}
 {-# LANGUAGE PartialTypeSignatures #-}
-
 {-# HLINT ignore "Redundant P.pure" #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Redundant lambda" #-}
 
 module Veins.Data.ComposableEnv where

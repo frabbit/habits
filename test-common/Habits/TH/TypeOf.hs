@@ -1,19 +1,19 @@
 module Habits.TH.TypeOf where
 
-import           Control.Monad                  ( (<=<) )
-
-import           Language.Haskell.TH            ( Exp
-                                                , Name
-                                                , Q
-                                                , pprint
-                                                , reify, Dec
-                                                )
-import           Language.Haskell.TH.Syntax     ( Lift(lift) )
+import Control.Monad ((<=<))
 import Control.Monad.IO.Class (liftIO)
+import Language.Haskell.TH
+  ( Dec,
+    Exp,
+    Name,
+    Q,
+    pprint,
+    reify,
+  )
+import Language.Haskell.TH.Syntax (Lift (lift))
 
 getStaticType :: Name -> Q Exp
 getStaticType name = do
-
   expr <- lift <=< fmap pprint . reify $ name
   info <- reify name
   let str = pprint info

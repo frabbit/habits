@@ -30,9 +30,9 @@ import Veins.Data.ComposableEnv
     get,
     insert,
     provideAll',
+    provideAndChainLayer,
     provideLayer,
     provideLayer',
-    provideAndChainLayer,
     remove,
     union,
   )
@@ -137,8 +137,8 @@ spec = describe "ComposableEnv" $ do
     it "should expand consumed environment and returned environment with multiple dependencies when set contains multiple types" $ do
       let layer :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[B])
           layer = pure $ empty & insert B
-          app :: ReaderT (ComposableEnv '[A,C,D]) IO (ComposableEnv '[B, C, D])
-          app = expandLayer @'[C,D] layer
+          app :: ReaderT (ComposableEnv '[A, C, D]) IO (ComposableEnv '[B, C, D])
+          app = expandLayer @'[C, D] layer
       r <- runReaderT app $ empty & insert A & insert C & insert D
       r `shouldBe` (empty & insert B & insert C & insert D)
   describe "chainFromEnv" $ do
@@ -302,7 +302,6 @@ spec = describe "ComposableEnv" $ do
             CE.return $ a + b + c
       val <- runReaderT app (empty & insert (K 1) & insert (L 2) & insert (M 4))
       val `shouldBe` 7
-
 
   describe "provideAll'" $ do
     it "should accept a subset of a given env" $ do
