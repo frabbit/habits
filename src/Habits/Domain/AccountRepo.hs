@@ -8,7 +8,7 @@ import Control.Lens
   ( Lens',
     lens,
   )
-import Control.Monad.Trans.Except (ExceptT)
+import Control.Monad.Trans.Except (ExceptT (ExceptT))
 import Data.Typeable (Typeable)
 import Data.Variant
   ( CouldBe,
@@ -22,6 +22,11 @@ import Habits.Domain.AccountNew as AccountNew
   )
 import Habits.Domain.Email (Email (Email))
 import Habits.Domain.Password (Password (..))
+import Veins.Data.ToSymbol (ToSymbol)
+import qualified Veins.Data.Has as Has
+import Control.Monad.Reader (ReaderT, MonadReader)
+import Control.Monad.Reader.Class (asks)
+import qualified Control.Lens as L
 
 data AddError = AddError
   deriving (Show, Typeable)
@@ -62,21 +67,41 @@ data AccountRepo m = AccountRepo
     _getById :: GetByIdW m
   }
 
-add :: forall m. Lens' (AccountRepo m) (AddW m)
-add = lens get set
+type instance ToSymbol (AccountRepo m) = "AccountRepo"
+
+setAdd :: Add m -> AccountRepo m -> AccountRepo m
+setAdd x = L.set addL (AddW x)
+setGetById :: GetById m -> AccountRepo m -> AccountRepo m
+setGetById x = L.set getByIdL (GetByIdW x)
+
+addL :: forall m. Lens' (AccountRepo m) (AddW m)
+addL = lens get set
   where
     set :: AccountRepo m -> AddW m -> AccountRepo m
     set ar a = ar {_add = a}
     get :: AccountRepo m -> AddW m
     get AccountRepo {_add = a} = a
 
-getById :: forall m. Lens' (AccountRepo m) (GetByIdW m)
-getById = lens get set
+getByIdL :: forall m. Lens' (AccountRepo m) (GetByIdW m)
+getByIdL = lens get set
   where
     set :: AccountRepo m -> GetByIdW m -> AccountRepo m
     set ar a = ar {_getById = a}
     get :: AccountRepo m -> GetByIdW m
     get AccountRepo {_getById = a} = a
+
+type AccountRepoR env = AccountRepo (ReaderT env IO)
+
+add :: forall m env . (Has.Has (AccountRepo m) env, MonadReader env m) => Add m
+add r = do
+  AccountRepo { _add = AddW f } <- asks (Has.get @(AccountRepo m))
+  f r
+
+getById :: forall m env . (Has.Has (AccountRepo m) env, MonadReader env m) => GetById m
+getById r = do
+  AccountRepo { _getById = GetByIdW f } <- asks (Has.get @(AccountRepo m))
+  f r
+
 
 mkStub :: (Monad m) => AccountRepo m
 mkStub =

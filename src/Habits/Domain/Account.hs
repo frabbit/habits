@@ -22,3 +22,6 @@ makeLenses ''Account
 
 fromAccountNew :: AN.AccountNew -> AccountId -> Account
 fromAccountNew AN.AccountNew {..} _accountId = Account {_accountId, ..}
+
+toAccountNew :: Account -> AN.AccountNew
+toAccountNew Account {..} = AN.AccountNew {..}

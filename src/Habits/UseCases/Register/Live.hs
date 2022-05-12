@@ -17,24 +17,24 @@ import Habits.UseCases.Register
   ( Execute,
     RegisterError (RegisterError),
     RegisterResponse
-      ( RegisterResponse
+      ( RegisterResponse, _accountId
       ),
   )
 import qualified Habits.UseCases.Register as R
+import qualified Habits.UseCases.Register.RegisterRequest as RR
+import Control.Lens ((^.))
 
 execute :: (Monad m, AccountRepo m) => Execute m
-execute _ = do
-  catchM
-    ( add
-        ( AccountNew
-            { AN._email = Email "what@do.de",
-              AN._name = "aha",
-              AN._password = Password "pw1"
-            }
-        )
+execute req = do
+  accountId <- add
+    ( AccountNew
+        { AN._email = req ^. RR.email,
+          AN._name = req ^. RR.name,
+          AN._password = req ^. RR.password
+        }
     )
-    (\(_ :: AddError) -> throwM RegisterError)
-  pure $ RegisterResponse True
+  pure $ RegisterResponse { _accountId = accountId }
+  `catchM` (\(_ :: AddError) -> throwM RegisterError)
 
 mkLive :: forall m. (Monad m, AccountRepo m) => R.Register m
-mkLive = R.Register {R._execute = R.WrapExecute execute}
+mkLive = R.Register {R._execute = R.ExecuteW execute}
