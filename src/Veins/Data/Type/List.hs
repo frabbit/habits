@@ -2,16 +2,19 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
 
-module Veins.Data.Type.List where
+module Veins.Data.Type.List
+  ( Remove,
+    ContainsNone,
+    RemoveAll,
+    Reverse,
+    Concat,
+    Elem,
+  )
+where
 
 import Data.Kind (Type)
 import Data.Type.Bool (Not)
-import GHC.Base (Constraint)
 import Veins.Data.Type.Bool (And)
-
-type Cons x xs = (x ': xs)
-
-type ContainsFlipped xs x = Contains x xs
 
 type family Contains (y :: a) (x :: [a]) :: z where
   Contains a '[] = 'False
@@ -22,10 +25,6 @@ type family Remove (y :: a) (x :: [a]) :: z where
   Remove a '[] = '[]
   Remove a (a ': tail) = Remove a tail
   Remove a (b ': tail) = (b ': Remove a tail)
-
-type family ForAll (x :: [k]) (f :: k -> Bool) :: Bool where
-  ForAll '[] _ = 'True
-  ForAll (a ': xs) f = And (f a) (ForAll xs f)
 
 type family Concat (y :: [Type]) (x :: [Type]) :: z where
   Concat a '[] = a
@@ -53,3 +52,10 @@ type family Elem (t :: k) (ts :: [k]) :: Bool where
   Elem a '[] = 'False
   Elem a (a ': as) = 'True
   Elem a (b ': bs) = Elem a bs
+
+type family Reverse (ts :: [k]) :: [k] where
+  Reverse l = ReverseLoop l '[]
+
+type family ReverseLoop (ts :: [k]) (acc :: [k]) :: [k] where
+  ReverseLoop (a ': b) acc = ReverseLoop b (a ': acc)
+  ReverseLoop '[] acc = acc

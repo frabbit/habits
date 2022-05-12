@@ -8,9 +8,9 @@ import Control.Monad.RWS
     MonadTrans (lift),
     asks,
   )
-import Data.Has
+import Veins.Data.Has
   ( Has,
-    getter,
+    get,
   )
 import qualified Habits.UseCases.Register as R
 
@@ -18,7 +18,4 @@ class Register m where
   execute :: R.Execute m
 
 instance (Monad m, MonadReader env m, Has (R.Register m) env) => Register m where
-  execute x = do
-    y <- lift $ asks getter
-    let f = y ^. R.execute
-    R.unWrapExecute f x
+  execute = R.execute

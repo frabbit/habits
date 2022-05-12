@@ -33,6 +33,7 @@ dependencies:
 - lens
 - monad-control
 - haskus-utils-variant
+- haskus-utils-types
 - transformers-base
 - lifted-base
 - exceptions
@@ -73,6 +74,10 @@ default-extensions:
   - FunctionalDependencies
   - TypeFamilies
   - QualifiedDo
+  - TemplateHaskell
+  - GADTs
+  - ConstraintKinds
+  - PatternSynonyms
 
 ghc-options:
   - -Wall

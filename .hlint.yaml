@@ -1,3 +1,4 @@
 - ignore: { name: Use newtype instead of data }
 - warning: { name: Use readTVarIO }
 - warning: { name: Use <$> }
+- warning: { name: Move brackets to avoid $ }

@@ -13,7 +13,9 @@ module Veins.Data.HList
     HRemove (..),
     HConcat (..),
     HGetFirst (..),
-  )
+    HReverse',
+    HReverse,
+  hreverse)
 where
 
 import Data.Kind (Type)
@@ -81,3 +83,24 @@ instance HGetFirst x (x ': xs) where
 
 instance {-# OVERLAPS #-} (HGetFirst x xs) => HGetFirst x (y ': xs) where
   hgetFirst (HCons _ xs) = hgetFirst xs
+
+class HReverse xs out | xs -> out where
+  hreverse :: HList xs -> HList out
+
+instance (HReverse' xs '[] out) => HReverse xs out where
+  hreverse l = hreverse' l hnil
+
+
+
+class HReverse' xs acc out | xs acc -> out where
+  hreverse' :: HList xs -> HList acc -> HList out
+
+instance HReverse' '[] acc acc where
+  hreverse' _ acc = acc
+
+instance (HReverse' xs (x ': acc) out) => HReverse' (x ': xs) acc out where
+  hreverse' (HCons x xs) acc = hreverse' xs (HCons x acc)
+
+
+
+

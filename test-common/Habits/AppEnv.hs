@@ -3,9 +3,6 @@
 module Habits.AppEnv where
 
 import           Control.Lens                   ( makeLenses )
-import           Data.Has                       ( Has
-                                                , hasLens
-                                                )
 
 import qualified Habits.Domain.AccountRepo.Class
                                                as ARC
@@ -16,9 +13,10 @@ import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register      as R
 import qualified Habits.UseCases.Register.Live as RL
 import Habits.Domain.Account (Account)
-import UnliftIO (TVar, newTVar, atomically, newTVarIO)
+import UnliftIO (TVar, newTVarIO)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader.Class (MonadReader)
+import Veins.Data.Has (Has (get))
 
 data AppEnv m = AppEnv
   { _accountRepo :: AR.AccountRepo m
@@ -29,13 +27,13 @@ data AppEnv m = AppEnv
 makeLenses ''AppEnv
 
 instance Has (TVar [Account]) (AppEnv m) where
-  hasLens = accountsDb
+  get = _accountsDb
 
 instance Has (AR.AccountRepo m) (AppEnv m) where
-  hasLens = accountRepo
+  get = _accountRepo
 
 instance Has (R.Register m) (AppEnv m) where
-  hasLens = register
+  get = _register
 
 mkAppEnv :: (MonadIO n) => (MonadReader (AppEnv m) m, MonadIO m, ARC.AccountRepo m) => n (AppEnv m)
 mkAppEnv = do

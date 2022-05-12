@@ -1,4 +1,3 @@
-{-# LANGUAGE TypeFamilies #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 {-# HLINT ignore "Redundant $" #-}
@@ -87,3 +86,15 @@ spec = describe "ListSpec" $ do
       passTrue @(L.Concat '[A] '[B, C] == '[A, B, C])
       passTrue @(L.Concat '[A, B] '[C] == '[A, B, C])
       passTrue @(L.Concat '[A, B] '[C, D] == '[A, B, C, D])
+  describe "Reverse" $ do
+    it "should reverse a list" $ do
+      passTrue @(L.Reverse '[] == '[])
+      passTrue @(L.Reverse '[A] == '[A])
+      passTrue @(L.Reverse '[A, B, C] == '[C, B, A])
+  describe "Elem" $ do
+    it "should return 'True when list contains type" $ do
+      passTrue @(L.Elem A '[A] == 'True)
+      passTrue @(L.Elem A '[B, A] == 'True)
+    it "should return 'False when list does not contains type" $ do
+      passTrue @(L.Elem A '[] == 'False)
+      passTrue @(L.Elem A '[B] == 'False)
