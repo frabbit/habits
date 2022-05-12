@@ -18,16 +18,9 @@ import Data.Kind (Type)
 import GHC.TypeLits (TypeError, ErrorMessage(Text))
 
 
-type family TypeIsUnambiguous y where
-  TypeIsUnambiguous (x ': xs) = TypeIsUnambiguous xs
-  TypeIsUnambiguous '[] = 'True
-  TypeIsUnambiguous _ = TypeError ('Text "Type is ambiguous")
-
-
-
 class (VEitherLift e1 e2) => BindLift (e1::[Type]) (e2::[Type]) where
 
-instance (TypeIsUnambiguous a ~ 'True, TypeIsUnambiguous b ~ 'True, VEitherLift a b) => BindLift a b
+instance (VEitherLift a b) => BindLift a b
 
 
 (>>=) :: forall e1 e2 m a b . (Monad m, BindLift e1 (Union e1 e2), BindLift e2 (Union e1 e2)) => Excepts e1 m a -> (a -> Excepts e2 m b) -> Excepts (Union e1 e2) m b
@@ -46,13 +39,6 @@ instance (TypeIsUnambiguous a ~ 'True, TypeIsUnambiguous b ~ 'True, VEitherLift 
         VRight r2 -> P.pure $ VRight r2
         VLeft l2 -> P.pure $ veitherLift (VLeft l2)
 
-
-data A = A
-data B = B
-data C = C
-data D = D
-
-
 pure :: (Monad m) => a -> Excepts '[] m a
 pure = P.pure
 
@@ -61,8 +47,6 @@ return = P.return
 
 (>>) :: forall e1 e2 m a b . (Monad m, BindLift e1 (Union e1 e2), BindLift e2 (Union e1 e2)) => Excepts e1 m a -> Excepts e2 m b -> Excepts (Union e1 e2) m b
 a >> b = a >>= const b
-
-
 
 lift :: m a -> Excepts '[] m a
 lift = lift
