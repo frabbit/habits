@@ -39,10 +39,9 @@ AppTH.mkAppEnv
 
 AppTH.mkApp
 
-runApp :: Env App -> App a -> IO a
-runApp env a = runAppT' (AppEnv env) (unApp a)
+AppTH.mkRunApp
 
-instance Has.Has y (Env m) => Has.Has y (AppEnv m) where get (AppEnv e) = get e
+AppTH.mkHasInstance
 
 -- END BOILERPLATE
 

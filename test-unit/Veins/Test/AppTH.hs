@@ -57,3 +57,45 @@ mkAppEnv = do
   let con = TH.NormalC nameAppEnv [(noBang, TH.AppT (TH.ConT nameEnv) (TH.VarT nameM))]
   let decs = [TH.NewtypeD [] nameAppEnv [TH.PlainTV nameM ()] Nothing con []]
   pure decs
+
+-- runApp :: Env App -> App a -> IO a
+-- runApp env a = runAppT' (AppEnv env) (unApp a)
+
+typeIO :: TS.Type
+typeIO = TH.ConT (TH.mkName "IO")
+
+typeConIO :: TS.Type -> TS.Type
+typeConIO = TH.AppT typeIO
+
+mkRunApp :: Q [Dec]
+mkRunApp = do
+  let nameFun = TH.mkName "runApp"
+  let nameEnv = TH.mkName "Env"
+  let nameA = TH.mkName "a"
+  let typeEnvApp = TH.AppT (TH.ConT nameEnv) (TH.ConT nameApp)
+  let typeA = TH.VarT nameA
+  let typeIOA = typeConIO typeA
+  let typeAppA = TH.AppT (TH.ConT nameApp) typeA
+  let signature = TH.SigD nameFun ( TH.ArrowT `TH.AppT` typeEnvApp `TH.AppT` (TH.ArrowT `TH.AppT` typeAppA `TH.AppT` typeIOA))
+  let appEnv_env = TH.AppE (TH.ConE (TH.mkName "AppEnv")) (TH.VarE (TH.mkName "env"))
+  let unApp_a = TH.AppE (TH.VarE (TH.mkName "unApp")) (TH.VarE nameA)
+  let runAppT' = TH.VarE (TH.mkName "runAppT'")
+  let expr = runAppT' `TH.AppE`  appEnv_env `TH.AppE` unApp_a
+  let fun = TH.FunD nameFun [TH.Clause [TH.VarP (TH.mkName "env"), TH.VarP nameA] (TH.NormalB expr) []]
+  let decs = [signature, fun]
+  pure decs
+
+-- instance Has.Has y (Env m) => Has.Has y (AppEnv m) where get (AppEnv e) = get e
+
+mkHasInstance :: Q [Dec]
+mkHasInstance = do
+  let constraint = TH.ConT (TH.mkName "Has.Has") `TH.AppT` TH.VarT (TH.mkName "y") `TH.AppT` (TH.ConT (TH.mkName "Env") `TH.AppT` TH.VarT (TH.mkName "m"))
+
+  let type' = TH.ConT (TH.mkName "Has.Has") `TH.AppT` TH.VarT (TH.mkName "y") `TH.AppT` (TH.ConT (TH.mkName "AppEnv") `TH.AppT` TH.VarT (TH.mkName "m"))
+
+  let body = TH.AppE (TH.VarE $ TH.mkName "get") (TH.VarE $ TH.mkName "e")
+  let dec = TH.FunD (TH.mkName "get") [TH.Clause [TH.ConP (TH.mkName "AppEnv") [TH.VarP (TH.mkName "e")]] (TH.NormalB body) []]
+
+  let inst = TH.InstanceD Nothing [constraint] type' [dec]
+  pure [inst]
+
