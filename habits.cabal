@@ -106,6 +106,7 @@ library
     , persistent
     , persistent-postgresql
     , quickcheck-instances
+    , quickcheck-text
     , resource-pool
     , resourcet
     , singletons
@@ -170,6 +171,7 @@ executable habits-exe
     , persistent
     , persistent-postgresql
     , quickcheck-instances
+    , quickcheck-text
     , resource-pool
     , resourcet
     , singletons
@@ -248,6 +250,7 @@ test-suite habits-test-integration
     , persistent
     , persistent-postgresql
     , quickcheck-instances
+    , quickcheck-text
     , resource-pool
     , resourcet
     , singletons
@@ -333,6 +336,7 @@ test-suite habits-test-unit
     , persistent
     , persistent-postgresql
     , quickcheck-instances
+    , quickcheck-text
     , resource-pool
     , resourcet
     , singletons
