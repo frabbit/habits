@@ -19,7 +19,7 @@ eliminate :: (Monad m) => Excepts '[] m a -> m a
 eliminate = evalE
 
 runAppT :: forall a m env. (Monad m) => env -> Excepts '[] (AppT env m) a -> m a
-runAppT env = runReaderWithEnv . unwrap . eliminate
+runAppT env = runReaderWithEnv . unwrap . evalE
   where
     unwrap = unAppT
     runReaderWithEnv r = runReaderT r env

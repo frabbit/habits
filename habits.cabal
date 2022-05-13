@@ -95,6 +95,7 @@ library
     , esqueleto
     , exceptions
     , first-class-families
+    , haskell-src-meta
     , haskus-utils-types
     , haskus-utils-variant
     , lens
@@ -160,6 +161,7 @@ executable habits-exe
     , exceptions
     , first-class-families
     , habits
+    , haskell-src-meta
     , haskus-utils-types
     , haskus-utils-variant
     , lens
@@ -237,6 +239,7 @@ test-suite habits-test-integration
     , exceptions
     , first-class-families
     , habits
+    , haskell-src-meta
     , haskus-utils-types
     , haskus-utils-variant
     , hspec
@@ -324,6 +327,7 @@ test-suite habits-test-unit
     , exceptions
     , first-class-families
     , habits
+    , haskell-src-meta
     , haskus-utils-types
     , haskus-utils-variant
     , hspec
