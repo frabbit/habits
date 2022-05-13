@@ -11,6 +11,7 @@ import Test.QuickCheck
   ( Arbitrary,
     arbitrary,
   )
+import Test.QuickCheck.Utf8 (genValidUtf8)
 
 data AccountNew = AccountNew
   { _email :: Email,
@@ -24,6 +25,6 @@ makeLenses ''AccountNew
 instance Arbitrary AccountNew where
   arbitrary = do
     _email <- arbitrary
-    _name <- arbitrary
+    _name <- genValidUtf8
     _password <- arbitrary
     pure $ AccountNew {..}

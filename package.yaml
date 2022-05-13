@@ -55,6 +55,7 @@ dependencies:
 - brittany
 - singletons
 - ormolu
+- quickcheck-text
 
 default-extensions:
   - TypeOperators
