@@ -24,6 +24,7 @@ import Veins.Data.ComposableEnv (ComposableEnv (..))
 import qualified Veins.Data.ComposableEnv as CE
 import Veins.Data.Has (Has (get))
 import qualified Veins.Data.Has as Has
+import qualified Veins.Test.AppTH as AppTH
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
@@ -34,12 +35,12 @@ mkAppEnv = do
 
 -- START BOILERPLATE
 
-newtype App a = App {unApp :: AppT (AppEnv App) IO a} deriving (Functor, Applicative, Monad, MonadIO, MonadReader (AppEnv App))
+AppTH.mkAppEnv
+
+AppTH.mkApp
 
 runApp :: Env App -> App a -> IO a
 runApp env a = runAppT' (AppEnv env) (unApp a)
-
-newtype AppEnv m = AppEnv (Env m)
 
 instance Has.Has y (Env m) => Has.Has y (AppEnv m) where get (AppEnv e) = get e
 

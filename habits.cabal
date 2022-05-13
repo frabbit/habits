@@ -284,6 +284,7 @@ test-suite habits-test-unit
       Veins.Data.HSetSpec
       Veins.Data.HSortedListSpec
       Veins.Data.Type.ListSpec
+      Veins.Test.AppTH
       Veins.Test.MockSpec
       Paths_habits
   hs-source-dirs:
