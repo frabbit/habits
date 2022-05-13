@@ -14,6 +14,8 @@ import Haskus.Utils.Variant.VEither
 import Prelude hiding ((>>=), pure, return, (>>))
 import qualified Prelude as P
 import Control.Monad.IO.Class (MonadIO)
+import qualified Control.Monad.Trans.Class as T
+import qualified  Control.Monad.IO.Class as IOC
 import Data.Kind (Type)
 import GHC.TypeLits (TypeError, ErrorMessage(Text))
 
@@ -21,6 +23,9 @@ import GHC.TypeLits (TypeError, ErrorMessage(Text))
 class (VEitherLift e1 e2) => BindLift (e1::[Type]) (e2::[Type]) where
 
 instance (VEitherLift a b) => BindLift a b
+
+coerce :: Excepts '[] m a -> Excepts '[] m a
+coerce = id
 
 
 fail :: P.MonadFail m => P.String -> Excepts es m a
@@ -51,11 +56,11 @@ return = P.return
 (>>) :: forall e1 e2 m a b . (Monad m, BindLift e1 (Union e1 e2), BindLift e2 (Union e1 e2)) => Excepts e1 m a -> Excepts e2 m b -> Excepts (Union e1 e2) m b
 a >> b = a >>= const b
 
-lift :: m a -> Excepts '[] m a
-lift = lift
+lift :: (Monad m) => m a -> Excepts '[] m a
+lift = T.lift
 
 liftIO :: (MonadIO m) => IO a -> Excepts '[] m a
-liftIO = liftIO
+liftIO = IOC.liftIO
 
 
 
