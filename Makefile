@@ -3,6 +3,9 @@
 build-watch:
 	stack build --file-watch
 
+build-watch-unit:
+	stack build --file-watch --no-run-tests habits:habits-test-unit
+
 test-unit-watch:
 	stack test --fast --file-watch --ghc-options "-j4 +RTS -A128m -n2m -RTS" habits:habits-test-unit
 
@@ -20,10 +23,11 @@ repl:
 
 test-unit-ghcid:
 	reset && clear
-	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls habits:habits-test-unit"
+	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-unused-matches --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls habits:habits-test-unit"
 	reset && clear
+
 
 test-integration-ghcid:
 	reset && clear
-	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls  habits:habits-test-integration"
+	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-unused-matches --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls  habits:habits-test-integration"
 	reset && clear
