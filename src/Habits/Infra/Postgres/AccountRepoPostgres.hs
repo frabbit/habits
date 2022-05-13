@@ -29,13 +29,12 @@ import Habits.Domain.AccountRepo
         _getById
       ),
     Add,
-    AddW (..),
     GetById,
-    GetByIdW (..),
   )
 import Habits.Domain.Email (Email (..))
 import Habits.Domain.Password (Password (..))
 import qualified Habits.Infra.Postgres.Schema as S
+import Haskus.Utils.Variant.Excepts (throwE)
 
 accountIdToDomain :: P.Key S.Account -> AccountId
 accountIdToDomain key = AccountId $ S.unAccountKey key
@@ -52,8 +51,8 @@ convertToDomain (P.Entity key a) =
 withPool :: (MonadIO m) => P'.Pool P.SqlBackend -> _ -> m _
 withPool pool = liftIO . flip P.runSqlPersistMPool pool
 
-mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (AddW m)
-mkAdd pool = pure $ AddW f
+mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Add m)
+mkAdd pool = pure f
   where
     f :: Add m
     f an = do
@@ -69,15 +68,15 @@ mkAdd pool = pure $ AddW f
             }
       pure $ accountIdToDomain accountKey
 
-mkGetById :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (GetByIdW m)
-mkGetById pool = pure $ GetByIdW f
+mkGetById :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (GetById m)
+mkGetById pool = pure f
   where
     f :: GetById m
     f (AccountId id') = do
       accountMaybe <- withPool pool $ do
         P.getEntity (S.AccountKey id')
       case accountMaybe of
-        Nothing -> throwM AccountNotFoundError
+        Nothing -> throwE AccountNotFoundError
         Just account -> pure $ convertToDomain account
 
 mkAccountRepoPostgres ::

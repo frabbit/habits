@@ -4,7 +4,6 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# HLINT ignore "Redundant pure" #-}
 {-# HLINT ignore "Use let" #-}
-{-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Habits.UseCases.RegisterSpec where
@@ -13,7 +12,7 @@ import Control.Lens ((^.))
 
 import Data.Function ((&))
 import Habits.App
-  ( runAppE,
+  ( runAppE, App (App),
   )
 import Habits.AppEnv
   ( mkAppEnv,
@@ -27,6 +26,7 @@ import Test.Hspec
     describe,
     it,
   )
+import Haskus.Utils.Variant.Excepts (Excepts, liftE)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Utils (catchToFail, sampleIO)
 import qualified Habits.Domain.AccountRepo.Class as ARC
@@ -37,9 +37,9 @@ import Habits.Domain.Account (_accountId)
 import qualified Habits.Domain.AccountRepo as AR
 import Habits.Domain.AccountNew (AccountNew(AccountNew))
 import qualified Habits.Domain.AccountNew as AN
+import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
-
-runWithEnv :: _
+runWithEnv :: forall a . Excepts '[] App a -> IO a
 runWithEnv app = do
   env <- mkAppEnv
   runAppE env app
@@ -47,12 +47,16 @@ runWithEnv app = do
 spec :: Spec
 spec = describe "RegisterSpec execute should" $ do
   it "return with success" . runWithEnv $
-    do
-      _ :: AccountNew <- sampleIO
-      let accNew = AN.AccountNew { AN._name = "Peter", AN._email = Email "abc@de.de", AN._password = Password "abc" }
-      RegisterResponse { Reg._accountId } <- RC.execute R.RegisterRequest {R._name = "Peter", R._email = Email "abc@de.de", R._password = Password "abc"}
-      account <- ARC.getById _accountId
-      A.toAccountNew account `shouldBe` accNew
-      & catchToFail @R.RegisterError
-      & catchToFail @AR.RepositoryError
-      & catchToFail @AR.AccountNotFoundError
+    let
+      app :: Excepts '[ R.RegisterError, AR.RepositoryError, AR.AccountNotFoundError ] App ()
+      app = do
+        _ :: AccountNew <- sampleIO
+        let accNew = AN.AccountNew { AN._name = "Peter", AN._email = Email "abc@de.de", AN._password = Password "abc" }
+        RegisterResponse { Reg._accountId } <- liftE $ RC.execute R.RegisterRequest {R._name = "Peter", R._email = Email "abc@de.de", R._password = Password "abc"}
+        account <- liftE $ ARC.getById _accountId
+        A.toAccountNew account `shouldBe` accNew
+    in
+    app
+    & catchToFail @R.RegisterError
+    & catchToFail @AR.RepositoryError
+    & catchToFail @AR.AccountNotFoundError

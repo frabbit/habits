@@ -8,12 +8,7 @@ import Control.Lens
   ( Lens',
     lens,
   )
-import Control.Monad.Trans.Except (ExceptT (ExceptT))
 import Data.Typeable (Typeable)
-import Data.Variant
-  ( CouldBe,
-    Variant,
-  )
 import Habits.Domain.Account (Account)
 import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId (AccountId))
@@ -27,6 +22,7 @@ import qualified Veins.Data.Has as Has
 import Control.Monad.Reader (ReaderT, MonadReader)
 import Control.Monad.Reader.Class (asks)
 import qualified Control.Lens as L
+import Haskus.Utils.Variant.Excepts (Excepts)
 
 data AddError = AddError
   deriving (Show, Typeable)
@@ -44,70 +40,59 @@ data RepositoryError = RepositoryError
 instance Exception RepositoryError
 
 type Add m =
-  forall e.
-  (e `CouldBe` AddError) =>
   AccountNew ->
-  ExceptT (Variant e) m AccountId
+  Excepts '[AddError] m AccountId
 
 type GetById m =
-  forall e.
-  e `CouldBe` RepositoryError =>
-  e `CouldBe` AccountNotFoundError =>
   AccountId ->
-  ExceptT (Variant e) m Account
-
-newtype AddW m = AddW {unAddW :: Add m}
-
-type role AddW representational
-
-newtype GetByIdW m = GetByIdW {unGetByIdW :: GetById m}
+  Excepts '[RepositoryError, AccountNotFoundError] m Account
 
 data AccountRepo m = AccountRepo
-  { _add :: AddW m,
-    _getById :: GetByIdW m
+  { _add :: Add m,
+    _getById :: GetById m
   }
 
 type instance ToSymbol (AccountRepo m) = "AccountRepo"
 
 setAdd :: Add m -> AccountRepo m -> AccountRepo m
-setAdd x = L.set addL (AddW x)
+setAdd = L.set addL
 setGetById :: GetById m -> AccountRepo m -> AccountRepo m
-setGetById x = L.set getByIdL (GetByIdW x)
+setGetById = L.set getByIdL
 
-addL :: forall m. Lens' (AccountRepo m) (AddW m)
+addL :: forall m. Lens' (AccountRepo m) (Add m)
 addL = lens get set
   where
-    set :: AccountRepo m -> AddW m -> AccountRepo m
+    set :: AccountRepo m -> Add m -> AccountRepo m
     set ar a = ar {_add = a}
-    get :: AccountRepo m -> AddW m
+    get :: AccountRepo m -> Add m
     get AccountRepo {_add = a} = a
 
-getByIdL :: forall m. Lens' (AccountRepo m) (GetByIdW m)
+getByIdL :: forall m. Lens' (AccountRepo m) (GetById m)
 getByIdL = lens get set
   where
-    set :: AccountRepo m -> GetByIdW m -> AccountRepo m
+    set :: AccountRepo m -> GetById m -> AccountRepo m
     set ar a = ar {_getById = a}
-    get :: AccountRepo m -> GetByIdW m
+    get :: AccountRepo m -> GetById m
     get AccountRepo {_getById = a} = a
 
 type AccountRepoR env = AccountRepo (ReaderT env IO)
 
 add :: forall m env . (Has.Has (AccountRepo m) env, MonadReader env m) => Add m
 add r = do
-  AccountRepo { _add = AddW f } <- asks (Has.get @(AccountRepo m))
+  AccountRepo { _add = f } <- asks (Has.get @(AccountRepo m))
   f r
 
 getById :: forall m env . (Has.Has (AccountRepo m) env, MonadReader env m) => GetById m
 getById r = do
-  AccountRepo { _getById = GetByIdW f } <- asks (Has.get @(AccountRepo m))
+  AccountRepo { _getById = f } <- asks (Has.get @(AccountRepo m))
   f r
 
 
 mkStub :: (Monad m) => AccountRepo m
 mkStub =
   AccountRepo
-    { _add = AddW $ \_ -> pure (AccountId "abc"),
-      _getById = GetByIdW $ \_ ->
+    { _add = \_ -> pure (AccountId "abc"),
+      _getById = \_ ->
         pure
           ( A.Account
               { A._name = "abc",

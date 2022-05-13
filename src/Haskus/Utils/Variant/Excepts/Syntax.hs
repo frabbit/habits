@@ -23,6 +23,9 @@ class (VEitherLift e1 e2) => BindLift (e1::[Type]) (e2::[Type]) where
 instance (VEitherLift a b) => BindLift a b
 
 
+fail :: P.MonadFail m => P.String -> Excepts es m a
+fail = P.fail
+
 (>>=) :: forall e1 e2 m a b . (Monad m, BindLift e1 (Union e1 e2), BindLift e2 (Union e1 e2)) => Excepts e1 m a -> (a -> Excepts e2 m b) -> Excepts (Union e1 e2) m b
 (>>=) m f = Exc.Excepts $ do
   e1 <- runE m

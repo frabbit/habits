@@ -29,14 +29,15 @@ import           Habits.Domain.AccountRepo      ( AccountNotFoundError
                                                   , _add
                                                   , _getById
                                                   )
-                                                , AddW(AddW)
-                                                , GetByIdW(GetByIdW), Add, GetById
+
+                                                , Add, GetById
                                                 )
 import           UnliftIO.STM                   ( modifyTVar )
+import Haskus.Utils.Variant.Excepts (throwE)
 
 mkAdd
-  :: forall n m . (Applicative n, MonadIO m) => TVar [Account] -> n (AddW m)
-mkAdd accountsVar = pure $ AddW f
+  :: forall n m . (Applicative n, MonadIO m) => TVar [Account] -> n (Add m)
+mkAdd accountsVar = pure f
  where
   f :: Add m
   f an = do
@@ -50,15 +51,15 @@ mkGetById
   :: forall m n
    . (Applicative n, MonadIO m)
   => TVar [Account]
-  -> n (GetByIdW m)
-mkGetById accountsVar = pure $ GetByIdW f
+  -> n (GetById m)
+mkGetById accountsVar = pure f
  where
   f :: GetById m
   f accountId = do
     accounts :: [Account] <- liftIO $ readTVarIO accountsVar
     let accountMaybe = find (\a -> (a ^. A.accountId) == accountId) accounts
     case accountMaybe of
-      Nothing      -> throwM AccountNotFoundError
+      Nothing      -> throwE AccountNotFoundError
       Just account -> pure account
 
 mkAccountRepoMemory :: (MonadIO n, MonadIO m) => n (AccountRepo m)
