@@ -1,5 +1,6 @@
 module Habits.UseCases.Register.Live where
 
+import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Data.Variant
   ( catchM,
     throwM,
@@ -23,9 +24,13 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
+import Haskus.Utils.Variant.Excepts (catchLiftLeft, catchE, catchLiftBoth, throwE)
+import Data.Function ((&))
+
+
 
 execute :: (Monad m, AccountRepo m) => Execute m
-execute req = do
+execute req = (S.do
   accountId <- add
     ( AccountNew
         { AN._email = req ^. RR.email,
@@ -33,8 +38,9 @@ execute req = do
           AN._password = req ^. RR.password
         }
     )
-  pure $ RegisterResponse { _accountId = accountId }
-  `catchM` (\(_ :: AddError) -> throwM RegisterError)
+  S.pure $ RegisterResponse { _accountId = accountId })
+  & catchLiftLeft (\(_ :: AddError) -> throwE RegisterError)
+
 
 mkLive :: forall m. (Monad m, AccountRepo m) => R.Register m
-mkLive = R.Register {R._execute = R.ExecuteW execute}
+mkLive = R.Register {R._execute = execute}

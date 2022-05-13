@@ -1,6 +1,5 @@
 module Habits.AppT where
 
-import Control.Monad.Except (ExceptT, runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Control.Monad.Reader.Class
@@ -8,8 +7,7 @@ import Control.Monad.Reader.Class
     ask,
     local,
   )
-import Data.Variant (Variant, preposterous)
-import Data.Void (absurd)
+import Haskus.Utils.Variant.Excepts (Excepts, evalE)
 
 newtype AppT env m a = AppT {unAppT :: ReaderT env m a} deriving (Functor, Applicative, Monad, MonadIO)
 
@@ -17,13 +15,10 @@ instance (Monad m) => MonadReader env (AppT env m) where
   ask = AppT ask
   local f ma = AppT $ local f (unAppT ma)
 
-eliminate :: (Monad m) => ExceptT (Variant '[]) m a -> m a
-eliminate = fmap convert . runExceptT
-  where
-    convert (Right r) = r
-    convert (Left l) = (absurd . preposterous) l
+eliminate :: (Monad m) => Excepts '[] m a -> m a
+eliminate = evalE
 
-runAppT :: forall a m env. (Monad m) => env -> ExceptT (Variant '[]) (AppT env m) a -> m a
+runAppT :: forall a m env. (Monad m) => env -> Excepts '[] (AppT env m) a -> m a
 runAppT env = runReaderWithEnv . unwrap . eliminate
   where
     unwrap = unAppT

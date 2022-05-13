@@ -13,11 +13,12 @@ import Habits.AppT
     runAppT,
     runAppT',
   )
+import Haskus.Utils.Variant.Excepts (Excepts(..), runE)
 
 newtype App a = App {unApp :: AppT (AppEnv App) IO a} deriving (Functor, Applicative, Monad, MonadIO, MonadReader (AppEnv App))
 
-runAppE :: forall a. AppEnv App -> ExceptT (Variant '[]) App a -> IO a
-runAppE env app = runAppT env (ExceptT . unApp . runExceptT $ app)
+runAppE :: forall a. AppEnv App -> Excepts '[] App a -> IO a
+runAppE env app = runAppT env (Excepts . unApp . runE $ app)
 
 runApp :: forall a. AppEnv App -> App a -> IO a
 runApp env app = runAppT' env (unApp app)
