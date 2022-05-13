@@ -49,7 +49,7 @@ import Utils
   ( sampleIO,
     toThrow,
   )
-import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, liftE)
+import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
 $(getStaticDecl 'Data.Functor.fmap)
@@ -60,11 +60,11 @@ mkSpec unlift = parallel $
     let embed = unlift . eliminate
     describe "add should" $ do
       it "persist the account to the repository" $ embed $ S.do
-        accountNew <- S.lift sampleIO
+        accountNew <- S.coerce sampleIO
         accountId <- ARC.add accountNew
         acc <- ARC.getById accountId
-        S.lift $ acc `shouldBe` A.fromAccountNew accountNew accountId
-        S.lift $ ((Text.length . AccountId.unwrap $ accountId) > 0) `shouldBe` True
+        S.coerce $ acc `shouldBe` A.fromAccountNew accountNew accountId
+        S.coerce $ ((Text.length . AccountId.unwrap $ accountId) > 0) `shouldBe` True
         & toThrow @AddError
         & toThrow @RepositoryError
         & toThrow @AccountNotFoundError
