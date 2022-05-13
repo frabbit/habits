@@ -46,6 +46,7 @@ library
       Habits.UseCases.Register.RegisterResponse
       Habits.Web.Routes.Register
       Haskus.Utils.Variant.Excepts.Syntax
+      Haskus.Utils.Variant.VEither.Orphans
       Veins.Data.ComposableEnv
       Veins.Data.Has
       Veins.Data.HList

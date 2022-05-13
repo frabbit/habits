@@ -14,6 +14,9 @@ import Utils (shouldBeIO)
 import qualified Veins.Data.HList as HL
 import qualified Veins.Data.Type.Function as F
 import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgs, getSpyArgsIO, getSpyCalls, getSpyCallsIO, mapCaptureForSpy, mkSpyIO, mockReturn, mockify, withSpy)
+import Haskus.Utils.Variant.Excepts (Excepts, runE, pattern VRight, pattern VLeft, failureE)
+import Haskus.Utils.Variant.VEither.Orphans ()
+import Haskus.Utils.Variant (toVariant)
 
 data Simple = MkSimple
   { _exec :: Int -> String
@@ -27,53 +30,48 @@ data Monadic m = MkMonadic
 
 makeLenses ''Monadic
 
+data WithError = MkExcepts
+  {_execErr :: Int -> Excepts '[()] IO String }
 
 
---data WithError = MkWithError
---  {_withErrorFun :: WithErrorFunW}
---
---newtype WithErrorFunW = WithErrorFunW WithErrorFun
-
---type WithErrorFun =
---  forall e .  e `CouldBe` () =>
---  Int ->
---  ExceptT (Variant e) IO Int
---
---withErrorFun :: forall m. Lens' WithError WithErrorFun
---withErrorFun = lens get set
---  where
---    set :: WithError -> WithErrorFun -> WithError
---    set ar a = ar {_withErrorFun = WithErrorFunW a}
---    get :: WithError -> WithErrorFun
---    get MkWithError {_withErrorFun = WithErrorFunW a} = a
+makeLenses ''WithError
 
 spec :: HS.Spec
 spec = do
   HS.describe "mockify" $ do
-    HS.it "should work with simple functions" $ do
+    HS.it "should work together with simple functions" $ do
       let mock = mockify MkSimple & L.set exec (const "hi")
       (mock & L.view exec) 1 `shouldBe` "hi"
       (mock & L.view exec) 2 `shouldBe` "hi"
-
+    HS.it "should work with excepts based functions" $ do
+      let mock = mockify MkExcepts & L.set execErr (const $ pure "hi")
+      r <- runE $ (mock & L.view execErr) 1
+      r `shouldBe` VRight "hi"
   HS.describe "mockifyArb" $ do
     HS.it "should work with monadic functions" $ do
       (spy, mock) <- mockifyArb MkMonadic & withSpy execM
-      _ <- (mock & L.view execM) 1
+      mock & L.view execM $ 1
       (fmap length . getSpyCallsIO $ spy) `shouldBeIO` 1
-    --HS.it "should work with exceptT based functions" $ do
-    --  let mock = mockify MkWithError
-    --  let get::WithError -> (forall e. WithErrorFun e) = (L.view withErrorFun::_)
-    --  _ <- runExceptT $ (mock & get) 1
-    --  pure () :: IO ()
-    --  --(fmap length . getSpyCallsIO $ spy) `shouldBeIO` 0
-
+    HS.it "should work with excepts based functions" $ do
+      (spy, mock) <- mockifyArb MkExcepts & withSpy execErr
+      runE $ mock & L.view execErr $ 1
+      (fmap length . getSpyCallsIO $ spy) `shouldBeIO` 1
   HS.describe "withSpy" $ do
     HS.it "should work with monadic functions" $ do
       (spy, mock) <- mockify (MkMonadic @IO) & L.set execM (\_ -> pure "hi") & withSpy execM
       res <- (mock & L.view execM) 1
       res `shouldBe` "hi"
       getSpyCallsIO spy `shouldBeIO` [(HL.HCons 1 HL.HNil, "hi" :: String)]
-
+    HS.it "should work with excepts based functions" $ do
+      (spy, mock) <- mockify MkExcepts & L.set execErr (const $ pure "hi") & withSpy execErr
+      runE $ (mock & L.view execErr) 1
+      getSpyCallsIO spy `shouldBeIO` [(HL.HCons 1 HL.HNil, "hi" :: String)]
+    HS.it "should work with excepts based functions that produce an error" $ do
+      (spy, mock) <- mockify MkExcepts & L.set execErr (const $ failureE ()) & withSpy execErr
+      r <- runE $ (mock & L.view execErr) 1
+      r `shouldBe` (VLeft . toVariant $ ())
+      getSpyArgsIO spy `shouldBeIO` [HL.HCons 1 HL.HNil]
+      getSpyCallsIO spy `shouldBeIO` []
   HS.describe "Veins.Test.MockReturn" $ do
     HS.it "should work with simple functions" $ do
       let mock = mockify MkSimple & L.over exec (mockReturn "hi")
