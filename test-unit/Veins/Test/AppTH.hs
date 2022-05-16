@@ -1,14 +1,14 @@
-{-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Veins.Test.AppTH where
 
-import Control.Monad.IO.Class (liftIO)
-import Language.Haskell.Meta (parseDecs)
+import qualified Habits.AppT as AppT
+
+import Control.Monad.Reader (MonadReader)
+import Control.Monad.IO.Class (MonadIO)
+import qualified Veins.Data.Has as Has
 import Language.Haskell.TH (Dec, Q, mkName)
 import qualified Language.Haskell.TH as TH
 import qualified Language.Haskell.TH.Syntax as TS
-import Habits.Domain.Account (Account(_name))
+
 
 mkConT :: String -> TS.Type
 mkConT = TH.ConT . mkName
@@ -17,19 +17,19 @@ mkVarT :: String -> TS.Type
 mkVarT = TH.VarT . mkName
 
 typeMonad :: TS.Type
-typeMonad = mkConT "Monad"
+typeMonad = TH.ConT ''Monad
 
 typeFunctor :: TS.Type
-typeFunctor = mkConT "Functor"
+typeFunctor = TH.ConT ''Functor
 
 typeApplicative :: TS.Type
-typeApplicative = mkConT "Applicative"
+typeApplicative = TH.ConT ''Applicative
 
 typeMonadIO :: TS.Type
-typeMonadIO = mkConT "MonadIO"
+typeMonadIO = TH.ConT ''MonadIO
 
 mkTypeMonadReader :: TS.Type -> TS.Type
-mkTypeMonadReader = TH.AppT (mkConT "MonadReader")
+mkTypeMonadReader = TH.AppT (TH.ConT ''MonadReader)
 
 
 data Context = Context {
@@ -56,7 +56,7 @@ mkApp :: Context -> Q [Dec]
 mkApp Context { _nameApp, _nameAppEnv, _nameUnApp } = do
   let nameApp = _nameApp
   let typeApp = TH.ConT nameApp
-  let nameAppT = mkName "AppT"
+  let nameAppT = ''AppT.AppT
   let typeAppT = TH.ConT nameAppT
   let nameA = mkName "a"
   let nameUnApp = _nameUnApp
@@ -69,7 +69,6 @@ mkApp Context { _nameApp, _nameAppEnv, _nameUnApp } = do
   let con = TH.RecC nameApp [(nameUnApp, noBang, typeUnwrapped)]
   let deriveClauses = [TS.DerivClause Nothing [typeFunctor, typeApplicative, typeMonad, typeMonadIO, mkTypeMonadReader typeEnv]]
   let decs = [TH.NewtypeD [] nameApp [TH.PlainTV nameA ()] Nothing con deriveClauses]
-  liftIO $ print decs
   pure decs
 
 -- newtype AppEnv m = AppEnv (Env m)
@@ -102,7 +101,7 @@ mkRunApp Context { _nameApp, _nameAppEnv, _nameUnApp, _envName } name = do
   let signature = TH.SigD nameFun (TH.ArrowT `TH.AppT` typeEnvApp `TH.AppT` (TH.ArrowT `TH.AppT` typeAppA `TH.AppT` typeIOA))
   let appEnv_env = TH.AppE (TH.ConE _nameAppEnv) (TH.VarE name_env)
   let unApp_a = TH.AppE (TH.VarE _nameUnApp) (TH.VarE name_a)
-  let runAppT' = TH.VarE (mkName "runAppT'")
+  let runAppT' = TH.VarE 'AppT.runAppT'
   let expr = runAppT' `TH.AppE` appEnv_env `TH.AppE` unApp_a
   let fun = TH.FunD nameFun [TH.Clause [TH.VarP name_env, TH.VarP name_a] (TH.NormalB expr) []]
 
@@ -113,12 +112,15 @@ mkRunApp Context { _nameApp, _nameAppEnv, _nameUnApp, _envName } name = do
 
 mkHasInstance :: Context -> Q [Dec]
 mkHasInstance Context { _nameApp, _nameAppEnv, _envName} = do
-  let constraint = mkConT "Has.Has" `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _envName `TH.AppT` mkVarT "m")
+  let hasName = ''Has.Has
+  let getName = 'Has.get
 
-  let type' = mkConT "Has.Has" `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _nameAppEnv `TH.AppT` mkVarT "m")
+  let constraint = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _envName `TH.AppT` mkVarT "m")
 
-  let body = TH.AppE (TH.VarE $ mkName "get") (TH.VarE $ mkName "e")
-  let dec = TH.FunD (mkName "get") [TH.Clause [TH.ConP _nameAppEnv [TH.VarP (mkName "e")]] (TH.NormalB body) []]
+  let type' = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _nameAppEnv `TH.AppT` mkVarT "m")
+
+  let body = TH.AppE (TH.VarE getName) (TH.VarE $ mkName "e")
+  let dec = TH.FunD getName [TH.Clause [TH.ConP _nameAppEnv [TH.VarP (mkName "e")]] (TH.NormalB body) []]
 
   let inst = TH.InstanceD Nothing [constraint] type' [dec]
   pure [inst]
@@ -139,5 +141,4 @@ mkBoilerplate name _envName = do
   b <- mkRunApp ctx name
   c <- mkAppEnv ctx
   d <- mkApp ctx
-  liftIO $ print (a <> b <> c <> d)
   pure $ a <> b <> c <> d

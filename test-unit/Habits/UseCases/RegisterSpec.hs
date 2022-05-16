@@ -5,18 +5,12 @@
 {-# HLINT ignore "Redundant pure" #-}
 {-# HLINT ignore "Use let" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# LANGUAGE UndecidableInstances #-}
+{-# LANGUAGE PartialTypeSignatures #-}
 
 module Habits.UseCases.RegisterSpec where
 
-import Control.Lens ((^.))
-
 import Data.Function ((&))
-import Habits.App
-  ( runAppE, App (App),
-  )
-import Habits.AppEnv
-  ( mkAppEnv,
-  )
 import Habits.Domain.Email (Email (..))
 import Habits.Domain.Password (Password (Password))
 import qualified Habits.UseCases.Register as R
@@ -26,37 +20,49 @@ import Test.Hspec
     describe,
     it,
   )
-import Haskus.Utils.Variant.Excepts (Excepts, liftE)
+import Haskus.Utils.Variant.Excepts (Excepts, liftE, evalE)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Utils (catchToFail, sampleIO)
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.UseCases.Register (RegisterResponse(..))
 import qualified Habits.UseCases.Register as Reg
 import qualified Habits.Domain.Account as A
-import Habits.Domain.Account (_accountId)
 import qualified Habits.Domain.AccountRepo as AR
-import Habits.Domain.AccountNew (AccountNew(AccountNew))
 import qualified Habits.Domain.AccountNew as AN
-import qualified Haskus.Utils.Variant.Excepts.Syntax as S
+import qualified Veins.Data.ComposableEnv as CE
+import Control.Monad.IO.Class (MonadIO)
+import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
+import qualified Habits.UseCases.Register.Live as RL
+import qualified Veins.Test.AppTH as AppTH
 
-runWithEnv :: forall a . Excepts '[] App a -> IO a
+type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
+
+mkAppEnv :: forall n m . (MonadIO n, ARC.AccountRepo m, MonadIO m) => n (Env m)
+mkAppEnv = do
+  accountRepo <- ARM.mkAccountRepoMemory
+  pure $ CE.empty & CE.insert RL.mkLive & CE.insert accountRepo
+
+AppTH.mkBoilerplate "runApp" ''Env
+
+
+runWithEnv :: _ b -> IO b
 runWithEnv app = do
   env <- mkAppEnv
-  runAppE env app
+  runApp env app
 
 spec :: Spec
 spec = describe "RegisterSpec execute should" $ do
-  it "return with success" . runWithEnv $
+  it "return with success" . runWithEnv . evalE $
     let
-      app :: Excepts '[ R.RegisterError, AR.RepositoryError, AR.AccountNotFoundError ] App ()
+      app :: Excepts '[ R.RegisterError, AR.RepositoryError, AR.AccountNotFoundError ] _ ()
       app = do
-        _ :: AccountNew <- sampleIO
+        _ :: AN.AccountNew <- sampleIO
         let accNew = AN.AccountNew { AN._name = "Peter", AN._email = Email "abc@de.de", AN._password = Password "abc" }
         RegisterResponse { Reg._accountId } <- liftE $ RC.execute R.RegisterRequest {R._name = "Peter", R._email = Email "abc@de.de", R._password = Password "abc"}
         account <- liftE $ ARC.getById _accountId
         A.toAccountNew account `shouldBe` accNew
     in
-    app
+    ((app
     & catchToFail @R.RegisterError
-    & catchToFail @AR.RepositoryError
-    & catchToFail @AR.AccountNotFoundError
+    & catchToFail @AR.RepositoryError :: _)
+    & catchToFail @AR.AccountNotFoundError)
