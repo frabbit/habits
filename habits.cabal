@@ -197,6 +197,7 @@ test-suite habits-test-integration
       TestContainers.WaitStrategies
       Utils
       Veins.Test.AppTH
+      Veins.Test.HSpec
       Veins.Test.MockSpec
       Veins.TestContainers.Postgres
       Habits.Infra.Postgres.AccountRepoPostgresSpec
@@ -276,6 +277,7 @@ test-suite habits-test-unit
       TestContainers.WaitStrategies
       Utils
       Veins.Test.AppTH
+      Veins.Test.HSpec
       Veins.Test.MockSpec
       Veins.TestContainers.Postgres
       Habits.Infra.Memory.AccountRepoMemorySpec
