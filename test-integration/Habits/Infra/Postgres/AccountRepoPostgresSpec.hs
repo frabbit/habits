@@ -2,7 +2,7 @@
 module Habits.Infra.Postgres.AccountRepoPostgresSpec where
 
 import qualified Control.Lens as L
-import Control.Monad.IO.Class (liftIO)
+import Control.Monad.IO.Class ( liftIO, MonadIO )
 import Control.Monad.Logger (runStderrLoggingT)
 import Control.Monad.Reader (runReaderT)
 import Data.Function ((&))
@@ -28,7 +28,6 @@ import qualified Habits.UseCases.Register as R
 import qualified Veins.Test.AppTH as AppTH
 
 import qualified Habits.Domain.AccountRepo.Class as ARC
-import Control.Monad.IO.Class (MonadIO)
 import qualified Habits.Infra.Postgres.Schema as S
 import Test.Hspec
   ( Spec,
