@@ -198,6 +198,7 @@ test-suite habits-test-integration
       Utils
       Veins.Test.AppTH
       Veins.Test.MockSpec
+      Veins.TestContainers.Postgres
       Habits.Infra.Postgres.AccountRepoPostgresSpec
       Paths_habits
   hs-source-dirs:
@@ -277,6 +278,7 @@ test-suite habits-test-unit
       Utils
       Veins.Test.AppTH
       Veins.Test.MockSpec
+      Veins.TestContainers.Postgres
       Habits.Infra.Memory.AccountRepoMemorySpec
       Habits.UseCases.RegisterSpec
       Haskus.Utils.Variant.Excepts.SyntaxSpec
