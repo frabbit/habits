@@ -34,9 +34,9 @@ import Habits.Domain.Password (Password (..))
 import qualified Habits.Infra.Postgres.Schema as S
 import Haskus.Utils.Variant.Excepts (throwE)
 import Database.Persist ((==.), SelectOpt (LimitTo))
-import Veins.Data.ComposableEnv
 import qualified Veins.Data.ComposableEnv as CE
 import Data.Function ((&))
+import Habits.Infra.Postgres.Utils (withPool)
 
 accountIdToDomain :: P.Key S.Account -> AccountId
 accountIdToDomain key = AccountId $ S.unAccountKey key
@@ -49,9 +49,6 @@ convertToDomain (P.Entity key a) =
       A._accountId = accountIdToDomain key,
       A._password = Password $ S.accountPassword a
     }
-
-withPool :: (MonadIO m) => P'.Pool P.SqlBackend -> _ -> m _
-withPool pool = liftIO . flip P.runSqlPersistMPool pool
 
 mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Add m)
 mkAdd pool = pure f

@@ -30,7 +30,6 @@ library
       Habits.Domain.AccountNew
       Habits.Domain.AccountRepo
       Habits.Domain.AccountRepo.Class
-      Habits.Domain.AccountRepo.InMemory
       Habits.Domain.Email
       Habits.Domain.EmailAlreadyUsedError
       Habits.Domain.HabitDef
@@ -38,6 +37,7 @@ library
       Habits.Infra.Memory.AccountRepoMemory
       Habits.Infra.Postgres.AccountRepoPostgres
       Habits.Infra.Postgres.Schema
+      Habits.Infra.Postgres.Utils
       Habits.UseCases.Register
       Habits.UseCases.Register.Class
       Habits.UseCases.Register.Live

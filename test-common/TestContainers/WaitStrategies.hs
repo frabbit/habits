@@ -1,6 +1,5 @@
 module TestContainers.WaitStrategies where
 
-import Control.Applicative (Applicative (liftA2))
 import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (liftIO)
 import TestContainers.Docker (WaitUntilReady (..))
@@ -9,7 +8,6 @@ import UnliftIO.Async (concurrently)
 -- | @withExtraDelay n waitUntilReady@ waits first for the container to be ready and adds an additional @n@ seconds.
 -- If the container is not ready by then a `TimeoutException` will be thrown.
 --
--- @since 0.1.0.0
 waitWithExtraDelay :: Int -> WaitUntilReady -> WaitUntilReady
 waitWithExtraDelay milliSeconds (WaitUntilReady c) =
   WaitUntilReady $ \config container ->

@@ -19,21 +19,18 @@ import qualified Habits.Domain.Account as A
 import qualified Habits.Domain.AccountNew as AN
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
-import Habits.Domain.Email (Email (..))
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError (..))
-import Habits.Domain.Password (Password (Password))
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import Habits.UseCases.Register (RegisterResponse (..))
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register as Reg
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, catchLiftRight, evalE)
+import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
     describe,
-    focus,
     it,
   )
 import Test.Hspec.Expectations.Lifted (shouldBe)
