@@ -6,8 +6,14 @@ build-watch:
 build-watch-unit:
 	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-unit
 
+build-watch-integration:
+	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-integration
+
 test-unit-watch:
 	stack test --fast --file-watch --ghc-options "-j4 +RTS -A128m -n2m -RTS -src -itest -Wno-redundant-constraints -Wno-unused-matches -Wno-unused-binds -Wno-partial-type-signatures -Wno-unused-imports -Wno-unused-foralls" habits:habits-test-unit
+
+test-integration-watch:
+	stack test --fast --file-watch --ghc-options "-j4 +RTS -A128m -n2m -RTS -src -itest -Wno-redundant-constraints -Wno-unused-matches -Wno-unused-binds -Wno-partial-type-signatures -Wno-unused-imports -Wno-unused-foralls" habits:habits-test-integration
 
 test-integration-watch:
 	stack test --fast --file-watch --ghc-options "-j4 +RTS -A128m -n2m -RTS" habits:habits-test-integration
