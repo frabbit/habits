@@ -191,9 +191,6 @@ test-suite habits-test-integration
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Habits.App
-      Habits.AppEnv
-      Habits.AppEnvHList
       Habits.Domain.AccountRepositoryContract
       Habits.TH.TypeOf
       PlaygroundHaskus
@@ -272,9 +269,6 @@ test-suite habits-test-unit
   type: exitcode-stdio-1.0
   main-is: Spec.hs
   other-modules:
-      Habits.App
-      Habits.AppEnv
-      Habits.AppEnvHList
       Habits.Domain.AccountRepositoryContract
       Habits.TH.TypeOf
       PlaygroundHaskus

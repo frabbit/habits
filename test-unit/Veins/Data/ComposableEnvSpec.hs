@@ -119,6 +119,14 @@ spec = describe "ComposableEnv" $ do
           app = addLayer layerA layerB
       r <- runReaderT app $ empty & insert A & insert B
       r `shouldBe` empty
+    it "create a computation that requires the environment from both computations" $ do
+      let layerA :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[C])
+          layerA = pure $ empty & insert C
+          layerB :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[D])
+          layerB = pure $ empty & insert D
+          app = addLayer layerA layerB
+      r <- runReaderT app $ empty & insert A & insert B
+      r `shouldBe` (empty & insert C & insert D)
   describe "expandLayer" $ do
     it "should expand consumed and returned environment with no dependency when set is empty" $ do
       let layer :: ReaderT (ComposableEnv '[]) IO (ComposableEnv '[B])

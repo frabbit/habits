@@ -26,6 +26,8 @@ import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
 import Haskus.Utils.Variant.Excepts (catchLiftLeft, catchE, catchLiftBoth, throwE)
 import Data.Function ((&))
+import qualified Veins.Data.ComposableEnv as CE
+import Control.Monad.Reader (ReaderT)
 
 
 
@@ -42,5 +44,5 @@ execute req = (S.do
   & catchLiftLeft (\(_ :: AddError) -> throwE RegisterError)
 
 
-mkLive :: forall m. (Monad m, AccountRepo m) => R.Register m
-mkLive = R.Register {R._execute = execute}
+mkLive :: forall n m. (Monad n, Monad m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
+mkLive = pure $ CE.empty & CE.insert R.Register {R._execute = execute}

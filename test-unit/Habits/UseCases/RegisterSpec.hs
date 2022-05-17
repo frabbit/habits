@@ -7,6 +7,7 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.UseCases.RegisterSpec where
 
@@ -34,19 +35,19 @@ import Control.Monad.IO.Class (MonadIO)
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register.Live as RL
 import qualified Veins.Test.AppTH as AppTH
+import Control.Monad.Reader (ReaderT(runReaderT))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
-mkAppEnv :: forall n m . (MonadIO n, ARC.AccountRepo m, MonadIO m) => n (Env m)
-mkAppEnv = do
-  accountRepo <- ARM.mkAccountRepoMemory
-  pure $ CE.empty & CE.insert RL.mkLive & CE.insert accountRepo
+
+envLayer :: forall m n . (MonadIO n, ARC.AccountRepo m, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer = ARM.mkAccountRepoMemory `CE.provideAndChainLayer` RL.mkLive
 
 AppTH.mkBoilerplate "runApp" ''Env
 
 runWithEnv :: _ b -> IO b
 runWithEnv app = do
-  env <- mkAppEnv
+  env <- runReaderT envLayer CE.empty
   runApp env app
 
 spec :: Spec
