@@ -1,12 +1,10 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE TemplateHaskell #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.Domain.AccountRepositoryContract where
 
 import Data.Function ((&))
-import qualified Data.Functor
 import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)
 import qualified Habits.Domain.Account as A
@@ -25,7 +23,6 @@ import Habits.Domain.AccountRepo.Class
   )
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.Domain.Email (Email (Email))
-import Habits.TH.TypeOf (getStaticDecl)
 import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
@@ -44,8 +41,6 @@ import Utils
     sampleIO,
     toThrow,
   )
-
-$(getStaticDecl 'Data.Functor.fmap)
 
 mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $

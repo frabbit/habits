@@ -58,6 +58,7 @@ library
       Veins.Data.Type.Function
       Veins.Data.Type.List
       Veins.Test.Mock
+      Veins.Test.QuickCheck
   other-modules:
       Paths_habits
   hs-source-dirs:
@@ -192,7 +193,6 @@ test-suite habits-test-integration
   main-is: Spec.hs
   other-modules:
       Habits.Domain.AccountRepositoryContract
-      Habits.TH.TypeOf
       PlaygroundHaskus
       TestContainers.WaitStrategies
       Utils
@@ -272,7 +272,6 @@ test-suite habits-test-unit
   main-is: Spec.hs
   other-modules:
       Habits.Domain.AccountRepositoryContract
-      Habits.TH.TypeOf
       PlaygroundHaskus
       TestContainers.WaitStrategies
       Utils
