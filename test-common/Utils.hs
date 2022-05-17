@@ -28,7 +28,7 @@ import Data.Function ((&))
 import Haskus.Utils.Variant.Excepts (catchLiftLeft, Excepts, type (:<), LiftVariant, Remove)
 
 toThrow ::
-  forall e es es' m a . (Exception e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m a -> Excepts (Remove e es) m a
+  forall e es m a . (Exception e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m a -> Excepts (Remove e es) m a
 toThrow x = x & catchLiftLeft (\(y :: e) -> throw y)
 
 sampleIO :: (MonadIO m, Arbitrary a) => m a
@@ -39,9 +39,6 @@ shouldBeIO x w = do
   m <- x
   m `shouldBe` w
 
-
-
---catchToFail :: forall x (e::[Type]) e1 m . (MonadIO m, CatchF x e e1) => ExceptT (Variant e) m () -> ExceptT (Variant e1) m ()
 
 catchToFail :: forall e es m . (MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m () -> Excepts (Remove e es) m ()
 catchToFail c = c & catchLiftLeft  \(_::e) -> expectationFailure "No Error expected"

@@ -11,6 +11,7 @@
 
 module Veins.Data.ComposableEnv
   ( ReaderCE,
+    LayerCE,
     empty,
     remove,
     addLayer,
@@ -30,7 +31,7 @@ module Veins.Data.ComposableEnv
     provideLayer',
     (>>=),
     fail,
-    return
+    return,
   )
 where
 
@@ -39,7 +40,6 @@ import Data.Kind (Type)
 import qualified Veins.Data.HList as HL
 import qualified Veins.Data.HSet as H
 import qualified Veins.Data.HSortedList as HSL
-import Veins.Data.Has (Has)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (CmpToSymbol)
 import Prelude
@@ -50,8 +50,6 @@ import Prelude
     (.),
   )
 import qualified Prelude as P
-
-type Whoop = P.Int
 
 type ReaderCE env m x = ReaderT (ComposableEnv env) m x
 
