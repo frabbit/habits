@@ -1,18 +1,15 @@
 module Veins.Test.MockSpec where
 
-import Control.Lens (makeLenses, Lens', lens)
+import Control.Lens (makeLenses)
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Trans.Except (ExceptT (ExceptT), runExceptT, throwE)
+import Control.Monad.Trans.Except (runExceptT, throwE, ExceptT)
 import Data.Function ((&))
-import GHC.Conc (atomically, newTVar, newTVarIO)
 import Test.Hspec (shouldBe)
 import qualified Test.Hspec as HS
-import UnliftIO (modifyTVar)
 import Utils (shouldBeIO)
 import qualified Veins.Data.HList as HL
-import qualified Veins.Data.Type.Function as F
-import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgs, getSpyArgsIO, getSpyCalls, getSpyCallsIO, mapCaptureForSpy, mkSpyIO, mockReturn, mockify, withSpy)
+import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgsIO, getSpyCallsIO, mapCaptureForSpy, mkSpyIO, mockReturn, mockify, withSpy)
 import Haskus.Utils.Variant.Excepts (Excepts, runE, pattern VRight, pattern VLeft, failureE)
 import Haskus.Utils.Variant.VEither.Orphans ()
 import Haskus.Utils.Variant (toVariant)
