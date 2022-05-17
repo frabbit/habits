@@ -9,7 +9,6 @@ import Data.Function ((&))
 import qualified Data.Functor
 import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)
-import Habits.AppT (eliminate)
 import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.AccountId as AccountId
@@ -40,7 +39,7 @@ import Utils
   ( sampleIO,
     toThrow,
   )
-import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft)
+import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
 $(getStaticDecl 'Data.Functor.fmap)
@@ -48,7 +47,7 @@ $(getStaticDecl 'Data.Functor.fmap)
 mkSpec :: forall m . (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "AccountRepositoryContract" $ do
-    let embed = unlift . eliminate
+    let embed = unlift . evalE
     describe "add should" $ do
       it "persist the account to the repository" $ embed $ S.do
         accountNew <- S.coerce sampleIO
