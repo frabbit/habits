@@ -3,7 +3,6 @@
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 
 module Veins.Data.HList
   ( hnil,
@@ -20,8 +19,6 @@ where
 
 import Data.Kind (Type)
 import Data.Proxy (Proxy (..))
-import Data.Text (Text)
-import qualified Veins.Data.Type.List as L
 
 data HList (x :: [Type]) where
   HCons :: forall a tail. a -> HList tail -> HList (a ': tail)

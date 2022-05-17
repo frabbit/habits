@@ -20,13 +20,13 @@ import Control.Monad.IO.Class (liftIO)
 import Test.QuickCheck
   ( Arbitrary,
     arbitrary,
-    generate, expectFailure,
+    generate,
   )
 import UnliftIO (MonadIO)
 import Test.Hspec.Expectations.Lifted (expectationFailure, shouldBe)
 import Data.Function ((&))
 import Haskus.Utils.Variant.Excepts (catchLiftLeft, Excepts, type (:<), LiftVariant, Remove, V, catchAllE)
-import Data.Typeable (Typeable, showsTypeRep, typeRep, Proxy (..))
+import Data.Typeable (Typeable, typeRep, Proxy (..))
 
 toThrow ::
   forall e es m a . (Exception e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m a -> Excepts (Remove e es) m a

@@ -327,15 +327,6 @@ fail = P.fail
 excluding :: forall e0 e1. (H.CExcluding e0 e1 (H.Excluding e1 e0)) => ComposableEnv e1 -> ComposableEnv (H.Excluding e1 e0)
 excluding = wrap . H.excluding @e0 . unwrap
 
-chain ::
-  (Monad m, H.CUnion e1 e2 (H.Union e1 e2)) =>
-  ComposableEnv e2 ->
-  m (ComposableEnv e1) ->
-  m (ComposableEnv (H.Union e1 e2))
-chain e2 c = do
-  e1 <- c
-  P.pure (e1 `union` e2)
-
 provideAndChainLayer ::
   forall e0 e1 o1 o2 m.
   ( Monad m,

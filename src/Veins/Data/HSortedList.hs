@@ -8,7 +8,7 @@
 module Veins.Data.HSortedList where
 
 import Data.Function ((&))
-import Data.Kind (Constraint, Type)
+import Data.Kind (Type)
 import Data.Proxy (Proxy (..))
 import Data.Type.Equality (type (==))
 import Debug.Trace (trace)
