@@ -52,7 +52,6 @@ library
       Veins.Data.HList
       Veins.Data.HSet
       Veins.Data.HSortedList
-      Veins.Data.HSortedList.Insert
       Veins.Data.ToSymbol
       Veins.Data.Type.Bool
       Veins.Data.Type.Function
