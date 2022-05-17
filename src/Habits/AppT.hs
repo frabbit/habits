@@ -15,9 +15,6 @@ instance (Monad m) => MonadReader env (AppT env m) where
   ask = AppT ask
   local f ma = AppT $ local f (unAppT ma)
 
-eliminate :: (Monad m) => Excepts '[] m a -> m a
-eliminate = evalE
-
 runAppT :: forall a m env. (Monad m) => env -> Excepts '[] (AppT env m) a -> m a
 runAppT env = runReaderWithEnv . unwrap . evalE
   where
