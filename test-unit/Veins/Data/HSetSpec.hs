@@ -17,6 +17,7 @@ import Veins.Data.HSet
   )
 import Veins.Data.ToSymbol (ToSymbol)
 import Veins.Data.Type.Bool (type (==))
+import Veins.Test.HSpec (passTrue)
 
 data A = A
   deriving (Show, Eq)
@@ -42,9 +43,6 @@ type instance ToSymbol C = "C"
 type instance ToSymbol D = "D"
 
 type instance ToSymbol E = "E"
-
-passTrue :: forall x. (x ~ 'True) => IO ()
-passTrue = pure ()
 
 spec :: HS.Spec
 spec = HS.describe "HSet.Alt" $ do

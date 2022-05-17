@@ -4,6 +4,7 @@
 
 module Veins.Data.Type.ListSpec where
 
+import Veins.Test.HSpec (passTrue)
 import Data.Proxy (Proxy (Proxy))
 import Test.Hspec
   ( Spec,
@@ -51,9 +52,6 @@ pass = pure () :: IO ()
 
 proxyTrue :: Proxy 'True
 proxyTrue = Proxy
-
-passTrue :: forall x. (x ~ 'True) => IO ()
-passTrue = pure ()
 
 spec :: Spec
 spec = describe "ListSpec" $ do
