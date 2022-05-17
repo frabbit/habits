@@ -9,7 +9,6 @@ import Habits.Domain.AccountRepo.Class
     add,
     getByEmail
   )
-import qualified Habits.Domain.AccountRepo.Class as AC
 import Habits.UseCases.Register
   ( Execute,
     RegisterError (RegisterError),
@@ -20,7 +19,7 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE, failureE, catchLiftBoth, liftE, catchLiftRight)
+import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE, failureE)
 import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
 import Control.Monad.Reader (ReaderT)
