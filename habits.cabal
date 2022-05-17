@@ -283,6 +283,7 @@ test-suite habits-test-unit
       Utils
       Habits.Infra.Memory.AccountRepoMemorySpec
       Habits.UseCases.RegisterSpec
+      Haskus.Utils.Variant.Excepts.SyntaxSpec
       Veins.Data.ComposableEnvSpec
       Veins.Data.HSetSpec
       Veins.Data.HSortedListSpec
