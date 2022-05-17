@@ -3,8 +3,6 @@ module Habits.Infra.Memory.AccountRepoMemory where
 import           Control.Monad.IO.Class         ( MonadIO
                                                 , liftIO
                                                 )
-import           Data.Variant                   ( throwM
-                                                )
 import           Habits.Domain.Account          ( Account )
 import qualified Habits.Domain.Account         as A
 import           Habits.Domain.AccountId        ( AccountId(AccountId) )

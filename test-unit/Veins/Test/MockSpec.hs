@@ -5,7 +5,6 @@ import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Except (ExceptT (ExceptT), runExceptT, throwE)
 import Data.Function ((&))
-import Data.Variant (CouldBe, Variant)
 import GHC.Conc (atomically, newTVar, newTVarIO)
 import Test.Hspec (shouldBe)
 import qualified Test.Hspec as HS

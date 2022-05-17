@@ -6,9 +6,9 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Haskus.Utils.Variant.Excepts (evalE, Excepts, failureE, runE, pattern VRight)
 import Utils (shouldBeIO)
 
-import Haskus.Utils.Variant.VEither.Orphans
+import Haskus.Utils.Variant.VEither.Orphans ()
 import Control.Monad.IO.Class (MonadIO(liftIO))
-import Control.Monad (when)
+
 
 data ErrB = ErrB deriving (Show, Eq, Ord)
 data ErrA = ErrA deriving (Show, Eq, Ord)

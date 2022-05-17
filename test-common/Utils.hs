@@ -15,21 +15,14 @@ import Control.Exception
   ( Exception,
     throw,
   )
-import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Variant
-  ( Catch,
-    Variant,
-    catchM, CatchF,
-  )
-import GHC.Base (coerce)
+
 import Test.QuickCheck
   ( Arbitrary,
     arbitrary,
     generate,
   )
 import UnliftIO (MonadIO)
-import Data.Kind (Type)
 import Test.Hspec.Expectations.Lifted (expectationFailure, shouldBe)
 import Data.Function ((&))
 import Haskus.Utils.Variant.Excepts (catchLiftLeft, Excepts, type (:<), LiftVariant, Remove)

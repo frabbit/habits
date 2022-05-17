@@ -11,9 +11,6 @@ import Control.Monad.IO.Class
 import qualified Data.Pool as P'
 import qualified Data.UUID as UUID
 import Data.UUID.V4 (nextRandom)
-import Data.Variant
-  ( throwM,
-  )
 import qualified Database.Persist.Postgresql as P
 import Habits.Domain.Account (Account)
 import qualified Habits.Domain.Account as A
