@@ -28,7 +28,7 @@ import Test.Hspec
   ( Spec,
     describe,
     it,
-    parallel,
+    parallel, focus,
   )
 import Test.Hspec.Expectations.Lifted
   ( expectationFailure,
@@ -37,10 +37,12 @@ import Test.Hspec.Expectations.Lifted
 import UnliftIO (MonadIO)
 import Utils
   ( sampleIO,
-    toThrow,
+    toThrow, catchAllToFail,
   )
 import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
+import Habits.Domain.Email (Email(Email))
+import qualified Habits.Domain.AccountNew as AN
 
 $(getStaticDecl 'Data.Functor.fmap)
 
@@ -70,4 +72,27 @@ mkSpec unlift = parallel $
 
         ((Text.length . AccountId.unwrap $ accountId) > 0) `shouldBe` True :: Excepts '[RepositoryError] _ _
         & toThrow @RepositoryError
+    describe "getByEmail should" $ do
+      let sampleEmail = Email "abc@abc.de"
+      it "return Nothing when repo is empty" $ embed $ do
+        (accountId :: AccountId) <- sampleIO
+        res <- ARC.getByEmail sampleEmail
+        res `shouldBe` Nothing
+        & catchAllToFail
+      it "return Just when account with same Email exists" $ embed $ S.do
+        accountNew <- S.coerce $ sampleIO & fmap (\x -> x { AN._email = sampleEmail })
+        accountId <- ARC.add accountNew
+        res <- ARC.getByEmail sampleEmail
+        let expAccount = A.fromAccountNew accountNew accountId
+        S.coerce $ res `shouldBe` Just expAccount
+        & catchAllToFail
+      it "return Nothing when other accounts with different Emails exist" $ embed $ S.do
+
+        accountNew <- S.coerce sampleIO
+        accountId <- ARC.add accountNew
+        res <- ARC.getByEmail sampleEmail
+
+        S.coerce $ res `shouldBe` Nothing
+        & catchAllToFail
+
 

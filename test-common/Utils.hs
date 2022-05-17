@@ -20,12 +20,14 @@ import Control.Monad.IO.Class (liftIO)
 import Test.QuickCheck
   ( Arbitrary,
     arbitrary,
-    generate,
+    generate, expectFailure,
   )
 import UnliftIO (MonadIO)
 import Test.Hspec.Expectations.Lifted (expectationFailure, shouldBe)
 import Data.Function ((&))
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, Excepts, type (:<), LiftVariant, Remove)
+import Haskus.Utils.Variant.Excepts (catchLiftLeft, Excepts, type (:<), LiftVariant, Remove, V, catchAllE)
+import qualified Haskus.Utils.Variant.Excepts.Syntax as S
+import Data.Typeable (Typeable, showsTypeRep, typeRep, Proxy (..))
 
 toThrow ::
   forall e es m a . (Exception e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m a -> Excepts (Remove e es) m a
@@ -42,3 +44,12 @@ shouldBeIO x w = do
 
 catchToFail :: forall e es m . (MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m () -> Excepts (Remove e es) m ()
 catchToFail c = c & catchLiftLeft  \(_::e) -> expectationFailure "No Error expected"
+
+expectError :: forall e es m . (Typeable e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m () -> Excepts (Remove e es) m ()
+expectError c = (do
+  c
+  expectationFailure $ "Got no error, but expected " <> show (typeRep (Proxy::Proxy e)))
+  & catchLiftLeft @e (const $ pure ())
+
+catchAllToFail :: forall es m . (MonadIO m, Show (V es)) => Excepts es m () -> Excepts '[] m ()
+catchAllToFail c = c & catchAllE \(x::V es) -> expectationFailure $ "No Error expected, but " <> show x <> " received"

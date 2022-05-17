@@ -26,9 +26,12 @@ import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 
+import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
+import Habits.Domain.AccountRepo (RepositoryError)
+
 type Execute m =
   RegisterRequest ->
-  Excepts '[RegisterError] m RegisterResponse
+  Excepts '[RegisterError, EmailAlreadyUsedError, RepositoryError] m RegisterResponse
 
 newtype Register m = Register
   { _execute :: Execute m

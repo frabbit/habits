@@ -23,15 +23,20 @@ import Habits.Domain.AccountRepo
     AccountRepo
       ( AccountRepo,
         _add,
-        _getById
+        _getById,
+        _getByEmail
       ),
     Add,
-    GetById,
+    GetById, GetByEmail,
   )
 import Habits.Domain.Email (Email (..))
 import Habits.Domain.Password (Password (..))
 import qualified Habits.Infra.Postgres.Schema as S
 import Haskus.Utils.Variant.Excepts (throwE)
+import Database.Persist ((==.), SelectOpt (LimitTo))
+import Veins.Data.ComposableEnv
+import qualified Veins.Data.ComposableEnv as CE
+import Data.Function ((&))
 
 accountIdToDomain :: P.Key S.Account -> AccountId
 accountIdToDomain key = AccountId $ S.unAccountKey key
@@ -76,9 +81,21 @@ mkGetById pool = pure f
         Nothing -> throwE AccountNotFoundError
         Just account -> pure $ convertToDomain account
 
-mkAccountRepoPostgres ::
-  (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (AccountRepo m)
+mkGetByEmail :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (GetByEmail m)
+mkGetByEmail pool = pure f
+  where
+    f :: GetByEmail m
+    f (Email e) = do
+      accountMaybe <- withPool pool $ do
+        P.selectFirst [S.AccountEmail ==. e] [LimitTo 1]
+      let acc = convertToDomain <$> accountMaybe
+      pure acc
+
+
+mkAccountRepoPostgres :: forall n m .
+  (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> CE.LayerCE '[] n '[AccountRepo m]
 mkAccountRepoPostgres pool = do
   _add <- mkAdd pool
   _getById <- mkGetById pool
-  pure $ AccountRepo {..}
+  _getByEmail <- mkGetByEmail pool
+  pure $ CE.empty & CE.insert (AccountRepo {..})
