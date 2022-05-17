@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module Veins.Data.HSetSpec where
 
 import Data.Function ((&))

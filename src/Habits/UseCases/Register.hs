@@ -5,6 +5,7 @@ module Habits.UseCases.Register
     Register (..),
     Execute,
     execute,
+    executeL,
   )
 where
 

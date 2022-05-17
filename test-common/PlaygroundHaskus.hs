@@ -1,7 +1,5 @@
 module PlaygroundHaskus where
 
-import qualified Haskus.Utils.Variant.Excepts as Exc
-
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
 
@@ -9,13 +7,8 @@ import Haskus.Utils.Variant.Excepts
   ( Excepts(..),
     catchE,
     failureE,
-    liftE, throwE, catchRemove, catchLiftLeft, runE
+    liftE
   )
-import Control.Monad.IO.Class (MonadIO(liftIO))
-import Data.Function ((&))
-import Haskus.Utils.Types (Tail, Product)
-import Haskus.Utils.Variant.VEither
-    ( veitherProduct, pattern VLeft, pattern VRight, VEither, veitherLift, VEitherLift )
 
 
 data ErrA = ErrA

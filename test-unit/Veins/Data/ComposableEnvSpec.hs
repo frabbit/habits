@@ -8,14 +8,13 @@
 module Veins.Data.ComposableEnvSpec where
 
 import Control.Monad.Reader
-  ( ReaderT (ReaderT, runReaderT),
+  ( ReaderT (runReaderT),
     asks,
   )
 import Data.Function ((&))
 import Test.Hspec
   ( Spec,
     describe,
-    focus,
     it,
     shouldBe,
   )
