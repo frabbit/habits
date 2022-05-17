@@ -24,7 +24,6 @@ source-repository head
 
 library
   exposed-modules:
-      Data.Variant
       Habits.AppT
       Habits.Domain.Account
       Habits.Domain.AccountId
@@ -194,7 +193,6 @@ test-suite habits-test-integration
       Habits.Domain.AccountRepositoryContract
       Habits.TH.TypeOf
       PlaygroundHaskus
-      PlaygroundVariant
       TestContainers.WaitStrategies
       Utils
       Habits.Infra.Postgres.AccountRepoPostgresSpec
@@ -272,7 +270,6 @@ test-suite habits-test-unit
       Habits.Domain.AccountRepositoryContract
       Habits.TH.TypeOf
       PlaygroundHaskus
-      PlaygroundVariant
       TestContainers.WaitStrategies
       Utils
       Habits.Infra.Memory.AccountRepoMemorySpec

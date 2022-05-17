@@ -1,10 +1,6 @@
 module Habits.UseCases.Register.Live where
 
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
-import Data.Variant
-  ( catchM,
-    throwM,
-  )
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.AccountRepo (AddError)
@@ -12,8 +8,6 @@ import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
     add,
   )
-import Habits.Domain.Email (Email (Email))
-import Habits.Domain.Password (Password (Password))
 import Habits.UseCases.Register
   ( Execute,
     RegisterError (RegisterError),
@@ -24,7 +18,7 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, catchE, catchLiftBoth, throwE)
+import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE)
 import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
 import Control.Monad.Reader (ReaderT)
