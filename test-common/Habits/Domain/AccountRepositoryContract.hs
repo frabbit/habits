@@ -5,18 +5,9 @@
 
 module Habits.Domain.AccountRepositoryContract where
 
-import Control.Monad.Except
-  ( ExceptT,
-    runExceptT,
-  )
-import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import qualified Data.Functor
 import qualified Data.Text as Text
-import Data.Variant
-  ( Variant,
-    catchM,
-  )
 import GHC.Stack (HasCallStack)
 import Habits.AppT (eliminate)
 import qualified Habits.Domain.Account as A
