@@ -34,6 +34,9 @@ import           Habits.Domain.AccountRepo      ( AccountNotFoundError
                                                 )
 import           UnliftIO.STM                   ( modifyTVar )
 import Haskus.Utils.Variant.Excepts (throwE)
+import qualified Veins.Data.ComposableEnv as CE
+import Data.Function ((&))
+import Control.Monad.Reader (ReaderT)
 
 mkAdd
   :: forall n m . (Applicative n, MonadIO m) => TVar [Account] -> n (Add m)
@@ -62,11 +65,11 @@ mkGetById accountsVar = pure f
       Nothing      -> throwE AccountNotFoundError
       Just account -> pure account
 
-mkAccountRepoMemory :: (MonadIO n, MonadIO m) => n (AccountRepo m)
+mkAccountRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AccountRepo m])
 mkAccountRepoMemory = do
   accountsVar <- liftIO $ newTVarIO []
   _getById    <- mkGetById accountsVar
   _add        <- mkAdd accountsVar
-  pure $ AccountRepo { _add, _getById }
+  pure $ CE.empty & CE.insert AccountRepo { _add, _getById }
 
 

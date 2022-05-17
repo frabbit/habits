@@ -1,22 +1,47 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# HLINT ignore "Avoid lambda" #-}
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# HLINT ignore "Redundant lambda" #-}
+{-# LANGUAGE PolyKinds #-}
 {-# HLINT ignore "Redundant P.pure" #-}
 {-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-missing-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant lambda" #-}
-{-# LANGUAGE PolyKinds #-}
-
-module Veins.Data.ComposableEnv where
+module Veins.Data.ComposableEnv
+  ( ReaderCE,
+    empty,
+    remove,
+    addLayer,
+    provideAndChainLayer,
+    insert,
+    ComposableEnv,
+    MkSorted,
+    expandEnv,
+    chainFromEnv,
+    expandEnvBy,
+    union,
+    provideAll',
+    provideAll,
+    expandLayer,
+    get,
+    provideLayer,
+    provideLayer',
+    (>>=),
+    fail,
+    return
+  )
+where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
+import Data.Kind (Type)
 import qualified Veins.Data.HList as HL
 import qualified Veins.Data.HSet as H
-import qualified Veins.Data.Has as Has
 import qualified Veins.Data.HSortedList as HSL
+import Veins.Data.Has (Has)
+import qualified Veins.Data.Has as Has
+import Veins.Data.ToSymbol (CmpToSymbol)
 import Prelude
   ( Eq (..),
     Monad,
@@ -25,24 +50,25 @@ import Prelude
     (.),
   )
 import qualified Prelude as P
-import Veins.Data.Has (Has)
-import Veins.Data.ToSymbol (CmpToSymbol)
-import Data.Kind (Type)
 
+type Whoop = P.Int
 
-type family MkSorted (xs::[Type]) where
+type ReaderCE env m x = ReaderT (ComposableEnv env) m x
+
+type LayerCE env m out = ReaderT (ComposableEnv env) m (ComposableEnv out)
+
+type family MkSorted (xs :: [Type]) where
   MkSorted xs = ComposableEnv (Sorted xs)
 
-type family Sorted (xs::[k]) :: [k] where
+type family Sorted (xs :: [k]) :: [k] where
   Sorted '[] = '[]
   Sorted (x : '[]) = x : '[]
   Sorted (x : y : tail) = SortedCase (CmpToSymbol x y) x y tail
 
-type family SortedCase (ord::P.Ordering) x y (tail::[k]) :: [k] where
+type family SortedCase (ord :: P.Ordering) x y (tail :: [k]) :: [k] where
   SortedCase 'P.EQ x y tail = (x : Sorted (y : tail))
   SortedCase 'P.LT x y tail = (x : Sorted (y : tail))
   SortedCase 'P.GT x y tail = (y : Sorted (x : tail))
-
 
 newtype ComposableEnv e = ComposableEnv (H.HSet e)
 
@@ -352,7 +378,6 @@ provideAndChainLayer ::
   ReaderT (ComposableEnv e1) m (ComposableEnv o2) ->
   ReaderT (ComposableEnv (H.Union (H.Excluding (H.Union o1 e1) o1) e0)) m (ComposableEnv (H.Union o2 o1))
 provideAndChainLayer layer = provideLayer layer . chainFromEnv @o1 . expandEnvBy @o1
-
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where
   get = get
