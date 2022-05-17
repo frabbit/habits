@@ -16,7 +16,7 @@ data ErrC = ErrC deriving (Show, Eq, Ord)
 data ErrD = ErrD deriving (Show, Eq, Ord)
 
 spec :: Spec
-spec = focus . describe "Syntax" $ do
+spec = describe "Syntax" $ do
   let
     withErrorsAB :: Excepts '[ErrA, ErrB] IO Int
     withErrorsAB = pure 1

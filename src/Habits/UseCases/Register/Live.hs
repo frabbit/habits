@@ -7,7 +7,9 @@ import Habits.Domain.AccountRepo (AddError)
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
     add,
+    getByEmail
   )
+import qualified Habits.Domain.AccountRepo.Class as AC
 import Habits.UseCases.Register
   ( Execute,
     RegisterError (RegisterError),
@@ -18,15 +20,20 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE)
+import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE, failureE, catchLiftBoth, liftE, catchLiftRight)
 import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
 import Control.Monad.Reader (ReaderT)
+import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(..))
+import Control.Monad (when)
+import Data.Maybe (isJust)
 
 
 
 execute :: (Monad m, AccountRepo m) => Execute m
 execute req = (S.do
+  account <- getByEmail (req ^. RR.email)
+  when (isJust account) $ failureE EmailAlreadyUsedError
   accountId <- add
     ( AccountNew
         { AN._email = req ^. RR.email,

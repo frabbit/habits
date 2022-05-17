@@ -1,25 +1,34 @@
+{-# LANGUAGE UndecidableInstances #-}
 module Habits.Infra.Postgres.AccountRepoPostgresSpec where
 
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Logger (runStderrLoggingT)
+import Control.Monad.Reader (runReaderT)
 import Data.Function ((&))
 import Data.Text (Text)
+import Habits.UseCases.Register.Live as RL
+
+import qualified Data.Pool as P'
+
+import Veins.Data.ComposableEnv as CE
 import qualified Data.Text as Text
 import qualified Data.Text.Encoding as Text
 import Data.Text.Lazy
   ( isInfixOf,
   )
 import qualified Database.Persist.Postgresql as P
-import Habits.App (runApp)
-import Habits.AppEnv
-  ( accountRepo,
-    mkAppEnv,
-  )
+
 import Habits.Domain.AccountRepositoryContract
   ( mkSpec,
   )
 import qualified Habits.Infra.Postgres.AccountRepoPostgres as ARP
+import qualified Habits.Domain.AccountRepo as AR
+import qualified Habits.UseCases.Register as R
+import qualified Veins.Test.AppTH as AppTH
+
+import qualified Habits.Domain.AccountRepo.Class as ARC
+import Control.Monad.IO.Class (MonadIO)
 import qualified Habits.Infra.Postgres.Schema as S
 import Test.Hspec
   ( Spec,
@@ -102,6 +111,16 @@ connStr ip port =
       <> " dbname=test user=test password=test port="
       <> Text.pack (show port)
 
+
+
+type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
+
+envLayer :: forall n m . (MonadIO n, ARC.AccountRepo m, MonadIO m) => P'.Pool P.SqlBackend -> CE.ReaderCE '[] n (Env m)
+envLayer pool = ARP.mkAccountRepoPostgres pool `CE.provideAndChainLayer` RL.mkLive
+
+AppTH.mkBoilerplate "runApp" ''Env
+
+
 spec :: Spec
 spec = mkSpec $ \x -> do
   withContainers containers1 $ \cfg -> do
@@ -109,7 +128,5 @@ spec = mkSpec $ \x -> do
       P.withPostgresqlPool (connStr "localhost" (_port cfg)) 10 $
         \pool -> liftIO $ do
           S.migrateAll pool
-          env <- mkAppEnv
-          accRepo <- ARP.mkAccountRepoPostgres pool
-          let env' = env & L.set accountRepo accRepo
-          runApp env' x
+          env <- runReaderT (envLayer pool) CE.empty
+          runApp env x
