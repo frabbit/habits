@@ -44,7 +44,6 @@ mkAppEnv = do
 
 AppTH.mkBoilerplate "runApp" ''Env
 
-
 runWithEnv :: _ b -> IO b
 runWithEnv app = do
   env <- mkAppEnv
@@ -62,7 +61,7 @@ spec = describe "RegisterSpec execute should" $ do
         account <- liftE $ ARC.getById _accountId
         A.toAccountNew account `shouldBe` accNew
     in
-    ((app
+    app
     & catchToFail @R.RegisterError
-    & catchToFail @AR.RepositoryError :: _)
-    & catchToFail @AR.AccountNotFoundError)
+    & catchToFail @AR.RepositoryError
+    & catchToFail @AR.AccountNotFoundError
