@@ -23,6 +23,8 @@ import Habits.Domain.Password (Password (..))
 import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
+import Utils (sampleIO)
+import Control.Monad.IO.Class (MonadIO)
 
 data AddError = AddError
   deriving (Show, Typeable)
@@ -98,26 +100,28 @@ getByEmail r = do
   AccountRepo {_getByEmail = f} <- asks (Has.get @(AccountRepo m))
   f r
 
-mkStub :: (Monad m) => AccountRepo m
+mkStub :: (Monad m, MonadIO m) => AccountRepo m
 mkStub =
   AccountRepo
     { _add = \_ -> pure (AccountId "abc"),
-      _getByEmail = \_ ->
+      _getByEmail = \_ -> do
+        pw <- sampleIO
         pure . Just $
           ( A.Account
               { A._name = "abc",
                 A._email = Email "abc@abd.de",
                 A._accountId = AccountId "123",
-                A._password = Password "pw"
+                A._password = pw
               }
           ),
-      _getById = \_ ->
+      _getById = \_ -> do
+        pw <- sampleIO
         pure
           ( A.Account
               { A._name = "abc",
                 A._email = Email "abc@abd.de",
                 A._accountId = AccountId "123",
-                A._password = Password "pw"
+                A._password = pw
               }
           )
     }

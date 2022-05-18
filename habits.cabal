@@ -34,6 +34,7 @@ library
       Habits.Domain.EmailAlreadyUsedError
       Habits.Domain.HabitDef
       Habits.Domain.Password
+      Habits.Domain.PasswordHash
       Habits.Infra.Memory.AccountRepoMemory
       Habits.Infra.Postgres.AccountRepoPostgres
       Habits.Infra.Postgres.Schema
@@ -105,6 +106,7 @@ library
     , mtl
     , newtype
     , ormolu
+    , password
     , persistent
     , persistent-postgresql
     , quickcheck-instances
@@ -171,6 +173,7 @@ executable habits-exe
     , mtl
     , newtype
     , ormolu
+    , password
     , persistent
     , persistent-postgresql
     , quickcheck-instances
@@ -250,6 +253,7 @@ test-suite habits-test-integration
     , mtl
     , newtype
     , ormolu
+    , password
     , persistent
     , persistent-postgresql
     , quickcheck-instances
@@ -336,6 +340,7 @@ test-suite habits-test-unit
     , mtl
     , newtype
     , ormolu
+    , password
     , persistent
     , persistent-postgresql
     , quickcheck-instances

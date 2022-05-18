@@ -8,13 +8,13 @@ import Data.Text (Text)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.Email (Email)
-import Habits.Domain.Password (Password)
+import Habits.Domain.PasswordHash (PasswordHash)
 
 data Account = Account
   { _accountId :: AccountId,
     _name :: Text,
     _email :: Email,
-    _password :: Password
+    _password :: PasswordHash
   }
   deriving (Eq, Show, Ord)
 

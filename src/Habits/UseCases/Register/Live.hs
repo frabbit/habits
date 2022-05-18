@@ -26,23 +26,27 @@ import Control.Monad.Reader (ReaderT)
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(..))
 import Control.Monad (when)
 import Data.Maybe (isJust)
+import Habits.Domain.PasswordHash (mkFromPassword)
+import Control.Monad.IO.Class (MonadIO)
 
 
 
-execute :: (Monad m, AccountRepo m) => Execute m
+
+execute :: (Monad m, MonadIO m, AccountRepo m) => Execute m
 execute req = (S.do
   account <- getByEmail (req ^. RR.email)
   when (isJust account) $ failureE EmailAlreadyUsedError
+  pwHash <- S.coerce $ mkFromPassword (req ^. RR.password)
   accountId <- add
     ( AccountNew
         { AN._email = req ^. RR.email,
           AN._name = req ^. RR.name,
-          AN._password = req ^. RR.password
+          AN._password = pwHash
         }
     )
   S.pure $ RegisterResponse { _accountId = accountId })
   & catchLiftLeft (\(_ :: AddError) -> throwE RegisterError)
 
 
-mkLive :: forall n m. (Monad n, Monad m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
+mkLive :: forall n m. (Monad n, Monad m, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
 mkLive = pure $ CE.empty & CE.insert R.Register {R._execute = execute}

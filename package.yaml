@@ -57,6 +57,7 @@ dependencies:
 - ormolu
 - quickcheck-text
 - haskell-src-meta
+- password
 
 default-extensions:
   - TypeOperators
