@@ -28,6 +28,7 @@ library
       Habits.Domain.Account
       Habits.Domain.AccountId
       Habits.Domain.AccountNew
+      Habits.Domain.AccountNotFoundError
       Habits.Domain.AccountRepo
       Habits.Domain.AccountRepo.Class
       Habits.Domain.Email
@@ -35,10 +36,16 @@ library
       Habits.Domain.HabitDef
       Habits.Domain.Password
       Habits.Domain.PasswordHash
+      Habits.Domain.PasswordIncorrectError
       Habits.Infra.Memory.AccountRepoMemory
       Habits.Infra.Postgres.AccountRepoPostgres
       Habits.Infra.Postgres.Schema
       Habits.Infra.Postgres.Utils
+      Habits.UseCases.Login
+      Habits.UseCases.Login.Class
+      Habits.UseCases.Login.Live
+      Habits.UseCases.Login.LoginRequest
+      Habits.UseCases.Login.LoginResponse
       Habits.UseCases.Register
       Habits.UseCases.Register.Class
       Habits.UseCases.Register.Live
@@ -284,6 +291,7 @@ test-suite habits-test-unit
       Veins.Test.MockSpec
       Veins.TestContainers.Postgres
       Habits.Infra.Memory.AccountRepoMemorySpec
+      Habits.UseCases.LoginSpec
       Habits.UseCases.RegisterSpec
       Haskus.Utils.Variant.Excepts.SyntaxSpec
       Veins.Data.ComposableEnvSpec

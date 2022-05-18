@@ -30,13 +30,13 @@ import Habits.Domain.AccountRepo
     GetById, GetByEmail,
   )
 import Habits.Domain.Email (Email (..))
-import Habits.Domain.Password (Password (..))
 import qualified Habits.Infra.Postgres.Schema as S
 import Haskus.Utils.Variant.Excepts (throwE)
 import Database.Persist ((==.), SelectOpt (LimitTo))
 import qualified Veins.Data.ComposableEnv as CE
 import Data.Function ((&))
 import Habits.Infra.Postgres.Utils (withPool)
+import Habits.Domain.PasswordHash (PasswordHash(PasswordHash, unPasswordHash))
 
 accountIdToDomain :: P.Key S.Account -> AccountId
 accountIdToDomain key = AccountId $ S.unAccountKey key
@@ -47,8 +47,10 @@ convertToDomain (P.Entity key a) =
     { A._name = S.accountName a,
       A._email = Email $ S.accountEmail a,
       A._accountId = accountIdToDomain key,
-      A._password = Password $ S.accountPassword a
+      A._password = PasswordHash $ S.accountPassword a
     }
+
+
 
 mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Add m)
 mkAdd pool = pure f
@@ -63,7 +65,7 @@ mkAdd pool = pure f
           S.Account
             { S.accountName = view AN.name an,
               S.accountEmail = unEmail $ view AN.email an,
-              S.accountPassword = unPassword $ view AN.password an
+              S.accountPassword = unPasswordHash $ view AN.password an
             }
       pure $ accountIdToDomain accountKey
 

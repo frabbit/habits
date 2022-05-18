@@ -43,7 +43,7 @@ shouldBeIO x w = do
 catchToFail :: forall e es m . (MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m () -> Excepts (Remove e es) m ()
 catchToFail c = c & catchLiftLeft  \(_::e) -> expectationFailure "No Error expected"
 
-expectError :: forall e es m . (Typeable e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m () -> Excepts (Remove e es) m ()
+expectError :: forall e es m a . (Typeable e, MonadIO m, e :< es, LiftVariant (Remove e es) (Remove e es)) => Excepts es m a -> Excepts (Remove e es) m ()
 expectError c = do
   c
   expectationFailure $ "Got no error, but expected " <> show (typeRep (Proxy::Proxy e))

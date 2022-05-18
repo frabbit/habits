@@ -86,5 +86,4 @@ spec = describe "Register should" $ do
       an :: AN.AccountNew <- S.coerce sampleIO
       ARC.add an
       RC.execute (accountNewToRegisterRequest an (Password "pw"))
-      S.pure ()
       & expectError @EmailAlreadyUsedError

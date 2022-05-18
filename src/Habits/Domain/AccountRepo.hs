@@ -23,8 +23,8 @@ import Habits.Domain.Password (Password (..))
 import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
-import Utils (sampleIO)
 import Control.Monad.IO.Class (MonadIO)
+import Veins.Test.QuickCheck (sampleIO)
 
 data AddError = AddError
   deriving (Show, Typeable)
