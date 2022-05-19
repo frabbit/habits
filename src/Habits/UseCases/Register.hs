@@ -1,6 +1,5 @@
 module Habits.UseCases.Register
-  ( RegisterError (..),
-    RegisterResponse (..),
+  ( RegisterResponse (..),
     RegisterRequest (..),
     Register (..),
     Execute,
@@ -14,6 +13,8 @@ import Control.Lens
     lens,
   )
 import Control.Monad.Reader (MonadReader, asks)
+import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
+import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.UseCases.Register.RegisterRequest
   ( RegisterRequest (..),
   )
@@ -23,9 +24,6 @@ import Habits.UseCases.Register.RegisterResponse
 import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
-
-import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
-import Habits.Domain.RepositoryError (RepositoryError)
 
 type Execute m =
   RegisterRequest ->
