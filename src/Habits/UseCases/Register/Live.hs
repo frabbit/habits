@@ -3,7 +3,6 @@ module Habits.UseCases.Register.Live where
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN
-import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
     add,
@@ -11,7 +10,6 @@ import Habits.Domain.AccountRepo.Class
   )
 import Habits.UseCases.Register
   ( Execute,
-    RegisterError (RegisterError),
     RegisterResponse
       ( RegisterResponse, _accountId
       ),
@@ -19,7 +17,7 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import Control.Lens ((^.))
-import Haskus.Utils.Variant.Excepts (catchLiftLeft, throwE, failureE)
+import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
 import Control.Monad.Reader (ReaderT)
@@ -29,11 +27,8 @@ import Data.Maybe (isJust)
 import Habits.Domain.PasswordHash (mkFromPassword)
 import Control.Monad.IO.Class (MonadIO)
 
-
-
-
-execute :: (Monad m, MonadIO m, AccountRepo m) => Execute m
-execute req = (S.do
+execute :: (MonadIO m, AccountRepo m) => Execute m
+execute req = liftE $ S.do
   account <- getByEmail (req ^. RR.email)
   when (isJust account) $ failureE EmailAlreadyUsedError
   pwHash <- S.coerce $ mkFromPassword (req ^. RR.password)
@@ -44,9 +39,8 @@ execute req = (S.do
           AN._password = pwHash
         }
     )
-  S.pure $ RegisterResponse { _accountId = accountId })
-  & catchLiftLeft (\(_ :: RepositoryError) -> throwE RegisterError)
+  S.pure $ RegisterResponse { _accountId = accountId }
 
 
-mkLive :: forall n m. (Monad n, Monad m, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
+mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
 mkLive = pure $ CE.empty & CE.insert R.Register {R._execute = execute}

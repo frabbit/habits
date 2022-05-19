@@ -14,9 +14,6 @@ import Control.Lens
     lens,
   )
 import Control.Monad.Reader (MonadReader, asks)
-import Habits.UseCases.Register.RegisterError
-  ( RegisterError (..),
-  )
 import Habits.UseCases.Register.RegisterRequest
   ( RegisterRequest (..),
   )
@@ -32,7 +29,7 @@ import Habits.Domain.RepositoryError (RepositoryError)
 
 type Execute m =
   RegisterRequest ->
-  Excepts '[RegisterError, EmailAlreadyUsedError, RepositoryError] m RegisterResponse
+  Excepts '[EmailAlreadyUsedError, RepositoryError] m RegisterResponse
 
 newtype Register m = Register
   { _execute :: Execute m
