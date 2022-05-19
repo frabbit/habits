@@ -7,7 +7,8 @@ import Control.Monad.RWS
   ( MonadReader,
   )
 import Habits.Domain.Account (Account)
-import Habits.Domain.AccountNotFoundError (AccountNotFoundError (..))
+import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
+import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.AccountRepo
   ( Add,
     GetByEmail,
@@ -29,7 +30,7 @@ instance (MonadReader env m, Has (AR.AccountRepo m) env) => AccountRepo m where
   getById = AR.getById
   getByEmail = AR.getByEmail
 
-getByEmailOrFail :: (Monad m, AccountRepo m) => Email -> Excepts '[AR.RepositoryError, AccountNotFoundError] m Account
+getByEmailOrFail :: (Monad m, AccountRepo m) => Email -> Excepts '[RepositoryError, AccountNotFoundError] m Account
 getByEmailOrFail e = S.do
   acc <- getByEmail e
   case acc of

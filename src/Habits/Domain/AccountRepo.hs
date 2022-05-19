@@ -25,21 +25,13 @@ import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 import Control.Monad.IO.Class (MonadIO)
 import Veins.Test.QuickCheck (sampleIO)
+import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
+import Habits.Domain.RepositoryError (RepositoryError)
 
 data AddError = AddError
   deriving (Show, Typeable)
 
 instance Exception AddError
-
-data AccountNotFoundError = AccountNotFoundError
-  deriving (Show, Typeable, Eq, Ord)
-
-instance Exception AccountNotFoundError
-
-data RepositoryError = RepositoryError
-  deriving (Show, Typeable)
-
-instance Exception RepositoryError
 
 type Add m =
   AccountNew ->

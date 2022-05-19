@@ -11,12 +11,12 @@ import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.AccountId as AccountId
 import qualified Habits.Domain.AccountNew as AN
+import Habits.Domain.AccountNotFoundError (AccountNotFoundError(AccountNotFoundError))
+import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.AccountRepo
-  ( AccountNotFoundError
-      ( AccountNotFoundError
-      ),
+  (
     AddError,
-    RepositoryError,
+
   )
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,

@@ -16,10 +16,9 @@ import Habits.Domain.Account (Account)
 import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId (AccountId))
 import qualified Habits.Domain.AccountNew as AN
+import Habits.Domain.AccountNotFoundError (AccountNotFoundError(AccountNotFoundError))
 import Habits.Domain.AccountRepo
-  ( AccountNotFoundError
-      ( AccountNotFoundError
-      ),
+  (
     AccountRepo
       ( AccountRepo,
         _add,

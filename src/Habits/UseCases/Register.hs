@@ -28,7 +28,7 @@ import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
-import Habits.Domain.AccountRepo (RepositoryError)
+import Habits.Domain.RepositoryError (RepositoryError)
 
 type Execute m =
   RegisterRequest ->

@@ -3,7 +3,7 @@ import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Habits.UseCases.Login.LoginRequest (LoginRequest)
 import Habits.UseCases.Login.LoginResponse (LoginResponse)
-import Habits.Domain.AccountRepo (RepositoryError)
+import Habits.Domain.RepositoryError (RepositoryError)
 import Veins.Data.ToSymbol (ToSymbol)
 import Control.Lens (Lens', lens)
 import Control.Monad.Reader (MonadReader, asks)
