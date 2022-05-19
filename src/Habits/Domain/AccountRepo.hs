@@ -99,29 +99,3 @@ getByEmail :: forall m env. (Has.Has (AccountRepo m) env, MonadReader env m) => 
 getByEmail r = do
   AccountRepo {_getByEmail = f} <- asks (Has.get @(AccountRepo m))
   f r
-
-mkStub :: (Monad m, MonadIO m) => AccountRepo m
-mkStub =
-  AccountRepo
-    { _add = \_ -> pure (AccountId "abc"),
-      _getByEmail = \_ -> do
-        pw <- sampleIO
-        pure . Just $
-          ( A.Account
-              { A._name = "abc",
-                A._email = Email "abc@abd.de",
-                A._accountId = AccountId "123",
-                A._password = pw
-              }
-          ),
-      _getById = \_ -> do
-        pw <- sampleIO
-        pure
-          ( A.Account
-              { A._name = "abc",
-                A._email = Email "abc@abd.de",
-                A._accountId = AccountId "123",
-                A._password = pw
-              }
-          )
-    }
