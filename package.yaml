@@ -108,10 +108,16 @@ executables:
     dependencies:
     - habits
 
+# Note
+# Adding src during development here makes the ide experience much smoother. It's caused by a stack bug that leads to staleness problems when adding new files or types to the habits library
+# related issues: https://github.com/haskell/haskell-language-server/issues/2058, https://github.com/haskell/haskell-language-server/issues/1822 https://github.com/haskell/haskell-language-server/issues/366
+#                 https://github.com/commercialhaskell/stack/issues/5380
+
 tests:
   habits-test-unit:
     main:                Spec.hs
     source-dirs:
+    #- src # Adding src, see Note above
     - test-common
     - test-unit
     ghc-options:
@@ -126,6 +132,7 @@ tests:
   habits-test-integration:
     main:                Spec.hs
     source-dirs:
+    #- src # Adding src, see Note above
     - test-common
     - test-integration
     ghc-options:
