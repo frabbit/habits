@@ -13,11 +13,6 @@ import qualified Habits.Domain.AccountId as AccountId
 import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError(AccountNotFoundError))
 import Habits.Domain.RepositoryError (RepositoryError)
-import Habits.Domain.AccountRepo
-  (
-    AddError,
-
-  )
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
   )
@@ -55,7 +50,6 @@ mkSpec unlift = parallel $
             acc <- ARC.getById accountId
             S.coerce $ acc `shouldBe` A.fromAccountNew accountNew accountId
             S.coerce $ ((Text.length . AccountId.unwrap $ accountId) > 0) `shouldBe` True
-            & toThrow @AddError
             & toThrow @RepositoryError
             & toThrow @AccountNotFoundError
     describe "getById should" $ do

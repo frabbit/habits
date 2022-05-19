@@ -37,6 +37,8 @@ library
       Habits.Domain.Password
       Habits.Domain.PasswordHash
       Habits.Domain.PasswordIncorrectError
+      Habits.Domain.RefreshTokenRepo
+      Habits.Domain.RepositoryError
       Habits.Infra.Memory.AccountRepoMemory
       Habits.Infra.Postgres.AccountRepoPostgres
       Habits.Infra.Postgres.Schema

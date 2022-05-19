@@ -28,14 +28,9 @@ import Veins.Test.QuickCheck (sampleIO)
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.RepositoryError (RepositoryError)
 
-data AddError = AddError
-  deriving (Show, Typeable)
-
-instance Exception AddError
-
 type Add m =
   AccountNew ->
-  Excepts '[AddError] m AccountId
+  Excepts '[RepositoryError] m AccountId
 
 type GetByEmail m =
   Email ->

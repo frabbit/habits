@@ -3,7 +3,7 @@ module Habits.UseCases.Register.Live where
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN
-import Habits.Domain.AccountRepo (AddError)
+import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
     add,
@@ -45,7 +45,7 @@ execute req = (S.do
         }
     )
   S.pure $ RegisterResponse { _accountId = accountId })
-  & catchLiftLeft (\(_ :: AddError) -> throwE RegisterError)
+  & catchLiftLeft (\(_ :: RepositoryError) -> throwE RegisterError)
 
 
 mkLive :: forall n m. (Monad n, Monad m, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
