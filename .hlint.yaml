@@ -2,3 +2,4 @@
 - warning: { name: Use readTVarIO }
 - warning: { name: Use <$> }
 - warning: { name: Move brackets to avoid $ }
+- warning: { name: Use let }
