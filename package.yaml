@@ -61,6 +61,7 @@ dependencies:
 - time
 - jwt
 - fixed
+- timeit
 
 default-extensions:
   - TypeOperators

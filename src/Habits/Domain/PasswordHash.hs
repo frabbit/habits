@@ -21,7 +21,8 @@ isValid (Password pw) (PasswordHash ph) = PW.checkPassword (PW.mkPassword pw) (P
 mkFromPasswordWithSalt :: PW.Salt PW.Bcrypt -> Password -> PasswordHash
 mkFromPasswordWithSalt salt (Password pw) = PasswordHash . PW.unPasswordHash $ hashed
   where
-    hashed = PW.hashPasswordWithSalt 5 salt (PW.mkPassword pw)
+    cost = 4 -- between 4 and 31
+    hashed = PW.hashPasswordWithSalt cost salt (PW.mkPassword pw)
 
 genSalt :: Gen (PW.Salt a)
 genSalt = PW.Salt . BS.pack <$> vector 16

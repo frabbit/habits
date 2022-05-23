@@ -10,8 +10,16 @@ import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret (RefreshTokenSecret)
 import Test.QuickCheck.Instances ()
 import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
 import Prelude hiding (exp, id)
+import Test.QuickCheck (Arbitrary (arbitrary))
 
 newtype RefreshToken = RefreshToken {unRefreshToken :: Text} deriving (Show, Eq, Ord)
+
+instance Arbitrary RefreshToken where
+  arbitrary = do
+    (secret, accountId, difftime) <- arbitrary
+
+    let token = mkRefreshToken secret accountId difftime
+    pure token
 
 mkRefreshToken :: RefreshTokenSecret -> AccountId -> NominalDiffTime -> RefreshToken
 mkRefreshToken (RefreshTokenSecret s) (AccountId id) time = RefreshToken jwt

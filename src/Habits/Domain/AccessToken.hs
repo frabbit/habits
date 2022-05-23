@@ -10,8 +10,16 @@ import Habits.Domain.AccessTokenSecret (AccessTokenSecret (AccessTokenSecret))
 import Test.QuickCheck.Instances ()
 import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
 import Prelude hiding (exp, id)
+import Test.QuickCheck (Arbitrary (arbitrary))
 
 newtype AccessToken = AccessToken {unAccessToken :: Text} deriving (Show, Eq, Ord)
+
+instance Arbitrary AccessToken where
+  arbitrary = do
+    (secret, accountId, difftime) <- arbitrary
+
+    let token = mkAccessToken secret accountId difftime
+    pure token
 
 mkAccessToken :: AccessTokenSecret -> AccountId -> NominalDiffTime -> AccessToken
 mkAccessToken (AccessTokenSecret s) (AccountId id) time = AccessToken jwt

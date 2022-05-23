@@ -5,14 +5,12 @@ module Habits.UseCases.LoginSpec where
 
 import Control.Lens ((^.))
 import qualified Control.Lens as L
-import Control.Monad.IO.Class (MonadIO, liftIO)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.Text (Text)
 import Habits.Domain.AccessToken (AccessToken (AccessToken))
-import qualified Habits.Domain.AccessToken as AT
-import Habits.Domain.AccessTokenSecret (AccessTokenSecret (AccessTokenSecret))
+import qualified Habits.Domain.AccessToken as AccessToken
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
@@ -24,7 +22,7 @@ import Habits.Domain.Password (Password (..))
 import Habits.Domain.PasswordHash (mkFromPassword)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
 import Habits.Domain.RefreshToken (RefreshToken (RefreshToken))
-import qualified Habits.Domain.RefreshToken as RT
+import qualified Habits.Domain.RefreshToken as RefreshToken
 import qualified Habits.Domain.TimeProvider as TP
 import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
@@ -41,19 +39,19 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
     describe,
-    focus,
-    it,
+    it, focus, parallel, xdescribe,
   )
-import Test.Hspec.Expectations.Lifted (shouldBe)
+import Test.Hspec.Expectations.Lifted (shouldBe, shouldSatisfy)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.HSpec.TH (shouldMatchPattern)
 
-import Data.Time (getCurrentTime)
+import System.TimeIt (timeIt)
 import qualified Data.Time as Time
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Veins.Data.Time.Utils (addHoursToUTCTime, addMillisecondsToUTCTime, addDaysToUTCTime)
+import Data.Maybe (isJust)
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, AC.AuthConfig]
 
@@ -96,7 +94,7 @@ runWithEnv layer app = do
   runApp env app
 
 spec :: Spec
-spec = focus . describe "Login.execute should" $ do
+spec = describe "Login.execute should" $ do
   let runEval = runWithEnv (envLayer :: _) . evalE
   it "be successfull when account with same password and email exists" . runEval . catchAllToFail $ S.do
     (acc, pw) <- addUserWithPassword
@@ -104,13 +102,13 @@ spec = focus . describe "Login.execute should" $ do
     S.coerce $ $('resp `shouldMatchPattern` [p|LoginResponse (AccessToken _) (RefreshToken _)|])
   it "return a valid access token" . runEval . catchAllToFail $ S.do
     (acc, pw) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
-    let verifyResult = AT.verifyAccessToken atSecret (resp ^. LR.accessToken)
+    resp <- timeIt $ LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
+    let verifyResult = AccessToken.verifyAccessToken atSecret (resp ^. LR.accessToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return a valid refresh token" . runEval . catchAllToFail $ S.do
     (acc, pw) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
-    let verifyResult = RT.verifyRefreshToken rtSecret (resp ^. LR.refreshToken)
+    let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp ^. LR.refreshToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return an access token which is 3 hours valid" . runEval . catchAllToFail $ S.do
     (acc, pw) <- addUserWithPassword
@@ -118,18 +116,24 @@ spec = focus . describe "Login.execute should" $ do
     let now = timeNow
     let almost = addHoursToUTCTime 3 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
-    S.coerce $ AT.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
-    S.coerce $ AT.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
-    S.coerce $ AT.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
+    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
+    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
+    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "return a refresh token which is 7 days valid" . runEval . catchAllToFail $ S.do
     (acc, pw) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     let now = timeNow
     let almost = addDaysToUTCTime 7 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
-    S.coerce $ RT.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
-    S.coerce $ RT.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
-    S.coerce $ RT.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
+    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
+    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
+    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
+  it "store the generated refresh token" . runEval . catchAllToFail $ S.do
+    (acc, pw) <- addUserWithPassword
+    resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
+    info <- S.pure $ Just () -- RefreshTokenIssuedRepo.getByHashedToken (resp ^. LR.refreshToken)
+    S.coerce (info `shouldSatisfy` isJust)
+
   it "fail with AccountNotFoundError when account with given email does not exist" . runEval . catchAllToFail $
     S.do
       pw <- S.coerce sampleIO
