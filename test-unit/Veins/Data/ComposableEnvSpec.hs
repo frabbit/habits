@@ -37,6 +37,8 @@ import Veins.Data.ComposableEnv
   )
 import qualified Veins.Data.ComposableEnv as CE
 import Veins.Data.ToSymbol (type ToSymbol)
+import Veins.Test.HSpec (passTrue)
+import Data.Type.Equality (type (==))
 
 data A = A deriving (Show, Eq)
 
@@ -327,3 +329,8 @@ spec = describe "ComposableEnv" $ do
       let f :: ComposableEnv '[] -> ()
           f = provideAll' (\(_ :: ComposableEnv '[]) -> ()) (empty & insert A)
       f empty `shouldBe` ()
+
+  describe "MkSorted" $ do
+    it "should sort properly" $ do
+      passTrue @(CE.MkSorted '[D,B,C,A] == ComposableEnv '[A,B,C,D])
+      passTrue @(CE.MkSorted '[D,B,A,C] == ComposableEnv '[A,B,C,D])

@@ -28,11 +28,13 @@ module Veins.Data.ComposableEnv
     expandLayer,
     get,
     provideLayer,
+    provideLayerFlipped,
     provideLayer',
     (>>=),
     fail,
     return,
-  )
+    pure,
+  provideAndChainLayerFlipped)
 where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
@@ -50,6 +52,7 @@ import Prelude
     (.),
   )
 import qualified Prelude as P
+import qualified Veins.Data.Type.List as L
 
 type ReaderCE env m x = ReaderT (ComposableEnv env) m x
 
@@ -58,10 +61,31 @@ type LayerCE env m out = ReaderT (ComposableEnv env) m (ComposableEnv out)
 type family MkSorted (xs :: [Type]) where
   MkSorted xs = ComposableEnv (Sorted xs)
 
+type family ConvertAcc (tup::(k, [k], [k])) :: (P.Maybe k, [k]) where
+  ConvertAcc '(x, _, acc) = '( 'P.Just x, L.Reverse acc)
+
+type family FindSmallest (xs :: [k]) :: (P.Maybe k, [k]) where
+  FindSmallest '[] = '( 'P.Nothing, '[])
+  FindSmallest (x ': tail) = ConvertAcc (FindSmallest' x tail '[])
+
+
+type family FindSmallest' (c::k) (xs :: [k]) (acc:: [k]) :: (k, [k], [k]) where
+  FindSmallest' min (x ': tail) acc = FindSmallestCase (CmpToSymbol min x) min x tail acc
+  FindSmallest min '[] acc= '(min, '[], acc)
+
+type family FindSmallestCase (ord :: P.Ordering) min y (tail :: [k]) (acc :: [k]):: (k, [k], [k]) where
+  FindSmallestCase 'P.EQ x y tail acc = FindSmallest' x tail (y ': acc)
+  FindSmallestCase 'P.LT x y tail acc = FindSmallest' x tail (y ': acc)
+  FindSmallestCase 'P.GT x y tail acc = FindSmallest' y tail (x ': acc)
+
 type family Sorted (xs :: [k]) :: [k] where
   Sorted '[] = '[]
   Sorted (x : '[]) = x : '[]
-  Sorted (x : y : tail) = SortedCase (CmpToSymbol x y) x y tail
+  Sorted (x : tail) = Sorted' x (FindSmallest tail)
+
+type family Sorted' (x::k) (rest:: ( P.Maybe k, [k])) :: [k] where
+  Sorted x '( 'P.Nothing, _ )= x : '[]
+  Sorted x '( 'P.Just y, tail) = SortedCase (CmpToSymbol x y) x y tail
 
 type family SortedCase (ord :: P.Ordering) x y (tail :: [k]) :: [k] where
   SortedCase 'P.EQ x y tail = (x : Sorted (y : tail))
@@ -164,6 +188,9 @@ bind :: Bind
 bind r f = do
   a <- lift r
   lift (f a)
+
+provideLayerFlipped :: _ => _
+provideLayerFlipped = P.flip provideLayer
 
 provideLayer ::
   forall e0 e1 e2 m r out e2'.
@@ -367,6 +394,9 @@ provideAndChainLayer ::
   ReaderT (ComposableEnv e1) m (ComposableEnv o2) ->
   ReaderT (ComposableEnv (H.Union (H.Excluding (H.Union o1 e1) o1) e0)) m (ComposableEnv (H.Union o2 o1))
 provideAndChainLayer layer = provideLayer layer . chainFromEnv @o1 . expandEnvBy @o1
+
+provideAndChainLayerFlipped :: _ => _
+provideAndChainLayerFlipped = P.flip provideAndChainLayer
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where
   get = get

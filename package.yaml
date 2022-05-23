@@ -60,6 +60,7 @@ dependencies:
 - password
 - time
 - jwt
+- fixed
 
 default-extensions:
   - TypeOperators

@@ -75,10 +75,10 @@ instance (HConcat xs ys z) => HConcat (x ': xs) ys (x ': z) where
 class HGetFirst x xs where
   hgetFirst :: HList xs -> x
 
-instance HGetFirst x (x ': xs) where
+instance {-# OVERLAPS #-} HGetFirst x (x ': xs) where
   hgetFirst (HCons x _) = x
 
-instance {-# OVERLAPS #-} (HGetFirst x xs) => HGetFirst x (y ': xs) where
+instance (HGetFirst x xs, tail ~ y ': xs) => HGetFirst x tail where
   hgetFirst (HCons _ xs) = hgetFirst xs
 
 class HReverse xs out | xs -> out where
