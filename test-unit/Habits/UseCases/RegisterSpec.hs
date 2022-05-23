@@ -47,7 +47,7 @@ import Habits.Domain.PasswordHash (mkFromPassword, isValid, PasswordHash (Passwo
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
 envLayer :: forall m n. (MonadIO n, ARC.AccountRepo m, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer = ARM.mkAccountRepoMemory `CE.provideAndChainLayer` RL.mkLive
+envLayer = ARM.mkAccountRepoMemory `CE.provideAndChainLayerFlipped` RL.mkLive
 
 AppTH.mkBoilerplate "runApp" ''Env
 

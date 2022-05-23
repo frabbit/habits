@@ -25,7 +25,7 @@ import Veins.TestContainers.Postgres (withPostgresPool)
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
 envLayer :: forall n m. (MonadIO n, ARC.AccountRepo m, MonadIO m) => Pool P.SqlBackend -> CE.ReaderCE '[] n (Env m)
-envLayer pool = ARP.mkAccountRepoPostgres pool `CE.provideAndChainLayer` RL.mkLive
+envLayer pool = ARP.mkAccountRepoPostgres pool `CE.provideAndChainLayerFlipped` RL.mkLive
 
 AppTH.mkBoilerplate "runApp" ''Env
 
