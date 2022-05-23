@@ -3,7 +3,6 @@
 
 module Habits.Domain.AccountRepo where
 
-import Control.Exception (Exception)
 import Control.Lens
   ( Lens',
     lens,
@@ -11,33 +10,28 @@ import Control.Lens
 import qualified Control.Lens as L
 import Control.Monad.Reader (MonadReader, ReaderT)
 import Control.Monad.Reader.Class (asks)
-import Data.Typeable (Typeable)
 import Habits.Domain.Account (Account)
-import qualified Habits.Domain.Account as A
-import Habits.Domain.AccountId (AccountId (AccountId))
+import Habits.Domain.AccountId (AccountId)
 import Habits.Domain.AccountNew as AccountNew
   ( AccountNew,
   )
-import Habits.Domain.Email (Email (Email))
-import Habits.Domain.Password (Password (..))
+import Habits.Domain.Email (Email)
 import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
-import Control.Monad.IO.Class (MonadIO)
-import Veins.Test.QuickCheck (sampleIO)
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.RepositoryError (RepositoryError)
 
 type Add m =
   AccountNew ->
-  Excepts '[RepositoryError] m AccountId
+  Excepts '[RepositoryError] m Habits.Domain.AccountId.AccountId
 
 type GetByEmail m =
-  Email ->
+  Habits.Domain.Email.Email ->
   Excepts '[RepositoryError] m (Maybe Account)
 
 type GetById m =
-  AccountId ->
+  Habits.Domain.AccountId.AccountId ->
   Excepts '[RepositoryError, AccountNotFoundError] m Account
 
 data AccountRepo m = AccountRepo

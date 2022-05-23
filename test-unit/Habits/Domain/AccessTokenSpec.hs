@@ -1,0 +1,50 @@
+module Habits.Domain.AccessTokenSpec where
+import Test.Hspec (Spec, it, describe, focus)
+import Habits.Domain.AccessToken (mkAccessToken, verifyAccessToken, isExpired, AccessToken (AccessToken))
+import Veins.Test.QuickCheck (sampleIO)
+import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
+import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds, POSIXTime)
+import Test.Hspec.Expectations.Lifted (shouldBe)
+import qualified Data.Text as Text
+import Habits.Domain.AccessTokenSecret (AccessTokenSecret(AccessTokenSecret))
+
+
+
+timeNow :: POSIXTime
+timeNow = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2022 1 1) (secondsToDiffTime 0)
+
+timePast :: POSIXTime
+timePast = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2021 12 31) (secondsToDiffTime 0)
+timeFuture :: POSIXTime
+timeFuture = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2022 1 2) (secondsToDiffTime 0)
+
+coerceIO :: IO a -> IO a
+coerceIO = id
+
+spec :: Spec
+spec = describe "AccessToken" $ do
+  describe "verifyAccessToken" $ do
+    it "should return true if token was signed with the given secret" . coerceIO $ do
+      (secret, accountId) <- sampleIO
+      let token = mkAccessToken secret accountId timeNow
+      verifyAccessToken secret token `shouldBe` True
+    it "should return false if token was not signed with the given secret" . coerceIO $ do
+      (secret, accountId) <- sampleIO
+      let token = mkAccessToken secret accountId timeNow
+      verifyAccessToken (AccessTokenSecret "foo") token `shouldBe` False
+
+  describe "isExpired should" $ do
+    it "return False when the token expiration time is  based on the given current time" . coerceIO $ do
+      (secret, accountId) <- sampleIO
+      let expiresAt = timeNow
+      let token = mkAccessToken secret accountId expiresAt
+
+      isExpired secret token timeFuture `shouldBe` True
+      isExpired secret token timePast `shouldBe` False
+    it "return False when the token is expired based on the given current time" . coerceIO $ do
+      (secret, accountId) <- sampleIO
+      let expiresAt = timeNow
+      let token = mkAccessToken secret accountId expiresAt
+
+      isExpired secret token timeFuture `shouldBe` True
+      isExpired secret token timePast `shouldBe` False

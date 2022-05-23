@@ -58,6 +58,8 @@ dependencies:
 - quickcheck-text
 - haskell-src-meta
 - password
+- time
+- jwt
 
 default-extensions:
   - TypeOperators
@@ -117,7 +119,7 @@ tests:
   habits-test-unit:
     main:                Spec.hs
     source-dirs:
-    #- src # Adding src, see Note above
+    - src # Adding src, see Note above
     - test-common
     - test-unit
     ghc-options:
@@ -132,7 +134,7 @@ tests:
   habits-test-integration:
     main:                Spec.hs
     source-dirs:
-    #- src # Adding src, see Note above
+    - src # Adding src, see Note above
     - test-common
     - test-integration
     ghc-options:
