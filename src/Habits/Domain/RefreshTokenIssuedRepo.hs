@@ -18,6 +18,7 @@ import Habits.Domain.RepositoryError (RepositoryError)
 import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
+import Habits.Domain.AccountId (AccountId)
 
 type Add m =
   RefreshTokenIssuedNew ->
@@ -27,9 +28,16 @@ type GetById m =
   RefreshTokenIssuedId ->
   Excepts '[RepositoryError] m (Maybe RefreshTokenIssued)
 
+type GetByAccountId m =
+  AccountId ->
+  Excepts '[RepositoryError] m [RefreshTokenIssued]
+
+
+
 data RefreshTokenIssuedRepo m = RefreshTokenIssuedRepo
   { _add :: Add m,
-    _getById :: GetById m
+    _getById :: GetById m,
+    _getByAccountId :: GetByAccountId m
   }
 
 type instance ToSymbol (RefreshTokenIssuedRepo m) = "RefreshTokenIssuedRepo"
@@ -42,4 +50,9 @@ add r = do
 getById :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetById m
 getById r = do
   RefreshTokenIssuedRepo {_getById = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f r
+
+getByAccountId :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetByAccountId m
+getByAccountId r = do
+  RefreshTokenIssuedRepo {_getByAccountId = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
   f r

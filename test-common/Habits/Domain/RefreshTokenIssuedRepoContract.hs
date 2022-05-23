@@ -35,8 +35,25 @@ import Utils
     toThrow,
   )
 import Prelude hiding (id)
+import Control.Lens ((^.))
+import Habits.Domain.AccountId (AccountId(AccountId))
+import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(_accountId))
 
-mkSpec :: forall m. (HasCallStack, MonadIO m, RefreshTokenIssuedRepo m) => (m () -> IO ()) -> Spec
+insertToken :: forall m . (RefreshTokenIssuedRepo m, _) => Excepts _ m _
+insertToken = S.do
+  new <- S.coerce sampleIO
+  id <- RTIC.add new
+  Just acc <- RTIC.getById id
+  S.pure (acc, new, id)
+
+insertTokenForAccountId :: forall m . (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
+insertTokenForAccountId accId = S.do
+  new <- S.coerce $ fmap (\x -> x { _accountId = accId }) sampleIO
+  id <- RTIC.add new
+  Just acc <- RTIC.getById id
+  S.pure (acc, new, id)
+
+mkSpec :: forall m. (MonadFail m, HasCallStack, MonadIO m, RefreshTokenIssuedRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "RefreshTokenIssuedRepoContract" $ do
     let embed = unlift . evalE
@@ -56,3 +73,32 @@ mkSpec unlift = parallel $
             res <- RTIC.getById id
             S.coerce $ res `shouldBe` Nothing
             & toThrow @RepositoryError
+    describe "getByAccountId should" $ do
+      it "return an empty array when repository is empty" . embed $
+        S.do
+          id <- S.coerce sampleIO
+          res <- RTIC.getByAccountId id
+          S.coerce $ res `shouldBe` []
+          & toThrow @RepositoryError
+      it "return an empty array when repository contains only elements for other accounts" . embed $
+        S.do
+          (new, id) <- S.coerce sampleIO
+          RTIC.add new
+
+          res <- RTIC.getByAccountId id
+          S.coerce $ res `shouldBe` []
+          & toThrow @RepositoryError
+      it "return an array when repository contains tokens for account" . embed $
+        S.do
+          (acc, new, id) <- insertToken
+          res <- RTIC.getByAccountId (acc ^. RTI.accountId)
+          S.coerce $ res `shouldBe` [RTI.fromRefreshTokenIssuedNew new id]
+          & toThrow @RepositoryError
+      it "return an array when repository contains multiple tokens for account" . embed $
+        S.do
+          accountId <- S.coerce sampleIO
+          (_, new1, id1) <- insertTokenForAccountId accountId
+          (_, new2, id2) <- insertTokenForAccountId accountId
+          res <- RTIC.getByAccountId accountId
+          S.coerce $ res `shouldBe` [RTI.fromRefreshTokenIssuedNew new1 id1, RTI.fromRefreshTokenIssuedNew new2 id2]
+          & toThrow @RepositoryError

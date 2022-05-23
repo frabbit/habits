@@ -1,6 +1,7 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec where
 
@@ -25,6 +26,7 @@ envLayer :: forall n m . (MonadIO n, RTIC.RefreshTokenIssuedRepo m, MonadIO m) =
 envLayer = RTIM.mkRefreshTokenIssuedRepoMemory
 
 AppTH.mkBoilerplate "runApp" ''Env
+
 
 spec :: Spec
 spec = mkSpec \x -> do

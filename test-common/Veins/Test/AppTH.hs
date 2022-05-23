@@ -28,6 +28,9 @@ typeApplicative = TH.ConT ''Applicative
 typeMonadIO :: TS.Type
 typeMonadIO = TH.ConT ''MonadIO
 
+typeMonadFail :: TS.Type
+typeMonadFail = TH.ConT ''MonadFail
+
 mkTypeMonadReader :: TS.Type -> TS.Type
 mkTypeMonadReader = TH.AppT (TH.ConT ''MonadReader)
 
@@ -67,7 +70,7 @@ mkApp Context { _nameApp, _nameAppEnv, _nameUnApp } = do
   let typeUnwrapped = typeAppT `TH.AppT` typeEnv `TH.AppT` typeIO `TH.AppT` TH.VarT nameA
 
   let con = TH.RecC nameApp [(nameUnApp, noBang, typeUnwrapped)]
-  let deriveClauses = [TS.DerivClause Nothing [typeFunctor, typeApplicative, typeMonad, typeMonadIO, mkTypeMonadReader typeEnv]]
+  let deriveClauses = [TS.DerivClause Nothing [typeFunctor, typeApplicative, typeMonad, typeMonadIO, mkTypeMonadReader typeEnv, typeMonadFail]]
   let decs = [TH.NewtypeD [] nameApp [TH.PlainTV nameA ()] Nothing con deriveClauses]
   pure decs
 

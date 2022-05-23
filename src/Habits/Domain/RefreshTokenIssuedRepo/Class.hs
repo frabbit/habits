@@ -10,7 +10,7 @@ import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.RefreshTokenIssuedRepo
   ( Add,
-    GetById,
+    GetById, GetByAccountId,
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RTIR
 import Habits.Domain.Email (Email)
@@ -21,7 +21,9 @@ import Veins.Data.Has (Has)
 class RefreshTokenIssuedRepo m where
   add :: Add m
   getById :: GetById m
+  getByAccountId :: GetByAccountId m
 
 instance (MonadReader env m, Has (RTIR.RefreshTokenIssuedRepo m) env) => RefreshTokenIssuedRepo m where
   add = RTIR.add
   getById = RTIR.getById
+  getByAccountId = RTIR.getByAccountId

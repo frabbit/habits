@@ -9,7 +9,7 @@ import Control.Monad.Reader.Class
   )
 import Haskus.Utils.Variant.Excepts (Excepts, evalE)
 
-newtype AppT env m a = AppT {unAppT :: ReaderT env m a} deriving (Functor, Applicative, Monad, MonadIO)
+newtype AppT env m a = AppT {unAppT :: ReaderT env m a} deriving (Functor, Applicative, Monad, MonadIO, MonadFail)
 
 instance (Monad m) => MonadReader env (AppT env m) where
   ask = AppT ask
