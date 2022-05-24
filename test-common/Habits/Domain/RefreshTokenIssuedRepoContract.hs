@@ -4,13 +4,16 @@
 
 module Habits.Domain.RefreshTokenIssuedRepoContract where
 
+import Control.Lens ((^.))
 import Data.Function ((&))
 import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)
+import Habits.Domain.AccountId (AccountId (AccountId))
 import Habits.Domain.Email (Email (Email))
 import qualified Habits.Domain.RefreshTokenIssued as RTI
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import qualified Habits.Domain.RefreshTokenIssuedId as RefreshTokenIssuedId
+import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew (_accountId))
 import Habits.Domain.RefreshTokenIssuedRepo.Class
   ( RefreshTokenIssuedRepo,
   )
@@ -35,20 +38,17 @@ import Utils
     toThrow,
   )
 import Prelude hiding (id)
-import Control.Lens ((^.))
-import Habits.Domain.AccountId (AccountId(AccountId))
-import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(_accountId))
 
-insertToken :: forall m . (RefreshTokenIssuedRepo m, _) => Excepts _ m _
+insertToken :: forall m. (RefreshTokenIssuedRepo m, _) => Excepts _ m _
 insertToken = S.do
   new <- S.coerce sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)
 
-insertTokenForAccountId :: forall m . (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
+insertTokenForAccountId :: forall m. (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
 insertTokenForAccountId accId = S.do
-  new <- S.coerce $ fmap (\x -> x { _accountId = accId }) sampleIO
+  new <- S.coerce $ fmap (\x -> x {_accountId = accId}) sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)
@@ -56,7 +56,10 @@ insertTokenForAccountId accId = S.do
 mkSpec :: forall m. (MonadFail m, HasCallStack, MonadIO m, RefreshTokenIssuedRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "RefreshTokenIssuedRepoContract" $ do
-    let embed = unlift . evalE
+
+    let
+      embed :: _ => _
+      embed = unlift . evalE .  catchAllToFail
     describe "add should" $ do
       it "persist the account to the repository" $
         embed $
@@ -65,21 +68,18 @@ mkSpec unlift = parallel $
             id <- RTIC.add new
             acc <- RTIC.getById id
             S.coerce $ acc `shouldBe` Just (RTI.fromRefreshTokenIssuedNew new id)
-            & toThrow @RepositoryError
     describe "getById should" $ do
       it "fail with AccountNotFound when repository is empty" . embed $
-          S.do
-            id <- S.coerce sampleIO
-            res <- RTIC.getById id
-            S.coerce $ res `shouldBe` Nothing
-            & toThrow @RepositoryError
+        S.do
+          id <- S.coerce sampleIO
+          res <- RTIC.getById id
+          S.coerce $ res `shouldBe` Nothing
     describe "getByAccountId should" $ do
       it "return an empty array when repository is empty" . embed $
         S.do
           id <- S.coerce sampleIO
           res <- RTIC.getByAccountId id
           S.coerce $ res `shouldBe` []
-          & toThrow @RepositoryError
       it "return an empty array when repository contains only elements for other accounts" . embed $
         S.do
           (new, id) <- S.coerce sampleIO
@@ -87,13 +87,11 @@ mkSpec unlift = parallel $
 
           res <- RTIC.getByAccountId id
           S.coerce $ res `shouldBe` []
-          & toThrow @RepositoryError
       it "return an array when repository contains tokens for account" . embed $
         S.do
           (acc, new, id) <- insertToken
           res <- RTIC.getByAccountId (acc ^. RTI.accountId)
           S.coerce $ res `shouldBe` [RTI.fromRefreshTokenIssuedNew new id]
-          & toThrow @RepositoryError
       it "return an array when repository contains multiple tokens for account" . embed $
         S.do
           accountId <- S.coerce sampleIO
@@ -101,4 +99,32 @@ mkSpec unlift = parallel $
           (_, new2, id2) <- insertTokenForAccountId accountId
           res <- RTIC.getByAccountId accountId
           S.coerce $ res `shouldBe` [RTI.fromRefreshTokenIssuedNew new1 id1, RTI.fromRefreshTokenIssuedNew new2 id2]
-          & toThrow @RepositoryError
+    describe "deleteByAccountId should" $ do
+      it "do nothing when repo is empty" . embed $
+        S.do
+          accountId <- S.coerce sampleIO
+          res <- RTIC.deleteByAccountId accountId
+          S.coerce $ res `shouldBe` ()
+      it "not delete entities referencing other accounts" . embed $
+        S.do
+          (acc, new, id) <- insertToken
+          accountId <- S.coerce sampleIO
+          res <- RTIC.deleteByAccountId accountId
+          token <- RTIC.getById id
+          S.coerce $ token `shouldBe` Just acc
+      it "do delete entity when accountId matches" . embed $
+        S.do
+          (acc, new, id) <- insertToken
+          let accountId = acc ^. RTI.accountId
+          res <- RTIC.deleteByAccountId accountId
+          accounts <- RTIC.getByAccountId accountId
+          S.coerce $ res `shouldBe` ()
+          S.coerce $ accounts `shouldBe` []
+      it "delete multiple entities when accountId matches" . embed $
+        S.do
+          accountId <- S.coerce sampleIO
+          (_, new1, id1) <- insertTokenForAccountId accountId
+          (_, new2, id2) <- insertTokenForAccountId accountId
+          res <- RTIC.deleteByAccountId accountId
+          accounts <- RTIC.getByAccountId accountId
+          S.coerce $ accounts `shouldBe` []
