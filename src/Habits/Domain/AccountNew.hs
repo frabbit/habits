@@ -1,9 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
 
 module Habits.Domain.AccountNew where
 
-import Control.Lens (makeLenses)
 import Data.Text (Text)
 import Habits.Domain.Email (Email)
 import Habits.Domain.PasswordHash (PasswordHash)
@@ -19,8 +17,6 @@ data AccountNew = AccountNew
     password :: PasswordHash
   }
   deriving (Show, Eq, Ord)
-
-makeLenses ''AccountNew
 
 instance Arbitrary AccountNew where
   arbitrary = do

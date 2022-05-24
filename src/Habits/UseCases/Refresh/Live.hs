@@ -55,11 +55,11 @@ mkExecute = do
 
     deleteById rti.refreshTokenIssuedId
     let refreshTokenExpiration = addDaysToUTCTime 7 time
-    let _accessToken = mkAccessToken atSecret accountId (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
-    let _refreshToken = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds refreshTokenExpiration)
-    hash <- S.coerce $ mkFromRefreshToken _refreshToken
-    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId = accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash }
-    S.pure $ RefreshResponse { _accessToken, _refreshToken}
+    let accessToken = mkAccessToken atSecret accountId (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
+    let refreshToken = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds refreshTokenExpiration)
+    hash <- S.coerce $ mkFromRefreshToken refreshToken
+    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash }
+    S.pure $ RefreshResponse { accessToken, refreshToken }
 
 mkLive :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[R.Refresh m])
 mkLive = CE.do

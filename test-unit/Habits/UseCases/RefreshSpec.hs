@@ -121,12 +121,12 @@ spec = describe "refresh should" $ do
   it "return a valid access token" . runEval . catchAllToFail $ S.do
     (token, _, _) <- addValidToken
     resp <- refresh (RefreshRequest token)
-    let verifyResult = AccessToken.verifyAccessToken atSecret (resp._accessToken)
+    let verifyResult = AccessToken.verifyAccessToken atSecret resp.accessToken
     S.coerce $ verifyResult `shouldBe` True
   it "return a valid refresh token" . runEval . catchAllToFail $ S.do
     (token, _, _) <- addValidToken
     resp <- refresh (RefreshRequest token)
-    let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp._refreshToken)
+    let verifyResult = RefreshToken.verifyRefreshToken rtSecret resp.refreshToken
     S.coerce $ verifyResult `shouldBe` True
   it "fail with RefreshTokenExpiredError when token is expired" . runEval . catchAllToFail $
     S.do
@@ -136,7 +136,7 @@ spec = describe "refresh should" $ do
   it "return a refreshToken which can be used to refresh successfully again" . runEval . catchAllToFail $ S.do
     (token, _, _) <- addValidToken
     resp1 <- refresh (RefreshRequest token)
-    resp2 <- refresh (RefreshRequest resp1._refreshToken)
+    resp2 <- refresh (RefreshRequest resp1.refreshToken)
     S.coerce $('resp2 `shouldMatchPattern` [p|RefreshResponse (AccessToken _) (RefreshToken _)|])
   it "invalidate the used refreshToken which can not be used again afterwards" . runEval . catchAllToFail $
     S.do
