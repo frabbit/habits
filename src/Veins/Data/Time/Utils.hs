@@ -1,6 +1,5 @@
 module Veins.Data.Time.Utils where
 import Data.Time (UTCTime (UTCTime, utctDay), addDays, addUTCTime, secondsToNominalDiffTime)
-import Data.Fixed (Pico)
 
 
 addDaysToUTCTime :: Integer -> UTCTime -> UTCTime

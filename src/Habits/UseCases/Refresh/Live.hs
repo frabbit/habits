@@ -3,9 +3,6 @@ module Habits.UseCases.Refresh.Live where
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
 import Data.Function ((&))
-import Habits.Domain.AccountRepo.Class
-  ( AccountRepo,
-  )
 import qualified Habits.Domain.AuthConfig as AC
 import Habits.UseCases.Refresh
   ( RefreshExec,
@@ -31,7 +28,7 @@ import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(..))
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
 import Control.Monad (when)
 
-mkExecute :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (RefreshExec m)
+mkExecute :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (RefreshExec m)
 mkExecute = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
@@ -62,7 +59,7 @@ mkExecute = do
     RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash }
     S.pure $ RefreshResponse { _accessToken, _refreshToken}
 
-mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[R.Refresh m])
+mkLive :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[R.Refresh m])
 mkLive = CE.do
   execute <- mkExecute
   CE.pure $ CE.empty & CE.insert (R.Refresh execute)

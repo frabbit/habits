@@ -1,28 +1,21 @@
 module Habits.UseCases.Login.Live where
 
 import Control.Lens ((^.))
-import Control.Monad (unless, when)
+import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
 import Data.Function ((&))
-import Data.Maybe (isNothing)
-import Data.Time (getCurrentTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.AccessToken (mkAccessToken)
-import Habits.Domain.AccessTokenSecret (mkAccessTokenSecret)
 import qualified Habits.Domain.Account as A
-import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
-    getByEmail,
     getByEmailOrFail,
   )
 import qualified Habits.Domain.AuthConfig as AC
-import Habits.Domain.AuthConfig.Class (AuthConfig (getAccessTokenSecret, getRefreshTokenSecret))
 import Habits.Domain.PasswordHash (isValid)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError (PasswordIncorrectError))
 import Habits.Domain.RefreshToken (mkRefreshToken)
-import Habits.Domain.RefreshTokenSecret (mkRefreshTokenSecret)
 import Habits.UseCases.Login
   ( Execute,
   )

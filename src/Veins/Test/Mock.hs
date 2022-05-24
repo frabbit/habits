@@ -1,29 +1,22 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# HLINT ignore "Avoid lambda using `infix`" #-}
-{-# HLINT ignore "Use const" #-}
 {-# LANGUAGE PartialTypeSignatures #-}
-{-# HLINT ignore "Avoid lambda" #-}
-{-# HLINT ignore "Redundant lambda" #-}
 {-# LANGUAGE PolyKinds #-}
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE UndecidableInstances #-}
+
+{-# HLINT ignore "Avoid lambda" #-}
+{-# HLINT ignore "Redundant lambda" #-}
+
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 
 module Veins.Test.Mock where
 
-import Control.Lens (set, Lens)
+import Control.Lens (Lens)
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Data.Function ((&))
-import Data.Kind (Type)
-import Data.Type.Equality (type (==))
-import GHC.Conc (TVar, atomically, newTVarIO, readTVar, readTVarIO, writeTVar)
-import Habits.Domain.AccountRepo (AccountRepo (AccountRepo))
-import qualified Habits.Domain.AccountRepo as AR
+import GHC.Conc (TVar, atomically, newTVarIO)
 import Veins.Data.HList
-import qualified Veins.Data.HList as HL
 import qualified Veins.Data.Type.Function as F
-import qualified Veins.Data.Type.List as L
 import UnliftIO (modifyTVar)
 import qualified UnliftIO as U
 import qualified Test.QuickCheck as QC
@@ -66,11 +59,8 @@ instance (a ~ b) => Mockify a b where
 class MkMock x where
   mkMock :: x
 
-instance {-# OVERLAPS #-} (MkMock r) => MkMock (a -> r) where
-  mkMock _ = mkMock
-
-instance MkMock a where
-  mkMock = error "not implemented"
+instance (MkMock r) => MkMock (a -> r) where
+  mkMock _ = mkMock @r
 
 class MkSpy x capture where
   mkSpy :: x -> capture -> x

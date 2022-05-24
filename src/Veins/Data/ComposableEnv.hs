@@ -1,13 +1,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
-{-# HLINT ignore "Avoid lambda" #-}
-{-# LANGUAGE PartialTypeSignatures #-}
-{-# HLINT ignore "Redundant lambda" #-}
 {-# LANGUAGE PolyKinds #-}
-{-# HLINT ignore "Redundant P.pure" #-}
-{-# LANGUAGE QuantifiedConstraints #-}
 {-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wno-missing-signatures #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant lambda" #-}
+{-# HLINT ignore "Use fewer LANGUAGE pragmas" #-}
 
 module Veins.Data.ComposableEnv
   ( ReaderCE,
@@ -212,8 +209,7 @@ provideLayer layer c =
         l <- runReaderT layer e1
         let e2 :: forall. ComposableEnv e2
             e2 = excluding @e0 env `union` l
-        r <- runReaderT c e2
-        P.pure r
+        runReaderT c e2
    in ReaderT f
 
 provideLayer' ::
@@ -238,8 +234,7 @@ provideLayer' layer c =
         let (l' :: ComposableEnv e1') = intersection @e2 l
             e2 :: forall. ComposableEnv e2
             e2 = excluding @e0 env `union` l'
-        r <- runReaderT c e2
-        P.pure r
+        runReaderT c e2
    in ReaderT f
 
 expandEnv ::

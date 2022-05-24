@@ -88,6 +88,7 @@ default-extensions:
   - GADTs
   - ConstraintKinds
   - PatternSynonyms
+  - PartialTypeSignatures
 
 ghc-options:
   - -Wall

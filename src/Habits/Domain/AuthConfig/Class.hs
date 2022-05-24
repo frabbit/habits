@@ -1,13 +1,11 @@
-{-# LANGUAGE UndecidableInstances #-}
 module Habits.Domain.AuthConfig.Class where
-import Habits.Domain.AccessTokenSecret
-import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret(RefreshTokenSecret))
-import qualified Habits.Domain.AuthConfig as AC
 
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.Reader (asks)
-import qualified Veins.Data.Has as Has
+import Control.Monad.Reader (MonadReader, asks)
+import Habits.Domain.AccessTokenSecret (AccessTokenSecret)
+import qualified Habits.Domain.AuthConfig as AC
+import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret)
 import Veins.Data.Has (Has)
+import qualified Veins.Data.Has as Has
 
 class AuthConfig m where
   getAccessTokenSecret :: m AccessTokenSecret

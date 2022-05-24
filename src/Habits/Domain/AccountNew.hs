@@ -6,13 +6,12 @@ module Habits.Domain.AccountNew where
 import Control.Lens (makeLenses)
 import Data.Text (Text)
 import Habits.Domain.Email (Email)
-import Habits.Domain.Password (Password)
+import Habits.Domain.PasswordHash (PasswordHash)
 import Test.QuickCheck
   ( Arbitrary,
     arbitrary,
   )
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
-import Habits.Domain.PasswordHash (PasswordHash)
 
 data AccountNew = AccountNew
   { _email :: Email,
