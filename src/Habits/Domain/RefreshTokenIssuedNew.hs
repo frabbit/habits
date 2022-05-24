@@ -9,14 +9,14 @@ import Test.QuickCheck (Arbitrary)
 import Test.QuickCheck.Arbitrary (Arbitrary(arbitrary))
 
 data RefreshTokenIssuedNew = RefreshTokenIssuedNew {
-  _expiration :: UTCTime,
-  _refreshTokenHash :: RefreshTokenHash,
-  _accountId :: AccountId
+  expiration :: UTCTime,
+  refreshTokenHash :: RefreshTokenHash,
+  accountId :: AccountId
 } deriving (Eq, Show, Ord)
 
 instance Arbitrary RefreshTokenIssuedNew where
   arbitrary = do
-    (_expiration, _refreshTokenHash, _accountId) <- arbitrary
+    (expiration, refreshTokenHash, accountId) <- arbitrary
 
     let token = RefreshTokenIssuedNew {..}
     pure token

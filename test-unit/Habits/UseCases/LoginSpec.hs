@@ -136,7 +136,7 @@ spec = describe "Login.execute should" $ do
     (acc, pw, id) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     [info] <- RefreshTokenIssuedRepo.getByAccountId id
-    S.coerce $ RefreshTokenHash.isValid resp.refreshToken (info ^. RTI.refreshTokenHash) `shouldBe` True
+    S.coerce $ RefreshTokenHash.isValid resp.refreshToken info.refreshTokenHash `shouldBe` True
 
   it "fail with AccountNotFoundError when account with given email does not exist" . runEval . catchAllToFail $
     S.do

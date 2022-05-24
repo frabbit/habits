@@ -8,7 +8,7 @@ import Control.Lens ((^.))
 import GHC.Stack (HasCallStack)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.RefreshTokenIssued as RTI
-import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew (_accountId))
+import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew (accountId))
 import Habits.Domain.RefreshTokenIssuedRepo.Class
   ( RefreshTokenIssuedRepo,
   )
@@ -40,7 +40,7 @@ insertToken = S.do
 
 insertTokenForAccountId :: forall m. (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
 insertTokenForAccountId accId = S.do
-  new <- S.coerce $ fmap (\x -> x {_accountId = accId}) sampleIO
+  new <- S.coerce $ fmap (\x -> x{ accountId = accId }) sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)
@@ -76,13 +76,12 @@ mkSpec unlift = parallel $
         S.do
           (new, id) <- S.coerce sampleIO
           RTIC.add new
-
           res <- RTIC.getByAccountId id
           S.coerce $ res `shouldBe` []
       it "return an array when repository contains tokens for account" . embed $
         S.do
           (acc, new, id) <- insertToken
-          res <- RTIC.getByAccountId (acc ^. RTI.accountId)
+          res <- RTIC.getByAccountId acc.accountId
           S.coerce $ res `shouldBe` [RTI.fromRefreshTokenIssuedNew new id]
       it "return an array when repository contains multiple tokens for account" . embed $
         S.do
@@ -107,9 +106,9 @@ mkSpec unlift = parallel $
       it "do delete entity when accountId matches" . embed $
         S.do
           (acc, _, _) <- insertToken
-          let accountId = acc ^. RTI.accountId
-          res <- RTIC.deleteByAccountId accountId
-          accounts <- RTIC.getByAccountId accountId
+
+          res <- RTIC.deleteByAccountId acc.accountId
+          accounts <- RTIC.getByAccountId acc.accountId
           S.coerce $ res `shouldBe` ()
           S.coerce $ accounts `shouldBe` []
       it "delete multiple entities when accountId matches" . embed $

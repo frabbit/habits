@@ -94,7 +94,7 @@ addToken expirationTime = S.do
   (rtiNew, accountId) <- S.coerce sampleIO
   let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds expirationTime)
   hash <- S.coerce $ mkFromRefreshToken token
-  RTC.add (rtiNew{ _refreshTokenHash = hash, _accountId = accountId })
+  RTC.add (rtiNew{ refreshTokenHash = hash, accountId = accountId })
   S.pure (token, hash, accountId)
 
 addValidToken :: _ => _

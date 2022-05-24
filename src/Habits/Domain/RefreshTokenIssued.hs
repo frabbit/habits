@@ -8,19 +8,16 @@ import Habits.Domain.AccountId (AccountId)
 import Habits.Domain.RefreshTokenHash (RefreshTokenHash)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import qualified Habits.Domain.RefreshTokenIssuedNew as RN
-import Control.Lens (makeLenses)
 
 data RefreshTokenIssued = RefreshTokenIssued {
-  _refreshTokenIssuedId :: RefreshTokenIssuedId,
-  _expiration :: UTCTime,
-  _refreshTokenHash :: RefreshTokenHash,
-  _accountId :: AccountId
+  refreshTokenIssuedId :: RefreshTokenIssuedId,
+  expiration :: UTCTime,
+  refreshTokenHash :: RefreshTokenHash,
+  accountId :: AccountId
 } deriving (Show, Eq, Ord)
 
-makeLenses ''RefreshTokenIssued
-
 fromRefreshTokenIssuedNew :: RN.RefreshTokenIssuedNew -> RefreshTokenIssuedId -> RefreshTokenIssued
-fromRefreshTokenIssuedNew RN.RefreshTokenIssuedNew {..} _refreshTokenIssuedId = RefreshTokenIssued {_refreshTokenIssuedId, ..}
+fromRefreshTokenIssuedNew RN.RefreshTokenIssuedNew {..} refreshTokenIssuedId = RefreshTokenIssued { refreshTokenIssuedId, ..}
 
 toRefreshTokenIssuedNew :: RefreshTokenIssued -> RN.RefreshTokenIssuedNew
 toRefreshTokenIssuedNew RefreshTokenIssued {..} = RN.RefreshTokenIssuedNew {..}

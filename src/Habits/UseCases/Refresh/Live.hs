@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Avoid lambda" #-}
 module Habits.UseCases.Refresh.Live where
 
 import Control.Monad.IO.Class (MonadIO)
@@ -43,7 +45,7 @@ mkExecute = do
       Just x -> liftE $ S.pure x
       Nothing -> failureE RefreshTokenInvalidError
     issuedTokens <- getByAccountId accountId
-    let found = find (\rti -> isValid token rti._refreshTokenHash) issuedTokens
+    let found = find (\rti -> isValid token rti.refreshTokenHash) issuedTokens
     rti <- case found of
       Nothing -> S.do
         deleteByAccountId accountId
@@ -51,12 +53,12 @@ mkExecute = do
       Just rti -> liftE $ S.do
         S.pure rti
 
-    deleteById rti._refreshTokenIssuedId
+    deleteById rti.refreshTokenIssuedId
     let refreshTokenExpiration = addDaysToUTCTime 7 time
     let _accessToken = mkAccessToken atSecret accountId (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
     let _refreshToken = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds refreshTokenExpiration)
     hash <- S.coerce $ mkFromRefreshToken _refreshToken
-    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash }
+    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId = accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash }
     S.pure $ RefreshResponse { _accessToken, _refreshToken}
 
 mkLive :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[R.Refresh m])

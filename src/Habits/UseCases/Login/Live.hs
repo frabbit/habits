@@ -26,7 +26,7 @@ import qualified Veins.Data.ComposableEnv as CE
 import qualified Habits.Domain.TimeProvider as TP
 import Veins.Data.Time.Utils (addHoursToUTCTime, addDaysToUTCTime)
 import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo)
-import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(RefreshTokenIssuedNew, _accountId, _expiration, _refreshTokenHash))
+import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(RefreshTokenIssuedNew, accountId, expiration, refreshTokenHash))
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import Habits.Domain.RefreshTokenHash (mkFromRefreshToken)
 
@@ -45,7 +45,7 @@ mkExecute = do
     let accessToken = mkAccessToken accessSecret (acc.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
     let refreshToken = mkRefreshToken refreshSecret (acc.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
     hash <- S.coerce $ mkFromRefreshToken refreshToken
-    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = acc.accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash}
+    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId = acc.accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash}
     S.coerce . pure $ LoginResponse{ accessToken, refreshToken }
 
 mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])

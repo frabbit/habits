@@ -2,7 +2,6 @@
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemory where
 
-import Control.Lens ((^.))
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,
@@ -25,7 +24,6 @@ import UnliftIO.STM (modifyTVar)
 import qualified Veins.Data.ComposableEnv as CE
 import Habits.Domain.RefreshTokenIssuedRepo (RefreshTokenIssuedRepo (RefreshTokenIssuedRepo, _getById, _add, _deleteByAccountId), Add, GetById, GetByAccountId, _getByAccountId, DeleteByAccountId, DeleteById, _deleteById)
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
-import qualified Habits.Domain.RefreshTokenIssued as A
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId(..))
 
 mkAdd ::
@@ -50,7 +48,7 @@ mkGetById accountsVar = pure f
     f :: GetById m
     f accountId = do
       accounts :: [RefreshTokenIssued] <- liftIO $ readTVarIO accountsVar
-      pure $ find (\a -> (a ^. A.refreshTokenIssuedId) == accountId) accounts
+      pure $ find (\a -> a.refreshTokenIssuedId == accountId) accounts
 
 mkGetByAccountId ::
   forall m n.
@@ -62,7 +60,7 @@ mkGetByAccountId accountsVar = pure f
     f :: GetByAccountId m
     f accountId = do
       accounts :: [RefreshTokenIssued] <- liftIO $ readTVarIO accountsVar
-      pure $ filter (\a -> (a ^. A.accountId) == accountId) accounts
+      pure $ filter (\a -> a.accountId == accountId) accounts
 
 
 
@@ -75,7 +73,7 @@ mkDeleteByAccountId accountsVar = pure f
   where
     f :: DeleteByAccountId m
     f accountId = do
-      liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> (a ^. A.accountId) /= accountId)
+      liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> a.accountId /= accountId)
       pure ()
 
 mkDeleteById ::
@@ -87,7 +85,7 @@ mkDeleteById accountsVar = pure f
   where
     f :: DeleteById m
     f entityId = do
-      liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> (a ^. A.refreshTokenIssuedId) /= entityId)
+      liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> a.refreshTokenIssuedId /= entityId)
       pure ()
 
 
