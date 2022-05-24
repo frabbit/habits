@@ -16,18 +16,17 @@ import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Data.Text as Text
 import qualified Habits.Domain.Account as A
 import qualified Habits.Domain.AccountNew as AN
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError (..))
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
-import Habits.UseCases.Register (RegisterResponse (..))
+import Habits.UseCases.Register.RegisterResponse
+    ( RegisterResponse(..) )
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.RegisterRequest as RR
 import qualified Habits.UseCases.Register.RegisterResponse as RegisterResponse
-import qualified Habits.UseCases.Register as Reg
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
 import Haskus.Utils.Variant.Excepts (evalE)
@@ -37,12 +36,12 @@ import Test.Hspec
     describe,
     it,
   )
-import Test.Hspec.Expectations.Lifted (shouldBe, shouldNotBe, shouldSatisfy)
+import Test.Hspec.Expectations.Lifted (shouldBe, shouldNotBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Habits.Domain.Password (Password (Password, unPassword))
-import Habits.Domain.PasswordHash (mkFromPassword, isValid, PasswordHash (PasswordHash))
+import Habits.Domain.PasswordHash (isValid, PasswordHash (PasswordHash))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
@@ -65,13 +64,13 @@ spec = describe "Register should" $ do
   let wrap = runWithEnv . evalE . catchAllToFail
   it "succeed when creating a new account which email does not exist yet." . wrap $ S.do
     rr <- S.coerce sampleIO
-    RegisterResponse {Reg._accountId} <- RC.execute rr
+    RegisterResponse {_accountId} <- RC.execute rr
     account <- ARC.getById _accountId
     S.coerce $ account ^. A.email `shouldBe` rr ^. RR.email
     S.coerce $ account ^. A.name `shouldBe` rr ^. RR.name
   it "encode the password and store it encrypted." . wrap $ S.do
     rr <- S.coerce sampleIO
-    RegisterResponse {Reg._accountId} <- RC.execute rr
+    RegisterResponse {_accountId} <- RC.execute rr
     account <- ARC.getById _accountId
 
     S.coerce $ account ^. A.password `shouldNotBe` PasswordHash (rr ^. RR.password & unPassword)
