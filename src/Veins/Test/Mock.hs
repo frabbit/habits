@@ -48,7 +48,7 @@ instance {-# OVERLAPS #-} (MonadIO m, QC.Arbitrary r, f ~ (a -> m r)) => MkArbit
 class Mockify f out | f -> out where
   mockify :: f -> out
 
-instance {-# OVERLAPPING #-} (Mockify b out, MkMock a) => Mockify (a -> b) out where
+instance {-# OVERLAPPING #-} (Mockify b out) => Mockify (a -> b) out where
   mockify :: (a -> b) -> out
   mockify f = mockify (f (mkMock @a))
 
@@ -59,8 +59,11 @@ instance (a ~ b) => Mockify a b where
 class MkMock x where
   mkMock :: x
 
-instance (MkMock r) => MkMock (a -> r) where
+instance {-# OVERLAPS #-} MkMock (a -> r) where
   mkMock _ = mkMock @r
+
+instance MkMock a where
+  mkMock = error "not implemented"
 
 class MkSpy x capture where
   mkSpy :: x -> capture -> x
