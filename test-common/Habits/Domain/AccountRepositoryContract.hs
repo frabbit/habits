@@ -77,7 +77,7 @@ mkSpec unlift = parallel $
       it "return Just when account with same Email exists" $
         embed $
           S.do
-            accountNew <- S.coerce $ sampleIO & fmap (\x -> x {AN._email = sampleEmail})
+            accountNew <- S.coerce $ sampleIO & fmap (\x -> x{ email = sampleEmail })
             accountId <- ARC.add accountNew
             res <- ARC.getByEmail sampleEmail
             let expAccount = A.fromAccountNew accountNew accountId

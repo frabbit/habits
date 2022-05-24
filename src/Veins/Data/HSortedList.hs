@@ -11,7 +11,6 @@ import Data.Function ((&))
 import Data.Kind (Type)
 import Data.Proxy (Proxy (..))
 import Data.Type.Equality (type (==))
-import Debug.Trace (trace)
 import qualified Veins.Data.HList as L
 import Veins.Data.ToSymbol (CmpToSymbol)
 

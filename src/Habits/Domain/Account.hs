@@ -11,17 +11,17 @@ import Habits.Domain.Email (Email)
 import Habits.Domain.PasswordHash (PasswordHash)
 
 data Account = Account
-  { _accountId :: AccountId,
-    _name :: Text,
-    _email :: Email,
-    _password :: PasswordHash
+  { accountId :: AccountId,
+    name :: Text,
+    email :: Email,
+    password :: PasswordHash
   }
   deriving (Eq, Show, Ord)
 
-makeLenses ''Account
+--makeLenses ''Account
 
 fromAccountNew :: AN.AccountNew -> AccountId -> Account
-fromAccountNew AN.AccountNew {..} _accountId = Account {_accountId, ..}
+fromAccountNew AN.AccountNew {..} accountId = Account {accountId, ..}
 
 toAccountNew :: Account -> AN.AccountNew
 toAccountNew Account {..} = AN.AccountNew {..}

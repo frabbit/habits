@@ -14,9 +14,9 @@ import Test.QuickCheck
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
 
 data AccountNew = AccountNew
-  { _email :: Email,
-    _name :: Text,
-    _password :: PasswordHash
+  { email :: Email,
+    name :: Text,
+    password :: PasswordHash
   }
   deriving (Show, Eq, Ord)
 
@@ -24,7 +24,7 @@ makeLenses ''AccountNew
 
 instance Arbitrary AccountNew where
   arbitrary = do
-    _email <- arbitrary
-    _name <- genValidUtf8WithoutNullByte
-    _password <- arbitrary
+    email <- arbitrary
+    name <- genValidUtf8WithoutNullByte
+    password <- arbitrary
     pure $ AccountNew {..}

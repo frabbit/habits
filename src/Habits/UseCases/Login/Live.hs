@@ -39,15 +39,15 @@ mkExecute = do
   getNow <- TP.mkGetNow
   pure $ \(EmailPasswordLoginRequest email pw) -> liftE $ S.do
     acc <- getByEmailOrFail email
-    unless (isValid pw (acc ^. A.password)) (failureE PasswordIncorrectError)
+    unless (isValid pw acc.password) (failureE PasswordIncorrectError)
     time <- S.lift getNow
     accessSecret <- S.coerce getAccessSecret
     refreshSecret <- S.coerce getRefreshSecret
     let refreshTokenExpiration = addDaysToUTCTime 7 time
-    let _accessToken = mkAccessToken accessSecret (acc ^. A.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
-    let _refreshToken = mkRefreshToken refreshSecret (acc ^. A.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
+    let _accessToken = mkAccessToken accessSecret (acc.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
+    let _refreshToken = mkRefreshToken refreshSecret (acc.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
     hash <- S.coerce $ mkFromRefreshToken _refreshToken
-    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = acc ^. A.accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash}
+    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = acc.accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash}
     S.coerce . pure $ LoginResponse {_accessToken, _refreshToken}
 
 mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])

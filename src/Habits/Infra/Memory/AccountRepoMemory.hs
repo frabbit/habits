@@ -2,7 +2,6 @@
 
 module Habits.Infra.Memory.AccountRepoMemory where
 
-import Control.Lens ((^.))
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,
@@ -61,7 +60,7 @@ mkGetById accountsVar = pure f
     f :: GetById m
     f accountId = do
       accounts :: [Account] <- liftIO $ readTVarIO accountsVar
-      let accountMaybe = find (\a -> (a ^. A.accountId) == accountId) accounts
+      let accountMaybe = find (\a -> a.accountId == accountId) accounts
       case accountMaybe of
         Nothing -> throwE AccountNotFoundError
         Just account -> pure account
@@ -76,7 +75,7 @@ mkGetByEmail accountsVar = pure f
     f :: GetByEmail m
     f email = do
       accounts :: [Account] <- liftIO $ readTVarIO accountsVar
-      pure $ find (\a -> (a ^. A.email) == email) accounts
+      pure $ find (\a -> a.email == email) accounts
 
 
 mkAccountRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AccountRepo m])

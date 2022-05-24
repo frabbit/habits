@@ -34,9 +34,9 @@ execute req = liftE $ S.do
   pwHash <- S.coerce $ mkFromPassword (req ^. RR.password)
   accountId <- add
     ( AccountNew
-        { AN._email = req ^. RR.email,
-          AN._name = req ^. RR.name,
-          AN._password = pwHash
+        { email = req ^. RR.email,
+          name = req ^. RR.name,
+          password = pwHash
         }
     )
   S.pure $ RegisterResponse { _accountId = accountId }

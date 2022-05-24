@@ -43,10 +43,10 @@ accountIdToDomain key = AccountId $ S.unAccountKey key
 convertToDomain :: P.Entity S.Account -> Account
 convertToDomain (P.Entity key a) =
   A.Account
-    { A._name = S.accountName a,
-      A._email = Email $ S.accountEmail a,
-      A._accountId = accountIdToDomain key,
-      A._password = PasswordHash $ S.accountPassword a
+    { name = S.accountName a,
+      email = Email $ S.accountEmail a,
+      accountId = accountIdToDomain key,
+      password = PasswordHash $ S.accountPassword a
     }
 
 
@@ -62,9 +62,9 @@ mkAdd pool = pure f
       withPool pool $ do
         P.insertKey accountKey $
           S.Account
-            { S.accountName = view AN.name an,
-              S.accountEmail = unEmail $ view AN.email an,
-              S.accountPassword = unPasswordHash $ view AN.password an
+            { S.accountName = an.name,
+              S.accountEmail = unEmail an.email,
+              S.accountPassword = unPasswordHash an.password
             }
       pure $ accountIdToDomain accountKey
 
