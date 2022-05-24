@@ -45,25 +45,25 @@ type instance ToSymbol (RefreshTokenIssuedRepo m) = "RefreshTokenIssuedRepo"
 
 add :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => Add m
 add r = do
-  RefreshTokenIssuedRepo {_add = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f r
+  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f._add r
 
 getById :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetById m
 getById r = do
-  RefreshTokenIssuedRepo {_getById = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f r
+  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f._getById r
 
 getByAccountId :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetByAccountId m
 getByAccountId r = do
-  RefreshTokenIssuedRepo {_getByAccountId = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f r
+  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f._getByAccountId r
 
 deleteByAccountId :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => DeleteByAccountId m
 deleteByAccountId r = do
-  RefreshTokenIssuedRepo {_deleteByAccountId = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f r
+  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f._deleteByAccountId r
 
 deleteById :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => DeleteById m
 deleteById r = do
-  RefreshTokenIssuedRepo {_deleteById = f} <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f r
+  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
+  f._deleteById r

@@ -1,6 +1,3 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
-{-# LANGUAGE UndecidableInstances #-}
-
 module Habits.Domain.AccountRepo.Class where
 
 import Control.Monad.RWS

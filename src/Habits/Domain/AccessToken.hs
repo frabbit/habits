@@ -8,7 +8,7 @@ import Data.Time
 import Habits.Domain.AccountId (AccountId (AccountId))
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret (AccessTokenSecret))
 import Test.QuickCheck.Instances ()
-import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
+import Web.JWT (JWTClaimsSet (..), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
 import Prelude hiding (exp, id)
 import Test.QuickCheck (Arbitrary (arbitrary))
 
