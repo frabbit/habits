@@ -1,5 +1,5 @@
 module Habits.Domain.RefreshTokenSpec where
-import Test.Hspec (Spec, it, describe, focus)
+import Test.Hspec (Spec, it, describe)
 import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, getAccountId)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)

@@ -3,7 +3,7 @@ module Habits.Domain.TimeProvider.Class where
 
 import qualified Habits.Domain.TimeProvider as TP
 import qualified Veins.Data.Has as Has
-import Control.Monad.Reader (MonadReader, asks)
+import Control.Monad.Reader (MonadReader)
 
 class TimeProvider m where
   getNow :: TP.GetNow m

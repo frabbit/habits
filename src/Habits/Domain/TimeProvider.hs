@@ -1,7 +1,5 @@
 module Habits.Domain.TimeProvider where
 
-import Habits.Domain.AccessTokenSecret (AccessTokenSecret)
-import Habits.Domain.RefreshTokenSecret ( RefreshTokenSecret )
 import Veins.Data.ToSymbol (ToSymbol)
 import Control.Monad.Reader (MonadReader, asks)
 import qualified Veins.Data.Has as Has

@@ -1,7 +1,4 @@
 {-# LANGUAGE BlockArguments #-}
-{-# LANGUAGE UndecidableInstances #-}
-{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
-{-# LANGUAGE StandaloneDeriving #-}
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec where
 

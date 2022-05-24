@@ -1,8 +1,7 @@
 {-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.UseCases.LoginSpec where
-
 
 import Prelude hiding (id)
 import Control.Lens ((^.))
@@ -103,7 +102,7 @@ runWithEnv layer app = do
 
 spec :: Spec
 spec = describe "Login.execute should" $ do
-  let runEval = runWithEnv (envLayer :: _) . evalE
+  let runEval = runWithEnv envLayer . evalE
   it "be successfull when account with same password and email exists" . runEval . catchAllToFail $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
