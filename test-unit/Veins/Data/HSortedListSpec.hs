@@ -72,7 +72,6 @@ spec = describe "HSortedList" $ do
 
   context "insert" $ do
     it "should insert values correctly" $ do
-      liftIO $ traceIO "hello"
       show (insert A . insert B $ empty) `shouldBe` "A #: B #: []"
       show (insert B . insert A $ empty) `shouldBe` "A #: B #: []"
       show (insert C . insert B . insert A $ empty)

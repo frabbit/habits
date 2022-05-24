@@ -91,7 +91,6 @@ instance (CRemove x xs out) => CRemove' 'False x (y ': xs) (y ': out) where
       L.HCons y $
         unwrap
           (remove p (HSortedList tail'))
-          & trace "rec"
 
 type MergeAll :: forall k. [[k]] -> [k]
 type family MergeAll xs where
