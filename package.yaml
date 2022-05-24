@@ -62,6 +62,9 @@ dependencies:
 - jwt
 - fixed
 - timeit
+- record-dot-preprocessor
+- record-hasfield
+- validation
 
 default-extensions:
   - TypeOperators
@@ -96,6 +99,7 @@ ghc-options:
   - -Wno-unused-do-bind
   - -Wmissing-methods
   - -Werror=missing-fields
+  - -F -pgmF=record-dot-preprocessor
 
 library:
   source-dirs: src
