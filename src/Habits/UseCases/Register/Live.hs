@@ -11,12 +11,10 @@ import Habits.Domain.AccountRepo.Class
 import Habits.UseCases.Register
   ( Execute,
     RegisterResponse
-      ( RegisterResponse, _accountId
+      ( RegisterResponse
       ),
   )
 import qualified Habits.UseCases.Register as R
-import qualified Habits.UseCases.Register.RegisterRequest as RR
-import Control.Lens ((^.))
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
@@ -29,17 +27,17 @@ import Control.Monad.IO.Class (MonadIO)
 
 execute :: (MonadIO m, AccountRepo m) => Execute m
 execute req = liftE $ S.do
-  account <- getByEmail (req ^. RR.email)
+  account <- getByEmail req.email
   when (isJust account) $ failureE EmailAlreadyUsedError
-  pwHash <- S.coerce $ mkFromPassword (req ^. RR.password)
+  pwHash <- S.coerce $ mkFromPassword req.password
   accountId <- add
     ( AccountNew
-        { email = req ^. RR.email,
-          name = req ^. RR.name,
+        { email = req.email,
+          name = req.name,
           password = pwHash
         }
     )
-  S.pure $ RegisterResponse { _accountId = accountId }
+  S.pure $ RegisterResponse { accountId }
 
 
 mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])

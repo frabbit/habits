@@ -4,7 +4,6 @@
 module Habits.UseCases.LoginSpec where
 
 import Prelude hiding (id)
-import Control.Lens ((^.))
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
@@ -54,7 +53,6 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
-import qualified Habits.Domain.RefreshTokenIssued as RTI
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
 

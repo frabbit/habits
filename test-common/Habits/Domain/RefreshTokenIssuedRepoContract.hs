@@ -4,11 +4,9 @@
 
 module Habits.Domain.RefreshTokenIssuedRepoContract where
 
-import Control.Lens ((^.))
 import GHC.Stack (HasCallStack)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.RefreshTokenIssued as RTI
-import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew (accountId))
 import Habits.Domain.RefreshTokenIssuedRepo.Class
   ( RefreshTokenIssuedRepo,
   )

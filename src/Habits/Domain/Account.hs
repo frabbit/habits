@@ -1,9 +1,6 @@
 {-# LANGUAGE RecordWildCards #-}
-{-# LANGUAGE TemplateHaskell #-}
-
 module Habits.Domain.Account where
 
-import Control.Lens (makeLenses)
 import Data.Text (Text)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.AccountNew as AN
@@ -17,8 +14,6 @@ data Account = Account
     password :: PasswordHash
   }
   deriving (Eq, Show, Ord)
-
---makeLenses ''Account
 
 fromAccountNew :: AN.AccountNew -> AccountId -> Account
 fromAccountNew AN.AccountNew {..} accountId = Account {accountId, ..}

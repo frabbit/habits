@@ -11,12 +11,10 @@
 
 module Habits.UseCases.RegisterSpec where
 
-import Control.Lens ((^.))
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
 import Data.Functor ((<&>))
-import qualified Habits.Domain.Account as A
 import qualified Habits.Domain.AccountNew as AN
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
@@ -27,11 +25,6 @@ import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
-import qualified Habits.UseCases.Register.RegisterRequest as RR
-import Habits.UseCases.Register.RegisterResponse
-  ( RegisterResponse (..),
-  )
-import qualified Habits.UseCases.Register.RegisterResponse as RegisterResponse
 import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
@@ -57,7 +50,7 @@ runWithEnv app = do
   runApp env app
 
 accountNewToRegisterRequest :: AN.AccountNew -> Password -> R.RegisterRequest
-accountNewToRegisterRequest an pass = R.RegisterRequest {R._name = an.name, R._email = an.email, R._password = pass}
+accountNewToRegisterRequest an pass = R.RegisterRequest {name = an.name, email = an.email, password = pass}
 
 spec :: Spec
 spec = describe "Register should" $ do
@@ -65,21 +58,21 @@ spec = describe "Register should" $ do
   let wrap = runWithEnv . evalE . catchAllToFail
   it "succeed when creating a new account which email does not exist yet." . wrap $ S.do
     rr <- S.coerce sampleIO
-    RegisterResponse {_accountId} <- RC.execute rr
-    account <- ARC.getById _accountId
-    S.coerce $ account.email `shouldBe` rr ^. RR.email
-    S.coerce $ account.name `shouldBe` rr ^. RR.name
+    resp <- RC.execute rr
+    account <- ARC.getById resp.accountId
+    S.coerce $ account.email `shouldBe` rr.email
+    S.coerce $ account.name `shouldBe` rr.name
   it "encode the password and store it encrypted." . wrap $ S.do
     rr <- S.coerce sampleIO
-    RegisterResponse {_accountId} <- RC.execute rr
-    account <- ARC.getById _accountId
+    resp <- RC.execute rr
+    account <- ARC.getById resp.accountId
 
-    S.coerce $ account.password `shouldNotBe` PasswordHash (rr ^. RR.password & unPassword)
+    S.coerce $ account.password `shouldNotBe` PasswordHash (rr.password & unPassword)
   it "encode the password and store it encrypted." . wrap $ S.do
     rr <- S.coerce sampleIO
-    accountId <- RC.execute rr <&> (^. RegisterResponse.accountId)
+    accountId <- RC.execute rr <&> (.accountId)
     account <- ARC.getById accountId
-    S.coerce $ isValid (rr ^. RR.password) (account.password) `shouldBe` True
+    S.coerce $ isValid rr.password account.password `shouldBe` True
 
   it "fail when creating a new account which email does not exist yet." . runEval . catchAllToFail $
     S.do
