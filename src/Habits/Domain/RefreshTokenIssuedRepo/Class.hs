@@ -10,7 +10,7 @@ import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.RefreshTokenIssuedRepo
   ( Add,
-    GetById, GetByAccountId, DeleteByAccountId,
+    GetById, GetByAccountId, DeleteByAccountId, DeleteById,
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RTIR
 import Habits.Domain.Email (Email)
@@ -23,9 +23,11 @@ class RefreshTokenIssuedRepo m where
   getById :: GetById m
   getByAccountId :: GetByAccountId m
   deleteByAccountId :: DeleteByAccountId m
+  deleteById :: DeleteById m
 
 instance (MonadReader env m, Has (RTIR.RefreshTokenIssuedRepo m) env) => RefreshTokenIssuedRepo m where
   add = RTIR.add
   getById = RTIR.getById
   getByAccountId = RTIR.getByAccountId
   deleteByAccountId = RTIR.deleteByAccountId
+  deleteById = RTIR.deleteById

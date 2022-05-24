@@ -128,3 +128,25 @@ mkSpec unlift = parallel $
           res <- RTIC.deleteByAccountId accountId
           accounts <- RTIC.getByAccountId accountId
           S.coerce $ accounts `shouldBe` []
+    describe "deleteById should" $ do
+      it "do nothing when repo is empty" . embed $
+        S.do
+          id <- S.coerce sampleIO
+          res <- RTIC.deleteById id
+          S.coerce $ res `shouldBe` ()
+      it "not delete entities referencing other accounts" . embed $
+        S.do
+          (acc, new, id) <- insertToken
+          rid <- S.coerce sampleIO
+          RTIC.deleteById rid
+          token <- RTIC.getById id
+          S.coerce $ token `shouldBe` Just acc
+      it "do delete entity when id matches" . embed $
+        S.do
+          (acc, new, id) <- insertToken
+
+          res <- RTIC.deleteById id
+          accounts <- RTIC.getById id
+          S.coerce $ res `shouldBe` ()
+          S.coerce $ accounts `shouldBe` Nothing
+

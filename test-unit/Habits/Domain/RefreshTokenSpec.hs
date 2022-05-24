@@ -1,6 +1,6 @@
 module Habits.Domain.RefreshTokenSpec where
 import Test.Hspec (Spec, it, describe, focus)
-import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, RefreshToken (RefreshToken))
+import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, RefreshToken (RefreshToken), getAccountId)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds, POSIXTime)
@@ -48,3 +48,10 @@ spec = describe "RefreshToken" $ do
 
       isExpired secret token timeFuture `shouldBe` True
       isExpired secret token timePast `shouldBe` False
+  describe "getAccountId should" $ do
+    it "return the accountId which was used at creation time" . coerceIO $ do
+      (secret, accountId) <- sampleIO
+      let expiresAt = timeNow
+      let token = mkRefreshToken secret accountId expiresAt
+
+      getAccountId  secret token  `shouldBe` Just accountId

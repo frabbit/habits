@@ -29,7 +29,7 @@ import UnliftIO
   )
 import UnliftIO.STM (modifyTVar)
 import qualified Veins.Data.ComposableEnv as CE
-import Habits.Domain.RefreshTokenIssuedRepo (RefreshTokenIssuedRepo (RefreshTokenIssuedRepo, _getById, _add, _deleteByAccountId), Add, GetById, GetByAccountId, _getByAccountId, DeleteByAccountId)
+import Habits.Domain.RefreshTokenIssuedRepo (RefreshTokenIssuedRepo (RefreshTokenIssuedRepo, _getById, _add, _deleteByAccountId), Add, GetById, GetByAccountId, _getByAccountId, DeleteByAccountId, DeleteById, _deleteById)
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import qualified Habits.Domain.RefreshTokenIssued as A
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId(..))
@@ -84,6 +84,18 @@ mkDeleteByAccountId accountsVar = pure f
       liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> (a ^. A.accountId) /= accountId)
       pure ()
 
+mkDeleteById ::
+  forall m n.
+  (Applicative n, MonadIO m) =>
+  TVar [RefreshTokenIssued] ->
+  n (DeleteById m)
+mkDeleteById accountsVar = pure f
+  where
+    f :: DeleteById m
+    f entityId = do
+      liftIO . atomically $ modifyTVar accountsVar $ filter (\a -> (a ^. A.refreshTokenIssuedId) /= entityId)
+      pure ()
+
 
 mkRefreshTokenIssuedRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[RefreshTokenIssuedRepo m])
 mkRefreshTokenIssuedRepoMemory = do
@@ -92,4 +104,5 @@ mkRefreshTokenIssuedRepoMemory = do
   _add <- mkAdd entitiesVar
   _getByAccountId <- mkGetByAccountId entitiesVar
   _deleteByAccountId <- mkDeleteByAccountId entitiesVar
-  pure $ CE.empty & CE.insert RefreshTokenIssuedRepo {_add, _getById, _getByAccountId, _deleteByAccountId }
+  _deleteById <- mkDeleteById entitiesVar
+  pure $ CE.empty & CE.insert RefreshTokenIssuedRepo {_add, _getById, _getByAccountId, _deleteByAccountId, _deleteById }

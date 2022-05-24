@@ -11,6 +11,7 @@ import Test.QuickCheck.Instances ()
 import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
 import Prelude hiding (exp, id)
 import Test.QuickCheck (Arbitrary (arbitrary))
+import qualified Data.Text as Text
 
 newtype RefreshToken = RefreshToken {unRefreshToken :: Text} deriving (Show, Eq, Ord)
 
@@ -47,5 +48,12 @@ getExpirationTime :: RefreshTokenSecret -> RefreshToken -> Maybe NominalDiffTime
 getExpirationTime (RefreshTokenSecret s) (RefreshToken t) = case verifiedJwt of
   Nothing -> Nothing
   Just x -> fmap secondsSinceEpoch . exp . claims $ x
+  where
+    verifiedJwt = decodeAndVerifySignature (toVerify . hmacSecret $ s) t
+
+getAccountId :: RefreshTokenSecret -> RefreshToken -> Maybe AccountId
+getAccountId (RefreshTokenSecret s) (RefreshToken t) = case verifiedJwt of
+  Nothing -> Nothing
+  Just x -> fmap (AccountId . Text.pack . show)  . sub . claims $ x
   where
     verifiedJwt = decodeAndVerifySignature (toVerify . hmacSecret $ s) t
