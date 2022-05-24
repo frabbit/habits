@@ -3,6 +3,8 @@
 
 module Habits.UseCases.LoginSpec where
 
+
+import Prelude hiding (id)
 import Control.Lens ((^.))
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO)
@@ -52,8 +54,14 @@ import qualified Data.Time as Time
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Veins.Data.Time.Utils (addHoursToUTCTime, addMillisecondsToUTCTime, addDaysToUTCTime)
 import Data.Maybe (isJust)
+import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
+import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
+import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
+import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
+import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
+import qualified Habits.Domain.RefreshTokenIssued as RTI
 
-type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, AC.AuthConfig]
+type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
 
 
 atSecret :: _
@@ -71,8 +79,9 @@ ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret
 tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[TP.TimeProvider m])
 tp = pure $ CE.empty & CE.insert TP.TimeProvider {TP._getNow = pure timeNow }
 
-envLayer :: forall m n. (MonadIO n, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer = ARM.mkAccountRepoMemory
+  `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
   `CE.provideAndChainLayerFlipped` RL.mkLive
   `CE.provideAndChainLayerFlipped` LoginLive.mkLive
   `CE.provideAndChainLayerFlipped` ac
@@ -85,8 +94,8 @@ addUserWithPassword = S.do
   pw <- S.coerce sampleIO
   pwHash <- S.coerce $ mkFromPassword pw
   acc <- S.coerce $ sampleIO <&> L.set AN.password pwHash
-  AR.add acc
-  S.pure (acc, pw)
+  id <- AR.add acc
+  S.pure (acc, pw, id)
 
 runWithEnv :: _ -> _ b -> IO b
 runWithEnv layer app = do
@@ -97,21 +106,21 @@ spec :: Spec
 spec = describe "Login.execute should" $ do
   let runEval = runWithEnv (envLayer :: _) . evalE
   it "be successfull when account with same password and email exists" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+    (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     S.coerce $ $('resp `shouldMatchPattern` [p|LoginResponse (AccessToken _) (RefreshToken _)|])
   it "return a valid access token" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+    (acc, pw, _) <- addUserWithPassword
     resp <- timeIt $ LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     let verifyResult = AccessToken.verifyAccessToken atSecret (resp ^. LR.accessToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return a valid refresh token" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+    (acc, pw,_) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp ^. LR.refreshToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return an access token which is 3 hours valid" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+    (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     let now = timeNow
     let almost = addHoursToUTCTime 3 timeNow
@@ -120,7 +129,7 @@ spec = describe "Login.execute should" $ do
     S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
     S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "return a refresh token which is 7 days valid" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+    (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
     let now = timeNow
     let almost = addDaysToUTCTime 7 timeNow
@@ -128,11 +137,11 @@ spec = describe "Login.execute should" $ do
     S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
     S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
     S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
-  it "store the generated refresh token" . runEval . catchAllToFail $ S.do
-    (acc, pw) <- addUserWithPassword
+  it "store the hash of the generated refresh token" . runEval . catchAllToFail $ S.do
+    (acc, pw, id) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest (acc ^. AN.email) pw
-    info <- S.pure $ Just () -- RefreshTokenIssuedRepo.getByHashedToken (resp ^. LR.refreshToken)
-    S.coerce (info `shouldSatisfy` isJust)
+    [info] <- RefreshTokenIssuedRepo.getByAccountId id
+    S.coerce $ RefreshTokenHash.isValid (resp ^. LR.refreshToken) (info ^. RTI.refreshTokenHash) `shouldBe` True
 
   it "fail with AccountNotFoundError when account with given email does not exist" . runEval . catchAllToFail $
     S.do

@@ -34,8 +34,12 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Habits.Domain.TimeProvider as TP
 import Veins.Data.Time.Utils (addHoursToUTCTime, addDaysToUTCTime)
+import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo)
+import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(RefreshTokenIssuedNew, _accountId, _expiration, _refreshTokenHash))
+import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
+import Habits.Domain.RefreshTokenHash (mkFromRefreshToken)
 
-mkExecute :: forall n m. (Monad n, MonadIO m, AccountRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (Execute m)
+mkExecute :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (Execute m)
 mkExecute = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
@@ -46,11 +50,14 @@ mkExecute = do
     time <- S.lift getNow
     accessSecret <- S.coerce getAccessSecret
     refreshSecret <- S.coerce getRefreshSecret
+    let refreshTokenExpiration = addDaysToUTCTime 7 time
     let _accessToken = mkAccessToken accessSecret (acc ^. A.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
-    let _refreshToken = mkRefreshToken refreshSecret (acc ^. A.accountId) (utcTimeToPOSIXSeconds (addDaysToUTCTime 7 time))
+    let _refreshToken = mkRefreshToken refreshSecret (acc ^. A.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
+    hash <- S.coerce $ mkFromRefreshToken _refreshToken
+    RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = acc ^. A.accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash}
     S.coerce . pure $ LoginResponse {_accessToken, _refreshToken}
 
-mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])
+mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])
 mkLive = CE.do
   execute <- mkExecute
   CE.pure $ CE.empty & CE.insert L.Login {L._execute = execute}
