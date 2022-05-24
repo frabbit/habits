@@ -1,11 +1,10 @@
 module Habits.Domain.AccessTokenSpec where
-import Test.Hspec (Spec, it, describe, focus)
-import Habits.Domain.AccessToken (mkAccessToken, verifyAccessToken, isExpired, AccessToken (AccessToken))
+import Test.Hspec (Spec, it, describe)
+import Habits.Domain.AccessToken (mkAccessToken, verifyAccessToken, isExpired)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds, POSIXTime)
 import Test.Hspec.Expectations.Lifted (shouldBe)
-import qualified Data.Text as Text
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret(AccessTokenSecret))
 
 

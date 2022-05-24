@@ -1,18 +1,11 @@
 module Habits.Domain.RefreshTokenIssuedRepo where
 
-import Control.Lens
-  ( Lens',
-    lens,
-  )
-import qualified Control.Lens as L
-import Control.Monad.Reader (MonadReader, ReaderT)
+import Control.Monad.Reader (MonadReader)
 import Control.Monad.Reader.Class (asks)
-import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
-import Habits.Domain.Email (Email)
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import Habits.Domain.RefreshTokenIssuedNew
-  ( RefreshTokenIssuedNew (RefreshTokenIssuedNew),
+  ( RefreshTokenIssuedNew,
   )
 import Habits.Domain.RepositoryError (RepositoryError)
 import Haskus.Utils.Variant.Excepts (Excepts)

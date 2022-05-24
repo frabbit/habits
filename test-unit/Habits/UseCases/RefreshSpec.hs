@@ -1,5 +1,6 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.UseCases.RefreshSpec where
 
@@ -18,12 +19,12 @@ import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Refresh as Refresh
 import qualified Habits.UseCases.Refresh.Live as RefreshLive
-import Haskus.Utils.Variant.Excepts (evalE, catchE, catchLiftLeft, catchLiftBoth, catchLiftRight)
+import Haskus.Utils.Variant.Excepts (evalE, catchLiftRight)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
     describe,
-    it, fdescribe,
+    it,
   )
 import Test.Hspec.Expectations.Lifted
   ( shouldBe
@@ -45,8 +46,8 @@ import Habits.Domain.AccessToken (AccessToken(..))
 import Habits.Domain.RefreshToken (RefreshToken(..), mkRefreshToken)
 import Veins.Test.HSpec.TH (shouldMatchPattern)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
-import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError(RefreshTokenInvalidError))
-import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
+import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError)
+import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError)
 import qualified Habits.Domain.AccessToken as AccessToken
 import qualified Habits.Domain.RefreshToken as RefreshToken
 import Control.Monad (void)
@@ -88,20 +89,18 @@ runWithEnv layer app = do
   runApp env app
 
 addValidExpiredToken :: _ => _
-addValidExpiredToken = S.do
+addValidExpiredToken = addToken timeExpired
+
+addToken :: _ => _
+addToken expirationTime = S.do
   (rtiNew, accountId) <- S.coerce sampleIO
-  let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds timeExpired)
+  let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds expirationTime)
   hash <- S.coerce $ mkFromRefreshToken token
   RTC.add (rtiNew{ _refreshTokenHash = hash, _accountId = accountId })
   S.pure (token, hash, accountId)
 
 addValidToken :: _ => _
-addValidToken = S.do
-  (rtiNew, accountId) <- S.coerce sampleIO
-  let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds timeNow)
-  hash <- S.coerce $ mkFromRefreshToken token
-  RTC.add (rtiNew{ _refreshTokenHash = hash, _accountId = accountId })
-  S.pure (token, hash, accountId)
+addValidToken = addToken timeNow
 
 spec :: Spec
 spec = describe "refresh should" $ do

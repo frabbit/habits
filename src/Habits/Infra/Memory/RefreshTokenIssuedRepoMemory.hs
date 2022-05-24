@@ -16,13 +16,7 @@ import GHC.Conc
   ( newTVarIO,
     readTVarIO,
   )
-import Habits.Domain.Account (Account)
 import qualified Habits.Domain.RefreshTokenIssued as RTI
-import Habits.Domain.AccountId (AccountId (AccountId))
-import qualified Habits.Domain.AccountRepo as AR
-import Habits.Domain.AccountNotFoundError
-    ( AccountNotFoundError(AccountNotFoundError) )
-import Haskus.Utils.Variant.Excepts (throwE)
 import UnliftIO
   ( TVar,
     atomically,

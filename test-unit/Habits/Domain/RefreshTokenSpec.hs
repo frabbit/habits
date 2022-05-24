@@ -1,11 +1,10 @@
 module Habits.Domain.RefreshTokenSpec where
 import Test.Hspec (Spec, it, describe, focus)
-import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, RefreshToken (RefreshToken), getAccountId)
+import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, getAccountId)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds, POSIXTime)
 import Test.Hspec.Expectations.Lifted (shouldBe)
-import qualified Data.Text as Text
 import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret(RefreshTokenSecret))
 
 

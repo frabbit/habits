@@ -14,19 +14,18 @@ import qualified Habits.UseCases.Refresh as R
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (..))
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Habits.Domain.TimeProvider as TP
-import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo (getByAccountId, deleteById, add, deleteByAccountId))
+import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo (getByAccountId, deleteById, deleteByAccountId))
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError(RefreshTokenIssuedNotFoundError))
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
-import Habits.Domain.RefreshToken (getAccountId, RefreshToken (RefreshToken), mkRefreshToken, isExpired)
+import Habits.Domain.RefreshToken (getAccountId, mkRefreshToken, isExpired)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Data.Foldable (find)
 import Habits.Domain.RefreshTokenHash (isValid, mkFromRefreshToken)
 import Veins.Data.Time.Utils (addDaysToUTCTime, addHoursToUTCTime)
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse(..))
-import Habits.Domain.AccessToken (AccessToken(..), mkAccessToken)
+import Habits.Domain.AccessToken (mkAccessToken)
 import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError(RefreshTokenInvalidError))
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
-import Habits.Domain.RefreshTokenIssued (refreshTokenIssuedId)
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(..))
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))

@@ -5,21 +5,15 @@
 module Habits.Domain.RefreshTokenIssuedRepoContract where
 
 import Control.Lens ((^.))
-import Data.Function ((&))
-import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)
 import Habits.Domain.AccountId (AccountId (AccountId))
-import Habits.Domain.Email (Email (Email))
 import qualified Habits.Domain.RefreshTokenIssued as RTI
-import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
-import qualified Habits.Domain.RefreshTokenIssuedId as RefreshTokenIssuedId
 import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew (_accountId))
 import Habits.Domain.RefreshTokenIssuedRepo.Class
   ( RefreshTokenIssuedRepo,
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTIC
-import Habits.Domain.RepositoryError (RepositoryError)
-import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, evalE)
+import Haskus.Utils.Variant.Excepts (Excepts, evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
@@ -28,14 +22,12 @@ import Test.Hspec
     parallel,
   )
 import Test.Hspec.Expectations.Lifted
-  ( expectationFailure,
-    shouldBe,
+  ( shouldBe,
   )
 import UnliftIO (MonadIO)
 import Utils
   ( catchAllToFail,
     sampleIO,
-    toThrow,
   )
 import Prelude hiding (id)
 
@@ -107,14 +99,14 @@ mkSpec unlift = parallel $
           S.coerce $ res `shouldBe` ()
       it "not delete entities referencing other accounts" . embed $
         S.do
-          (acc, new, id) <- insertToken
+          (acc, _, id) <- insertToken
           accountId <- S.coerce sampleIO
-          res <- RTIC.deleteByAccountId accountId
+          RTIC.deleteByAccountId accountId
           token <- RTIC.getById id
           S.coerce $ token `shouldBe` Just acc
       it "do delete entity when accountId matches" . embed $
         S.do
-          (acc, new, id) <- insertToken
+          (acc, _, _) <- insertToken
           let accountId = acc ^. RTI.accountId
           res <- RTIC.deleteByAccountId accountId
           accounts <- RTIC.getByAccountId accountId
@@ -123,9 +115,9 @@ mkSpec unlift = parallel $
       it "delete multiple entities when accountId matches" . embed $
         S.do
           accountId <- S.coerce sampleIO
-          (_, new1, id1) <- insertTokenForAccountId accountId
-          (_, new2, id2) <- insertTokenForAccountId accountId
-          res <- RTIC.deleteByAccountId accountId
+          insertTokenForAccountId accountId
+          insertTokenForAccountId accountId
+          RTIC.deleteByAccountId accountId
           accounts <- RTIC.getByAccountId accountId
           S.coerce $ accounts `shouldBe` []
     describe "deleteById should" $ do
@@ -136,14 +128,14 @@ mkSpec unlift = parallel $
           S.coerce $ res `shouldBe` ()
       it "not delete entities referencing other accounts" . embed $
         S.do
-          (acc, new, id) <- insertToken
+          (acc, _, id) <- insertToken
           rid <- S.coerce sampleIO
           RTIC.deleteById rid
           token <- RTIC.getById id
           S.coerce $ token `shouldBe` Just acc
       it "do delete entity when id matches" . embed $
         S.do
-          (acc, new, id) <- insertToken
+          (_, _, id) <- insertToken
 
           res <- RTIC.deleteById id
           accounts <- RTIC.getById id

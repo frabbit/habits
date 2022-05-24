@@ -41,9 +41,9 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
     describe,
-    it, focus, parallel, xdescribe,
+    it,
   )
-import Test.Hspec.Expectations.Lifted (shouldBe, shouldSatisfy)
+import Test.Hspec.Expectations.Lifted (shouldBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
@@ -53,7 +53,6 @@ import System.TimeIt (timeIt)
 import qualified Data.Time as Time
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Veins.Data.Time.Utils (addHoursToUTCTime, addMillisecondsToUTCTime, addDaysToUTCTime)
-import Data.Maybe (isJust)
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
