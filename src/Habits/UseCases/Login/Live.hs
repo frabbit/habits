@@ -1,13 +1,11 @@
 module Habits.UseCases.Login.Live where
 
-import Control.Lens ((^.))
 import Control.Monad (unless)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
 import Data.Function ((&))
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.AccessToken (mkAccessToken)
-import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountRepo.Class
   ( AccountRepo,
     getByEmailOrFail,
@@ -21,7 +19,7 @@ import Habits.UseCases.Login
   )
 import qualified Habits.UseCases.Login as L
 import Habits.UseCases.Login.LoginRequest (LoginRequest (..))
-import Habits.UseCases.Login.LoginResponse (LoginResponse (LoginResponse), _accessToken, _refreshToken)
+import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import qualified Veins.Data.ComposableEnv as CE
@@ -44,11 +42,11 @@ mkExecute = do
     accessSecret <- S.coerce getAccessSecret
     refreshSecret <- S.coerce getRefreshSecret
     let refreshTokenExpiration = addDaysToUTCTime 7 time
-    let _accessToken = mkAccessToken accessSecret (acc.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
-    let _refreshToken = mkRefreshToken refreshSecret (acc.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
-    hash <- S.coerce $ mkFromRefreshToken _refreshToken
+    let accessToken = mkAccessToken accessSecret (acc.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
+    let refreshToken = mkRefreshToken refreshSecret (acc.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)
+    hash <- S.coerce $ mkFromRefreshToken refreshToken
     RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { _accountId = acc.accountId, _expiration = refreshTokenExpiration, _refreshTokenHash = hash}
-    S.coerce . pure $ LoginResponse {_accessToken, _refreshToken}
+    S.coerce . pure $ LoginResponse{ accessToken, refreshToken }
 
 mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])
 mkLive = CE.do

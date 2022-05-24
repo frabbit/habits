@@ -5,7 +5,6 @@ module Habits.UseCases.LoginSpec where
 
 import Prelude hiding (id)
 import Control.Lens ((^.))
-import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
@@ -13,7 +12,6 @@ import Data.Functor ((<&>))
 import Habits.Domain.AccessToken (AccessToken (AccessToken))
 import qualified Habits.Domain.AccessToken as AccessToken
 import qualified Habits.Domain.AccessTokenSecret as ATS
-import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
@@ -32,7 +30,6 @@ import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LoginLive
 import Habits.UseCases.Login.LoginRequest (LoginRequest (EmailPasswordLoginRequest))
 import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
-import qualified Habits.UseCases.Login.LoginResponse as LR
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.Live as RL
 import Haskus.Utils.Variant.Excepts (evalE)
@@ -110,12 +107,12 @@ spec = describe "Login.execute should" $ do
   it "return a valid access token" . runEval . catchAllToFail $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- timeIt $ LC.execute $ EmailPasswordLoginRequest acc.email pw
-    let verifyResult = AccessToken.verifyAccessToken atSecret (resp ^. LR.accessToken)
+    let verifyResult = AccessToken.verifyAccessToken atSecret (resp.accessToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return a valid refresh token" . runEval . catchAllToFail $ S.do
     (acc, pw,_) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
-    let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp ^. LR.refreshToken)
+    let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp.refreshToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return an access token which is 3 hours valid" . runEval . catchAllToFail $ S.do
     (acc, pw, _) <- addUserWithPassword
@@ -123,23 +120,23 @@ spec = describe "Login.execute should" $ do
     let now = timeNow
     let almost = addHoursToUTCTime 3 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
-    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
-    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
-    S.coerce $ AccessToken.isExpired atSecret (resp ^. LR.accessToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
+    S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds now) `shouldBe` False
+    S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds almost) `shouldBe` False
+    S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "return a refresh token which is 7 days valid" . runEval . catchAllToFail $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     let now = timeNow
     let almost = addDaysToUTCTime 7 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
-    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds now) `shouldBe` False
-    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds almost) `shouldBe` False
-    S.coerce $ RefreshToken.isExpired rtSecret (resp ^. LR.refreshToken) (utcTimeToPOSIXSeconds expired) `shouldBe` True
+    S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds now) `shouldBe` False
+    S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds almost) `shouldBe` False
+    S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "store the hash of the generated refresh token" . runEval . catchAllToFail $ S.do
     (acc, pw, id) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     [info] <- RefreshTokenIssuedRepo.getByAccountId id
-    S.coerce $ RefreshTokenHash.isValid (resp ^. LR.refreshToken) (info ^. RTI.refreshTokenHash) `shouldBe` True
+    S.coerce $ RefreshTokenHash.isValid resp.refreshToken (info ^. RTI.refreshTokenHash) `shouldBe` True
 
   it "fail with AccountNotFoundError when account with given email does not exist" . runEval . catchAllToFail $
     S.do
