@@ -100,51 +100,54 @@ addToken expirationTime = S.do
 addValidToken :: _ => _
 addValidToken = addToken timeNow
 
+embed :: _ => _
+embed = runWithEnv (envLayer :: _) . evalE . catchAllToFail
+
 spec :: Spec
 spec = describe "refresh should" $ do
-  let runEval = runWithEnv (envLayer :: _) . evalE
-  it "fail with RefreshTokenIssuedNotFoundError when refreshToken does not exist" . runEval . catchAllToFail $
+
+  it "fail with RefreshTokenIssuedNotFoundError when refreshToken does not exist" . embed $
     S.do
       accountId <- S.coerce sampleIO
       let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds timeNow)
       refresh (RefreshRequest token)
       & expectError @RefreshTokenIssuedNotFoundError
-  it "fail with RefreshTokenInvalidError when refreshToken was signed with a different secret" . runEval . catchAllToFail $
+  it "fail with RefreshTokenInvalidError when refreshToken was signed with a different secret" . embed $
     S.do
       token <- S.coerce sampleIO
       refresh (RefreshRequest token)
       & expectError @RefreshTokenInvalidError
-  it "succeed with new AccessToken and RefreshToken when refreshToken is found" . runEval . catchAllToFail $ S.do
+  it "succeed with new AccessToken and RefreshToken when refreshToken is found" . embed $ S.do
     (token, _, _) <- addValidToken
     resp <- refresh (RefreshRequest token)
     S.coerce $('resp `shouldMatchPattern` [p|RefreshResponse (AccessToken _) (RefreshToken _)|])
-  it "return a valid access token" . runEval . catchAllToFail $ S.do
+  it "return a valid access token" . embed $ S.do
     (token, _, _) <- addValidToken
     resp <- refresh (RefreshRequest token)
     let verifyResult = AccessToken.verifyAccessToken atSecret resp.accessToken
     S.coerce $ verifyResult `shouldBe` True
-  it "return a valid refresh token" . runEval . catchAllToFail $ S.do
+  it "return a valid refresh token" . embed $ S.do
     (token, _, _) <- addValidToken
     resp <- refresh (RefreshRequest token)
     let verifyResult = RefreshToken.verifyRefreshToken rtSecret resp.refreshToken
     S.coerce $ verifyResult `shouldBe` True
-  it "fail with RefreshTokenExpiredError when token is expired" . runEval . catchAllToFail $
+  it "fail with RefreshTokenExpiredError when token is expired" . embed $
     S.do
       (token, _, _) <- addValidExpiredToken
       refresh (RefreshRequest token)
       & expectError @RefreshTokenExpiredError
-  it "return a refreshToken which can be used to refresh successfully again" . runEval . catchAllToFail $ S.do
+  it "return a refreshToken which can be used to refresh successfully again" . embed $ S.do
     (token, _, _) <- addValidToken
     resp1 <- refresh (RefreshRequest token)
     resp2 <- refresh (RefreshRequest resp1.refreshToken)
     S.coerce $('resp2 `shouldMatchPattern` [p|RefreshResponse (AccessToken _) (RefreshToken _)|])
-  it "invalidate the used refreshToken which can not be used again afterwards" . runEval . catchAllToFail $
+  it "invalidate the used refreshToken which can not be used again afterwards" . embed $
     S.do
       (token, _, _) <- addValidToken
       refresh (RefreshRequest token)
       refresh (RefreshRequest token)
       & expectError @RefreshTokenIssuedNotFoundError
-  it "invalidate all refreshTokens of a user when a valid, but non-existing refreshToken is used (token theft)" . runEval . catchAllToFail $ S.do
+  it "invalidate all refreshTokens of a user when a valid, but non-existing refreshToken is used (token theft)" . embed $ S.do
     (token, _, accountId) <- addValidToken
     refresh (RefreshRequest token)
     refresh (RefreshRequest token) & void & catchLiftRight (\RefreshTokenIssuedNotFoundError -> S.pure ())

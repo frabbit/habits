@@ -95,24 +95,26 @@ runWithEnv layer app = do
   env <- runReaderT layer CE.empty
   runApp env app
 
+embed :: _ => _
+embed = runWithEnv (envLayer :: _) . evalE . catchAllToFail
+
 spec :: Spec
 spec = describe "Login.execute should" $ do
-  let runEval = runWithEnv envLayer . evalE
-  it "be successfull when account with same password and email exists" . runEval . catchAllToFail $ S.do
+  it "be successfull when account with same password and email exists" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     S.coerce $ $('resp `shouldMatchPattern` [p|LoginResponse (AccessToken _) (RefreshToken _)|])
-  it "return a valid access token" . runEval . catchAllToFail $ S.do
+  it "return a valid access token" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- timeIt $ LC.execute $ EmailPasswordLoginRequest acc.email pw
     let verifyResult = AccessToken.verifyAccessToken atSecret (resp.accessToken)
     S.coerce $ verifyResult `shouldBe` True
-  it "return a valid refresh token" . runEval . catchAllToFail $ S.do
+  it "return a valid refresh token" . embed $ S.do
     (acc, pw,_) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp.refreshToken)
     S.coerce $ verifyResult `shouldBe` True
-  it "return an access token which is 3 hours valid" . runEval . catchAllToFail $ S.do
+  it "return an access token which is 3 hours valid" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     let now = timeNow
@@ -121,7 +123,7 @@ spec = describe "Login.execute should" $ do
     S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds now) `shouldBe` False
     S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds almost) `shouldBe` False
     S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
-  it "return a refresh token which is 7 days valid" . runEval . catchAllToFail $ S.do
+  it "return a refresh token which is 7 days valid" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     let now = timeNow
@@ -130,19 +132,19 @@ spec = describe "Login.execute should" $ do
     S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds now) `shouldBe` False
     S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds almost) `shouldBe` False
     S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
-  it "store the hash of the generated refresh token" . runEval . catchAllToFail $ S.do
+  it "store the hash of the generated refresh token" . embed $ S.do
     (acc, pw, id) <- addUserWithPassword
     resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
     [info] <- RefreshTokenIssuedRepo.getByAccountId id
     S.coerce $ RefreshTokenHash.isValid resp.refreshToken info.refreshTokenHash `shouldBe` True
 
-  it "fail with AccountNotFoundError when account with given email does not exist" . runEval . catchAllToFail $
+  it "fail with AccountNotFoundError when account with given email does not exist" . embed $
     S.do
       pw <- S.coerce sampleIO
       email <- S.coerce sampleIO
       LC.execute $ EmailPasswordLoginRequest email pw
       & expectError @AccountNotFoundError
-  it "fail with PasswordIncorrectError when account with email exists but password is wrong" . runEval . catchAllToFail $
+  it "fail with PasswordIncorrectError when account with email exists but password is wrong" . embed $
     S.do
       let pw = Password "InvalidPassword"
       acc <- S.coerce sampleIO
