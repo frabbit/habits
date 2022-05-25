@@ -2,7 +2,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Habits.Infra.Memory.AccountRepoMemorySpec where
+module Habits.Infra.Memory.AccountRepoMemorySpec (spec) where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))

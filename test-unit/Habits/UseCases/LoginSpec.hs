@@ -1,7 +1,7 @@
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Habits.UseCases.LoginSpec where
+module Habits.UseCases.LoginSpec (spec) where
 
 import Prelude hiding (id)
 import Control.Monad.IO.Class (MonadIO)

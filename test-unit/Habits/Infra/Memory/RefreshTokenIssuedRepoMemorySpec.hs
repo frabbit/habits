@@ -1,6 +1,6 @@
 {-# LANGUAGE BlockArguments #-}
 
-module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec where
+module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec (spec) where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))

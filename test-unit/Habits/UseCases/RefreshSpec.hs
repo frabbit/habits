@@ -2,7 +2,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
-module Habits.UseCases.RefreshSpec where
+module Habits.UseCases.RefreshSpec (spec) where
 
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO)

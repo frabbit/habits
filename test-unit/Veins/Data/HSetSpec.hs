@@ -1,5 +1,5 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
-module Veins.Data.HSetSpec where
+module Veins.Data.HSetSpec (spec) where
 
 import Data.Function ((&))
 import qualified Test.Hspec as HS

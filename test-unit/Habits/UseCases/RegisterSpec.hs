@@ -9,7 +9,7 @@
 {-# HLINT ignore "Use let" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Habits.UseCases.RegisterSpec where
+module Habits.UseCases.RegisterSpec (spec) where
 
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
