@@ -7,5 +7,15 @@ makeLensesWithSuffixL :: Name -> Q [Dec]
 makeLensesWithSuffixL = makeLensesWithSuffix "L"
 
 makeLensesWithSuffix :: String -> Name -> Q [Dec]
-makeLensesWithSuffix suffix = makeLensesWith $ lensRules
-  & lensField .~ (\_ _ name -> [TopName (mkName $ nameBase name ++ suffix)])
+makeLensesWithSuffix suffix = makeLensesWithNameMap (<> suffix)
+
+makeLensesWithNameMap :: (String -> String) -> Name -> Q [Dec]
+makeLensesWithNameMap nameMap = makeLensesWith $ lensRules
+  & lensField .~ (\_ _ name -> [TopName (mkName $ nameMap . nameBase $ name)])
+
+
+makeLensesWithoutUnderscoreAndWithSuffixL :: Name -> Q [Dec]
+makeLensesWithoutUnderscoreAndWithSuffixL = makeLensesWithNameMap $ \s -> dropFirst s <> "L"
+  where
+    dropFirst ('_' : xs) = xs
+    dropFirst x = x

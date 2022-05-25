@@ -12,7 +12,7 @@ import Data.Kind (Type)
 import Haskus.Utils.Types (Union)
 import Haskus.Utils.Variant.Excepts
   ( Excepts (..),
-    runE,
+    runE, liftE,
   )
 import qualified Haskus.Utils.Variant.Excepts as Exc
 import Haskus.Utils.Variant.VEither
@@ -40,6 +40,12 @@ pure = P.pure
 
 return :: (Monad m) => a -> Excepts '[] m a
 return = P.return
+
+fmap :: _ => (a -> b) -> Excepts e1 m a -> Excepts e1 m b
+fmap = P.fmap
+
+(<*>) :: _ => Excepts e1 m (a -> b) -> Excepts e2 m a -> Excepts (Union e1 e2) m b
+(<*>) f a = liftE f P.<*> liftE a
 
 (>>=) :: forall e1 e2 m a b. (Monad m, BindLift e1 (Union e1 e2), BindLift e2 (Union e1 e2)) => Excepts e1 m a -> (a -> Excepts e2 m b) -> Excepts (Union e1 e2) m b
 (>>=) m f = Exc.Excepts $ do

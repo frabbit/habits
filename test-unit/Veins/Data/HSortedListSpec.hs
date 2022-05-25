@@ -4,11 +4,9 @@
 
 module Veins.Data.HSortedListSpec where
 
-import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Proxy (Proxy (Proxy))
 import Data.Text (Text)
 import Data.Type.Equality (type (==))
-import Debug.Trace (traceIO)
 import GHC.TypeLits (AppendSymbol)
 import Test.Hspec
   ( Spec,

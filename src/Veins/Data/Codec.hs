@@ -66,6 +66,10 @@ mapValidationError m c =
 withContext :: ValidationErrorContext -> Codec a b -> Codec a b
 withContext ctx = mapValidationError (VEContext ctx)
 
+
+convError :: _ => Text -> Text -> _
+convError a b s = VESimple $ "Cannot convert " <> show a <> " \"" <> show s <> "\" to " <> show b
+
 encoderFromMaybe :: (a -> ValidationError) -> (a -> Maybe b) -> Encoder a b
 encoderFromMaybe err conv s = Maybe.maybe (Failure (err s)) Success (conv s)
 

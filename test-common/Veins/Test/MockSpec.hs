@@ -1,6 +1,5 @@
 module Veins.Test.MockSpec where
 
-import Control.Lens (makeLenses, makeLensesWith, lensRules, lensField, (.~))
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Except (runExceptT, throwE, ExceptT)

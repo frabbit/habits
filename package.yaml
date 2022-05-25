@@ -65,6 +65,11 @@ dependencies:
 - record-dot-preprocessor
 - record-hasfield
 - validation
+- servant
+- servant-server
+- aeson
+- wai
+- warp
 
 default-extensions:
   - TypeOperators

@@ -5,7 +5,7 @@ import Data.UUID (toText)
 import Test.QuickCheck (Arbitrary (arbitrary))
 import Test.QuickCheck.Instances.UUID ()
 
-newtype AccountId = AccountId Text deriving (Eq, Show, Ord)
+newtype AccountId = AccountId { unAccountId :: Text } deriving (Eq, Show, Ord)
 
 unwrap :: AccountId -> Text
 unwrap (AccountId x) = x

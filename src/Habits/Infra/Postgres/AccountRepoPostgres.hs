@@ -3,7 +3,6 @@
 
 module Habits.Infra.Postgres.AccountRepoPostgres where
 
-import Control.Lens (view)
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,
