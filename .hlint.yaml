@@ -3,3 +3,4 @@
 - warning: { name: Use <$> }
 - warning: { name: Move brackets to avoid $ }
 - warning: { name: Use let }
+- ignore: { name: Use fewer LANGUAGE pragmas }

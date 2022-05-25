@@ -38,7 +38,7 @@ insertToken = S.do
 
 insertTokenForAccountId :: forall m. (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
 insertTokenForAccountId accId = S.do
-  new <- S.coerce $ fmap (\x -> x{ accountId = accId }) sampleIO
+  new <- S.coerce $ fmap (\x -> x{accountId = accId}) sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)

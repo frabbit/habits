@@ -87,6 +87,9 @@ default-extensions:
   - MultiParamTypeClasses
   - GeneralizedNewtypeDeriving
   - FunctionalDependencies
+  - UndecidableInstances
+  - DuplicateRecordFields
+  - TypeSynonymInstances
   - TypeFamilies
   - QualifiedDo
   - TemplateHaskell
@@ -105,7 +108,7 @@ ghc-options:
   - -Wno-unused-do-bind
   - -Wmissing-methods
   - -Werror=missing-fields
-  - -F -pgmF=record-dot-preprocessor
+  - -fplugin=RecordDotPreprocessor
 
 library:
   source-dirs: src

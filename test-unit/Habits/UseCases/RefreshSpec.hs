@@ -94,7 +94,7 @@ addToken expirationTime = S.do
   (rtiNew, accountId) <- S.coerce sampleIO
   let token = mkRefreshToken rtSecret accountId (utcTimeToPOSIXSeconds expirationTime)
   hash <- S.coerce $ mkFromRefreshToken token
-  RTC.add (rtiNew{ refreshTokenHash = hash, accountId = accountId })
+  RTC.add (rtiNew{refreshTokenHash = hash, accountId = accountId})
   S.pure (token, hash, accountId)
 
 addValidToken :: _ => _
@@ -105,7 +105,6 @@ embed = runWithEnv (envLayer :: _) . evalE . catchAllToFail
 
 spec :: Spec
 spec = describe "refresh should" $ do
-
   it "fail with RefreshTokenIssuedNotFoundError when refreshToken does not exist" . embed $
     S.do
       accountId <- S.coerce sampleIO

@@ -86,7 +86,7 @@ addUserWithPassword :: _ => _
 addUserWithPassword = S.do
   pw <- S.coerce sampleIO
   pwHash <- S.coerce $ mkFromPassword pw
-  acc <- S.coerce $ sampleIO <&> \a -> a{ password = pwHash }
+  acc <- S.coerce $ sampleIO <&> \a -> a{password = pwHash}
   id <- AR.add acc
   S.pure (acc, pw, id)
 
