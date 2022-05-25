@@ -1,6 +1,6 @@
 module Veins.Test.MockSpec where
 
-import Control.Lens (makeLenses)
+import Control.Lens (makeLenses, makeLensesWith, lensRules, lensField, (.~))
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Trans.Except (runExceptT, throwE, ExceptT)
@@ -13,70 +13,73 @@ import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgsIO, ge
 import Haskus.Utils.Variant.Excepts (Excepts, runE, pattern VRight, pattern VLeft, failureE)
 import Haskus.Utils.Variant.VEither.Orphans ()
 import Haskus.Utils.Variant (toVariant)
+import Veins.Control.Lens (makeLensesWithSuffixL)
+
 
 data Simple = MkSimple
-  { _exec :: Int -> String
+  { exec :: Int -> String
   }
 
-makeLenses ''Simple
+makeLensesWithSuffixL ''Simple
 
 data Monadic m = MkMonadic
-  { _execM :: Int -> m String
+  { execMon :: Int -> m String
   }
 
-makeLenses ''Monadic
+makeLensesWithSuffixL ''Monadic
 
 data WithError = MkExcepts
-  {_execErr :: Int -> Excepts '[()] IO String }
+  {execErr :: Int -> Excepts '[()] IO String }
 
 
-makeLenses ''WithError
+makeLensesWithSuffixL ''WithError
 
 spec :: HS.Spec
 spec = do
   HS.describe "mockify" $ do
     HS.it "should work together with simple functions" $ do
-      let mock = mockify MkSimple & L.set exec (const "hi")
-      (mock & L.view exec) 1 `shouldBe` "hi"
-      (mock & L.view exec) 2 `shouldBe` "hi"
+
+      let mock = mockify MkSimple & \r -> r{ exec = const "hi" }
+      mock.exec 1 `shouldBe` "hi"
+      mock.exec 2 `shouldBe` "hi"
     HS.it "should work with excepts based functions" $ do
-      let mock = mockify MkExcepts & L.set execErr (const $ pure "hi")
-      r <- runE $ (mock & L.view execErr) 1
+      let mock = mockify MkExcepts & L.set execErrL (const $ pure "hi")
+      r <- runE $ mock.execErr 1
       r `shouldBe` VRight "hi"
   HS.describe "mockifyArb" $ do
     HS.it "should work with monadic functions" $ do
-      (spy, mock) <- mockifyArb MkMonadic & withSpy execM
-      mock & L.view execM $ 1
+      (spy, mock) <- mockifyArb MkMonadic & withSpy execMonL
+      mock & L.view execMonL $ 1
       (fmap length . getSpyCallsIO $ spy) `shouldBeIO` 1
     HS.it "should work with excepts based functions" $ do
-      (spy, mock) <- mockifyArb MkExcepts & withSpy execErr
-      runE $ mock & L.view execErr $ 1
+      (spy, mock) <- mockifyArb MkExcepts & withSpy execErrL
+      runE $ mock & L.view execErrL $ 1
       (fmap length . getSpyCallsIO $ spy) `shouldBeIO` 1
   HS.describe "withSpy" $ do
     HS.it "should work with monadic functions" $ do
-      (spy, mock) <- mockify (MkMonadic @IO) & L.set execM (\_ -> pure "hi") & withSpy execM
-      res <- (mock & L.view execM) 1
+      (spy, mock) <- mockify (MkMonadic @IO) & L.set execMonL (\_ -> pure "hi") & withSpy execMonL
+      res <- mock.execMon 1
       res `shouldBe` "hi"
       getSpyCallsIO spy `shouldBeIO` [(HL.HCons 1 HL.HNil, "hi" :: String)]
     HS.it "should work with excepts based functions" $ do
-      (spy, mock) <- mockify MkExcepts & L.set execErr (const $ pure "hi") & withSpy execErr
-      runE $ (mock & L.view execErr) 1
+      (spy, mock) <- mockify MkExcepts & L.set execErrL (const $ pure "hi") & withSpy execErrL
+      runE $ mock.execErr 1
       getSpyCallsIO spy `shouldBeIO` [(HL.HCons 1 HL.HNil, "hi" :: String)]
     HS.it "should work with excepts based functions that produce an error" $ do
-      (spy, mock) <- mockify MkExcepts & L.set execErr (const $ failureE ()) & withSpy execErr
-      r <- runE $ (mock & L.view execErr) 1
+      (spy, mock) <- mockify MkExcepts & L.set execErrL (const $ failureE ()) & withSpy execErrL
+      r <- runE $ mock.execErr 1
       r `shouldBe` (VLeft . toVariant $ ())
       getSpyArgsIO spy `shouldBeIO` [HL.HCons 1 HL.HNil]
       getSpyCallsIO spy `shouldBeIO` []
   HS.describe "Veins.Test.MockReturn" $ do
     HS.it "should work with simple functions" $ do
-      let mock = mockify MkSimple & L.over exec (mockReturn "hi")
-      (mock & L.view exec) 1 `shouldBe` "hi"
-      (mock & L.view exec) 2 `shouldBe` "hi"
+      let mock = mockify MkSimple & L.over execL (mockReturn "hi")
+      mock.exec 1 `shouldBe` "hi"
+      mock.exec 2 `shouldBe` "hi"
     HS.it "should work with monadic functions" $ do
-      let mock = mockify MkMonadic & L.over execM (mockReturn $ pure "hi")
-      (mock & L.view execM) 1 `shouldBe` Just "hi"
-      (mock & L.view execM) 2 `shouldBe` Just "hi"
+      let mock = mockify MkMonadic & L.over execMonL (mockReturn $ pure "hi")
+      mock.execMon 1 `shouldBe` Just "hi"
+      mock.execMon 2 `shouldBe` Just "hi"
   HS.describe "mkSpyIO" $ do
     let f1 :: String -> IO Int
         f1 s = pure (length s)
