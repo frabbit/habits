@@ -13,7 +13,7 @@ import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgsIO, ge
 import Haskus.Utils.Variant.Excepts (Excepts, runE, pattern VRight, pattern VLeft, failureE)
 import Haskus.Utils.Variant.VEither.Orphans ()
 import Haskus.Utils.Variant (toVariant)
-import Veins.Control.Lens (makeLensesWithSuffixL)
+import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 
 
 data Simple = MkSimple
