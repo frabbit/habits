@@ -36,10 +36,10 @@ mkTypeMonadReader = TH.AppT (TH.ConT ''MonadReader)
 
 
 data Context = Context {
-  _nameAppEnv :: TH.Name,
-  _nameApp :: TH.Name,
-  _nameUnApp :: TH.Name,
-  _envName :: TH.Name
+  nameAppEnv :: TH.Name,
+  nameApp :: TH.Name,
+  nameUnApp :: TH.Name,
+  envName :: TH.Name
 }
 
 
@@ -56,14 +56,11 @@ typeConIO = TH.AppT typeIO
 
 -- newtype App a = App {unApp :: AppT (AppEnv App) IO a} deriving (Functor, Applicative, Monad, MonadIO, MonadReader (AppEnv App))
 mkApp :: Context -> Q [Dec]
-mkApp Context { _nameApp, _nameAppEnv, _nameUnApp } = do
-  let nameApp = _nameApp
+mkApp Context { nameApp, nameAppEnv, nameUnApp } = do
   let typeApp = TH.ConT nameApp
   let nameAppT = ''AppT.AppT
   let typeAppT = TH.ConT nameAppT
   let nameA = mkName "a"
-  let nameUnApp = _nameUnApp
-  let nameAppEnv = _nameAppEnv
   let typeAppEnv = TH.ConT nameAppEnv
 
   let typeEnv = TH.AppT typeAppEnv typeApp
@@ -77,11 +74,10 @@ mkApp Context { _nameApp, _nameAppEnv, _nameUnApp } = do
 -- newtype AppEnv m = AppEnv (Env m)
 
 mkAppEnv :: Context -> Q [Dec]
-mkAppEnv Context { _nameApp, _nameAppEnv, _envName } = pure decs
+mkAppEnv Context { nameAppEnv, envName } = pure decs
   where
-    nameAppEnv = _nameAppEnv
     nameM = mkName "m"
-    nameEnv = _envName
+    nameEnv = envName
     typeEnv = TH.ConT nameEnv
     con = TH.NormalC nameAppEnv [(noBang, TH.AppT typeEnv (TH.VarT nameM))]
     decs = [TH.NewtypeD [] nameAppEnv [TH.PlainTV nameM ()] Nothing con []]
@@ -90,20 +86,18 @@ mkAppEnv Context { _nameApp, _nameAppEnv, _envName } = pure decs
 -- runApp env a = runAppT' (AppEnv env) (unApp a)
 
 mkRunApp :: Context -> String -> Q [Dec]
-mkRunApp Context { _nameApp, _nameAppEnv, _nameUnApp, _envName } name = do
+mkRunApp Context { nameApp, nameAppEnv, nameUnApp, envName } name = do
 
   name_env <- TH.newName "env"
   name_a <- TH.newName "a"
-  let nameApp = _nameApp
   let nameFun = mkName name
-  let nameEnv = _envName
-  let typeEnvApp = TH.AppT (TH.ConT nameEnv) (TH.ConT nameApp)
+  let typeEnvApp = TH.AppT (TH.ConT envName) (TH.ConT nameApp)
   let typeA = TH.VarT name_a
   let typeIOA = typeConIO typeA
   let typeAppA = TH.AppT (TH.ConT nameApp) typeA
   let signature = TH.SigD nameFun (TH.ArrowT `TH.AppT` typeEnvApp `TH.AppT` (TH.ArrowT `TH.AppT` typeAppA `TH.AppT` typeIOA))
-  let appEnv_env = TH.AppE (TH.ConE _nameAppEnv) (TH.VarE name_env)
-  let unApp_a = TH.AppE (TH.VarE _nameUnApp) (TH.VarE name_a)
+  let appEnv_env = TH.AppE (TH.ConE nameAppEnv) (TH.VarE name_env)
+  let unApp_a = TH.AppE (TH.VarE nameUnApp) (TH.VarE name_a)
   let runAppT' = TH.VarE 'AppT.runAppT'
   let expr = runAppT' `TH.AppE` appEnv_env `TH.AppE` unApp_a
   let fun = TH.FunD nameFun [TH.Clause [TH.VarP name_env, TH.VarP name_a] (TH.NormalB expr) []]
@@ -114,31 +108,31 @@ mkRunApp Context { _nameApp, _nameAppEnv, _nameUnApp, _envName } name = do
 -- instance Has.Has y (Env m) => Has.Has y (AppEnv m) where get (AppEnv e) = get e
 
 mkHasInstance :: Context -> Q [Dec]
-mkHasInstance Context { _nameApp, _nameAppEnv, _envName} = do
+mkHasInstance Context { nameAppEnv, envName} = do
   let hasName = ''Has.Has
   let getName = 'Has.get
 
-  let constraint = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _envName `TH.AppT` mkVarT "m")
+  let constraint = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT envName `TH.AppT` mkVarT "m")
 
-  let type' = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT _nameAppEnv `TH.AppT` mkVarT "m")
+  let type' = TH.ConT hasName `TH.AppT` mkVarT "y" `TH.AppT` (TH.ConT nameAppEnv `TH.AppT` mkVarT "m")
 
   let body = TH.AppE (TH.VarE getName) (TH.VarE $ mkName "e")
-  let dec = TH.FunD getName [TH.Clause [TH.ConP _nameAppEnv [TH.VarP (mkName "e")]] (TH.NormalB body) []]
+  let dec = TH.FunD getName [TH.Clause [TH.ConP nameAppEnv [TH.VarP (mkName "e")]] (TH.NormalB body) []]
 
   let inst = TH.InstanceD Nothing [constraint] type' [dec]
   pure [inst]
 
 
 mkBoilerplate :: String -> TH.Name -> Q [Dec]
-mkBoilerplate name _envName = do
-  let _nameApp = TH.mkName $ "App_" <> name
-  let _nameUnApp = TH.mkName $ "unApp_" <> name
-  let _nameAppEnv = TH.mkName $ "AppEnv_" <> name
+mkBoilerplate name envName = do
+  let nameApp = TH.mkName $ "App_" <> name
+  let nameUnApp = TH.mkName $ "unApp_" <> name
+  let nameAppEnv = TH.mkName $ "AppEnv_" <> name
   let ctx = Context {
-    _nameApp,
-    _nameUnApp,
-    _nameAppEnv,
-    _envName
+    nameApp,
+    nameUnApp,
+    nameAppEnv,
+    envName
   }
   a <- mkHasInstance ctx
   b <- mkRunApp ctx name
