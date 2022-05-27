@@ -1,30 +1,28 @@
 module Habits.Web.RegisterRouteSpec where
 
 import qualified Control.Lens as L
-import Control.Monad.Except (runExceptT, MonadTrans (lift))
-import Control.Monad.IO.Class (MonadIO (liftIO))
+import Control.Monad.Except (runExceptT)
+import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
 import Habits.UseCases.Register (executeL)
 import qualified Habits.UseCases.Register as R
 import Habits.Web.Routes.RegisterRoute (fromDomain, registerRoute, setEmail, setPassword, toDomain)
-import Test.Hspec (Spec, describe, it, fit)
+import Test.Hspec (Spec, describe, it)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.Mock (mockReturn, mockify, mkSpyIO, withSpy, getSpyCallsIO, getSpyArgsIO, SpyContext, getSpyArgs)
+import Veins.Test.Mock (mockReturn, mockify, withSpy, getSpyArgsIO)
 import Veins.Test.QuickCheck (propertyOne)
 import Prelude
 import Servant (err400, err409, err500)
-import Test.QuickCheck (property, withMaxSuccess, Testable, Property)
+import Test.QuickCheck (property)
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(EmailAlreadyUsedError))
-import Haskus.Utils.Variant.Excepts (failureE, liftE, successE)
+import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Habits.Domain.RepositoryError (RepositoryError(RepositoryError))
 import qualified Veins.Data.HList as HL
-import Utils (shouldBeIO)
 import Data.Validation (Validation(Success))
-import UnliftIO (TVar)
 
 type Env m = CE.MkSorted '[R.Register m]
 

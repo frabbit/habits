@@ -2,18 +2,27 @@ module Veins.Test.MockSpec where
 
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Control.Monad.Trans.Except (runExceptT, throwE, ExceptT)
+import Control.Monad.Trans.Except (ExceptT, runExceptT, throwE)
 import Data.Function ((&))
+import Haskus.Utils.Variant (toVariant)
+import Haskus.Utils.Variant.Excepts (Excepts, failureE, runE, pattern VLeft, pattern VRight)
+import Haskus.Utils.Variant.VEither.Orphans ()
 import Test.Hspec (shouldBe)
 import qualified Test.Hspec as HS
 import Utils (shouldBeIO)
-import qualified Veins.Data.HList as HL
-import Veins.Test.Mock (MkSpy (mkSpy), MockifyArb (mockifyArb), getSpyArgsIO, getSpyCallsIO, mapCaptureForSpy, mkSpyIO, mockReturn, mockify, withSpy)
-import Haskus.Utils.Variant.Excepts (Excepts, runE, pattern VRight, pattern VLeft, failureE)
-import Haskus.Utils.Variant.VEither.Orphans ()
-import Haskus.Utils.Variant (toVariant)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
-
+import qualified Veins.Data.HList as HL
+import Veins.Test.Mock
+  ( MkSpy (mkSpy),
+    MockifyArb (mockifyArb),
+    getSpyArgsIO,
+    getSpyCallsIO,
+    mapCaptureForSpy,
+    mkSpyIO,
+    mockReturn,
+    mockify,
+    withSpy,
+  )
 
 data Simple = MkSimple
   { exec :: Int -> String
@@ -28,8 +37,7 @@ data Monadic m = MkMonadic
 makeLensesWithSuffixL ''Monadic
 
 data WithError = MkExcepts
-  {execErr :: Int -> Excepts '[()] IO String }
-
+  {execErr :: Int -> Excepts '[()] IO String}
 
 makeLensesWithSuffixL ''WithError
 
@@ -37,8 +45,7 @@ spec :: HS.Spec
 spec = do
   HS.describe "mockify" $ do
     HS.it "should work together with simple functions" $ do
-
-      let mock = mockify MkSimple & \r -> r{ exec = const "hi" }
+      let mock = mockify MkSimple & \r -> r {exec = const "hi"}
       mock.exec 1 `shouldBe` "hi"
       mock.exec 2 `shouldBe` "hi"
     HS.it "should work with excepts based functions" $ do
