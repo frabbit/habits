@@ -3,32 +3,28 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.Web.Routes.RegisterRoute where
 
-import Control.Monad.Except (ExceptT (ExceptT))
+import Control.Monad.Except (ExceptT)
 import Data.Aeson (ToJSON, FromJSON)
 import Data.Text (Text)
 import Servant.API (type (:>), Post, JSON, ReqBody)
-import Servant (Server, Handler (Handler), Proxy (Proxy), serve, ServerT, hoistServer, ServerError, err500, err400)
+import Servant (ServerError, err500, err400, err409)
 import GHC.Generics (Generic)
-import Network.Wai (Application)
-import Network.Wai.Handler.Warp (run)
-import Habits.UseCases.Register.Class as RC
-import Haskus.Utils.Variant.Excepts (Excepts, catchLiftRight, successE, evalE, catchLiftLeft, Remove, failureE, catchLiftBoth)
+import qualified Habits.UseCases.Register.Class as RC
+import Haskus.Utils.Variant.Excepts (failureE)
 import Data.Function ((&))
 import Habits.UseCases.Register.RegisterResponse (RegisterResponse)
-import Habits.Domain.RepositoryError (RepositoryError(RepositoryError))
-import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(EmailAlreadyUsedError))
+import Habits.Domain.RepositoryError (RepositoryError)
+import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
-import Haskus.Utils.Types.List (Union)
-import Veins.Test.QuickCheck (sampleIO, genValidUtf8WithoutNullByte)
+import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
 import Control.Monad.IO.Class (MonadIO)
 import Haskus.Utils.Variant.Excepts.Utils (toExceptT, catchExcepts, fromValidation)
 import Habits.Domain.Email (Email(unEmail), emailFromText)
-import Test.QuickCheck (Arbitrary (arbitrary), Gen)
+import Test.QuickCheck (Arbitrary (arbitrary))
 import Habits.Domain.Password (Password(unPassword), passwordFromText)
 import qualified Veins.Data.Codec as Codec
 import Veins.Data.Codec (Encoder, idCodec)
-import Habits.UseCases.Register (RegisterRequest (..))
-import Data.Validation (Validation(..))
+import Habits.UseCases.Register.RegisterRequest ( RegisterRequest(..) )
 import Veins.RecordDot.Utils (set)
 
 newtype RegisterResponseDto = RegisterResponseDto
@@ -86,5 +82,5 @@ registerRoute req = toExceptT x
       resp <- RC.execute req'
       S.pure $ fromDomain resp
       & catchExcepts (\(_ :: Codec.ValidationError) -> failureE err400)
-      & catchExcepts (\(_ :: EmailAlreadyUsedError) -> failureE err500)
+      & catchExcepts (\(_ :: EmailAlreadyUsedError) -> failureE err409)
       & catchExcepts (\(_ :: RepositoryError) -> failureE err500)

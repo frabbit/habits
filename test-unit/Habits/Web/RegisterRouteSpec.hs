@@ -1,4 +1,3 @@
-{-# LANGUAGE AllowAmbiguousTypes #-}
 module Habits.Web.RegisterRouteSpec where
 
 import qualified Control.Lens as L
@@ -16,8 +15,11 @@ import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.Mock (mockReturn, mockify)
 import Prelude
-import Servant (err400)
+import Servant (err400, err409, err500)
 import Test.QuickCheck (property, withMaxSuccess, Testable, Property)
+import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(EmailAlreadyUsedError))
+import Haskus.Utils.Variant.Excepts (failureE, liftE)
+import Habits.Domain.RepositoryError (RepositoryError(RepositoryError))
 
 type Env m = CE.MkSorted '[R.Register m]
 
@@ -47,6 +49,9 @@ runWithEnv mocks app = do
 propertyRuns :: Testable a => Int -> a -> Property
 propertyRuns n = withMaxSuccess n . property
 
+propertyOne :: Testable a => a -> Property
+propertyOne = propertyRuns 1
+
 
 spec :: Spec
 spec = describe "registerRoute should" $ do
@@ -68,3 +73,13 @@ spec = describe "registerRoute should" $ do
   it "fail with 400 when password is invalid" . property $ \rs -> wrap defaultMocks $ do
       out <- runExceptT $ registerRoute (rs & setPassword "")
       out `shouldBe` Left err400
+  it "fail with 400 when email is already used" . propertyOne $ \rs -> do
+    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ (liftE . failureE) EmailAlreadyUsedError)
+    wrap mocks $ do
+      out <- runExceptT $ registerRoute rs
+      out `shouldBe` Left err409
+  it "fail with 500 on database error" . propertyOne $ \rs -> do
+    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ (liftE . failureE) RepositoryError)
+    wrap mocks $ do
+      out <- runExceptT $ registerRoute rs
+      out `shouldBe` Left err500
