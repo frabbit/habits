@@ -10,7 +10,7 @@ import Servant.Client (client, baseUrlPort, parseBaseUrl, mkClientEnv, runClient
 import Veins.Test.HSpec.TH (ShouldMatchPattern(shouldMatchPattern))
 import Veins.Test.QuickCheck (sampleIO)
 import Debug.Trace (traceShowM)
-import qualified Data.Text as Text
+import Habits.Domain.AccountId (parseAccountId)
 
 testConfig :: ServerConfig
 testConfig = ServerConfig
@@ -20,7 +20,6 @@ testConfig = ServerConfig
 -- started and is being properly shutdown.
 withApp :: (Warp.Port -> IO ()) -> IO ()
 withApp = Warp.testWithApplication (pure $ app testConfig)
-
 
 spec :: Spec
 spec = describe "RegisterE2E" $ do
@@ -33,5 +32,5 @@ spec = describe "RegisterE2E" $ do
       x <- sampleIO
       result <- runClientM (register x) (clientEnv port)
       traceShowM result
-      $('result `shouldMatchPattern` [p|Right (RegisterResponseDto (not . Text.null -> True))|])
+      $('result `shouldMatchPattern` [p|Right (RegisterResponseDto (parseAccountId -> Just _))|])
 
