@@ -1,6 +1,3 @@
-{-# LANGUAGE DerivingStrategies #-}
-{-# LANGUAGE RoleAnnotations #-}
-
 module Habits.Domain.AccountRepo where
 
 import Control.Monad.Reader (MonadReader, ReaderT)
