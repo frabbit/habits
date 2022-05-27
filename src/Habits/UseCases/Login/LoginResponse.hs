@@ -3,7 +3,6 @@ module Habits.UseCases.Login.LoginResponse where
 import Habits.Domain.RefreshToken (RefreshToken)
 import Habits.Domain.AccessToken (AccessToken)
 import Test.QuickCheck (Arbitrary (arbitrary))
-import Habits.UseCases.Login.LoginRequest (LoginRequest(EmailPasswordLoginRequest))
 
 data LoginResponse = LoginResponse {
   accessToken :: AccessToken,

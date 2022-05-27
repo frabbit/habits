@@ -82,8 +82,8 @@ spec = fdescribe "loginRoute should" $ do
     run mocks $ do
       out <- runExceptT $ loginRoute rs
       out `shouldBe` Left err401
-  it "fail with 404 on account not found error " . propertyOne $ \rs -> do
+  it "fail with 400 on account not found error " . propertyOne $ \rs -> do
     let mocks = defaultMocks & L.over (loginL . executeL) (mockReturn . liftE . failureE $ AccountNotFoundError)
     run mocks $ do
       out <- runExceptT $ loginRoute rs
-      out `shouldBe` Left err404
+      out `shouldBe` Left err400

@@ -70,7 +70,7 @@ instance ToJSON LoginRequestDto
 
 instance FromJSON LoginRequestDto
 
-type LoginApi = "account" :> ReqBody '[JSON] LoginRequestDto :> Post '[JSON] LoginResponseDto
+type LoginApi = "account" :> "auth" :> ReqBody '[JSON] LoginRequestDto :> Post '[JSON] LoginResponseDto
 
 loginRoute :: forall m. (MonadIO m, RC.Login m, _) => LoginRequestDto -> ExceptT ServerError m LoginResponseDto
 loginRoute req = toExceptT . mapAllErrorsToServerError $
