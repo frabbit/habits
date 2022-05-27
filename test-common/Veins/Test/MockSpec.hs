@@ -49,7 +49,7 @@ spec = do
     HS.it "should work with monadic functions" $ do
       (spy, mock) <- mockifyArb MkMonadic & withSpy execMonL
       mock & L.view execMonL $ 1
-      (fmap length . getSpyCallsIO $ spy) `shouldBeIO` 1
+      (fmap length . getSpyCallsIO @IO $ spy) `shouldBeIO` 1
     HS.it "should work with excepts based functions" $ do
       (spy, mock) <- mockifyArb MkExcepts & withSpy execErrL
       runE $ mock & L.view execErrL $ 1

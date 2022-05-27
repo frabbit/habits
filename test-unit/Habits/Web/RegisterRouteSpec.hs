@@ -1,26 +1,30 @@
 module Habits.Web.RegisterRouteSpec where
 
 import qualified Control.Lens as L
-import Control.Monad.Except (runExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Except (runExceptT, MonadTrans (lift))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
 import Habits.UseCases.Register (executeL)
 import qualified Habits.UseCases.Register as R
-import Habits.Web.Routes.RegisterRoute (fromDomain, registerRoute, setEmail, setPassword)
-import Test.Hspec (Spec, describe, it)
+import Habits.Web.Routes.RegisterRoute (fromDomain, registerRoute, setEmail, setPassword, toDomain)
+import Test.Hspec (Spec, describe, it, fit)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.Mock (mockReturn, mockify)
+import Veins.Test.Mock (mockReturn, mockify, mkSpyIO, withSpy, getSpyCallsIO, getSpyArgsIO, SpyContext, getSpyArgs)
 import Veins.Test.QuickCheck (propertyOne)
 import Prelude
 import Servant (err400, err409, err500)
 import Test.QuickCheck (property, withMaxSuccess, Testable, Property)
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(EmailAlreadyUsedError))
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
+import Haskus.Utils.Variant.Excepts (failureE, liftE, successE)
 import Habits.Domain.RepositoryError (RepositoryError(RepositoryError))
+import qualified Veins.Data.HList as HL
+import Utils (shouldBeIO)
+import Data.Validation (Validation(Success))
+import UnliftIO (TVar)
 
 type Env m = CE.MkSorted '[R.Register m]
 
@@ -46,6 +50,8 @@ runWithEnv mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
 
+
+
 spec :: Spec
 spec = describe "registerRoute should" $ do
   let wrap = runWithEnv
@@ -54,11 +60,14 @@ spec = describe "registerRoute should" $ do
     wrap mocks $ do
       out <- runExceptT $ registerRoute i
       out `shouldBe` Right (fromDomain rs)
-  it "return the response from Register service converted to Dto" . property $ \(rs,i) -> do
-    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ pure rs)
+  it "pass the request converted from Dto to Register service" . property $ \(rs,i) -> do
+    (spy, mocks) <- defaultMocks & L.over (registerL . executeL) (mockReturn $ pure rs) & withSpy (registerL . executeL)
     wrap mocks $ do
-      out <- runExceptT $ registerRoute i
-      out `shouldBe` Right (fromDomain rs)
+      runExceptT $ registerRoute i
+      Success i' <- pure $ toDomain i
+      let expected = HL.HCons i' HL.HNil
+      args <- getSpyArgsIO spy
+      args `shouldBe` [expected]
   it "fail with 400 when email is invalid" . property $ \rs -> wrap defaultMocks $ do
       let rr = rs & setEmail "invalid email"
       out <- runExceptT $ registerRoute rr
@@ -71,7 +80,7 @@ spec = describe "registerRoute should" $ do
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs
       out `shouldBe` Left err409
-  it "fail with 500 on database error" . propertyOne $ \rs -> do
+  it "fail with 500 on repository error" . propertyOne $ \rs -> do
     let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ (liftE . failureE) RepositoryError)
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs

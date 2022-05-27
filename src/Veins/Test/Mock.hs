@@ -107,6 +107,7 @@ getSpyCallsIO ::
 getSpyCallsIO = fmap getSpyCalls . U.readTVarIO
 
 getSpyArgsIO ::
+  forall m f r .
   MonadIO m =>
   TVar (SpyContext f r) ->
   m [HList (F.Arguments f)]

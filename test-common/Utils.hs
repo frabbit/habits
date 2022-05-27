@@ -27,7 +27,7 @@ toThrow x = x & catchLiftLeft (\(y :: e) -> throw y)
 sampleIO :: (MonadIO m, Arbitrary a) => m a
 sampleIO = liftIO $ generate arbitrary
 
-shouldBeIO :: (Show x, Eq x) => IO x -> x -> IO ()
+shouldBeIO :: (Show x, Eq x, MonadIO m) => m x -> x -> m ()
 shouldBeIO x w = do
   m <- x
   m `shouldBe` w
