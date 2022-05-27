@@ -70,6 +70,7 @@ dependencies:
 - aeson
 - wai
 - warp
+- mmorph
 
 default-extensions:
   - TypeOperators
@@ -152,6 +153,21 @@ tests:
     - src # Adding src, see Note above
     - test-common
     - test-integration
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - habits
+    - hspec
+    - hspec-expectations-lifted
+    - testcontainers >= 0.3.0.1
+  habits-test-e2e:
+    main:                Spec.hs
+    source-dirs:
+    - src # Adding src, see Note above
+    - test-common
+    - test-e2e
     ghc-options:
     - -threaded
     - -rtsopts

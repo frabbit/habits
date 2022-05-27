@@ -88,20 +88,3 @@ registerRoute req = toExceptT x
       & catchExcepts (\(_ :: Codec.ValidationError) -> failureE err400)
       & catchExcepts (\(_ :: EmailAlreadyUsedError) -> failureE err500)
       & catchExcepts (\(_ :: RepositoryError) -> failureE err500)
-
-
-
---server :: (Register m) => ServerT RegisterApi (ExceptT ServerError m)
---server = register
-
---registerApi :: Proxy RegisterApi
---registerApi = Proxy
-
---nt :: ExceptT ServerError IO a -> Handler a
---nt = Handler
---
---app :: Application
---app = serve registerApi $ hoistServer registerApi nt server
---
---main :: IO ()
---main = run 8081 app
