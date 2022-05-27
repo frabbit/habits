@@ -41,8 +41,8 @@ registerApi = Proxy
 ntToHandler :: ExceptT ServerError _ a -> Handler a
 ntToHandler = Handler . hoist runWithEnv
 
-app :: Application
-app = serve registerApi $ hoistServer registerApi ntToHandler server
+app :: ServerConfig -> Application
+app _ = serve registerApi $ hoistServer registerApi ntToHandler server
 
 runServer :: ServerConfig -> IO ()
-runServer _ = run 8081 app
+runServer cfg = run 8081 (app cfg)

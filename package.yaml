@@ -72,6 +72,7 @@ dependencies:
 - wai
 - warp
 - mmorph
+- http-client
 
 default-extensions:
   - TypeOperators
@@ -99,6 +100,7 @@ default-extensions:
   - ConstraintKinds
   - PatternSynonyms
   - PartialTypeSignatures
+  - ViewPatterns
 
 ghc-options:
   - -Wall

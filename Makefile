@@ -35,6 +35,11 @@ test-unit-ghcid:
 	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-unused-matches --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls habits:habits-test-unit"
 	reset && clear
 
+test-e2e-ghcid:
+	reset && clear
+	ghcid --restart=package.yaml --test=Main.main --command="stack ghci --ghci-options -isrc --ghci-options -itest --ghci-options -Wno-unused-matches --ghci-options -Wno-redundant-constraints --ghci-options -Wno-unused-binds --ghci-options -Wno-partial-type-signatures --ghci-options -Wno-unused-imports --ghci-options -Wno-unused-foralls habits:habits-test-e2e"
+	reset && clear
+
 
 test-integration-ghcid:
 	reset && clear
