@@ -29,3 +29,4 @@ jobs:
     - run: stack build --only-dependencies
     - run: make test-unit
     - run: make test-integration
+    - run: make test-e2e
