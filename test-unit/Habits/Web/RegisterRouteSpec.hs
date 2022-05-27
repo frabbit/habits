@@ -14,6 +14,7 @@ import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.Mock (mockReturn, mockify)
+import Veins.Test.QuickCheck (propertyOne)
 import Prelude
 import Servant (err400, err409, err500)
 import Test.QuickCheck (property, withMaxSuccess, Testable, Property)
@@ -44,14 +45,6 @@ runWithEnv :: _ -> _ b -> IO b
 runWithEnv mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
-
-
-propertyRuns :: Testable a => Int -> a -> Property
-propertyRuns n = withMaxSuccess n . property
-
-propertyOne :: Testable a => a -> Property
-propertyOne = propertyRuns 1
-
 
 spec :: Spec
 spec = describe "registerRoute should" $ do
