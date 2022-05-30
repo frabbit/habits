@@ -4,7 +4,6 @@ import Habits.Domain.AccountId (parseAccountId)
 import Habits.Web.Routes.RegisterRoute (RegisterResponseDto (RegisterResponseDto))
 import Test.Hspec (Spec, describe, it)
 import Veins.Test.HSpec.TH (ShouldMatchPattern (shouldMatchPattern))
-import Veins.Test.QuickCheck (sampleIO)
 import E2EUtils (withApp, runRegister)
 import Test.QuickCheck (property)
 
