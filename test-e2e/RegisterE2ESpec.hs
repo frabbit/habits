@@ -6,10 +6,10 @@ import Test.Hspec (Spec, describe, it)
 import Veins.Test.HSpec.TH (ShouldMatchPattern (shouldMatchPattern))
 import Veins.Test.QuickCheck (sampleIO)
 import E2EUtils (withApp, runRegister)
+import Test.QuickCheck (property)
 
 spec :: Spec
 spec = describe "RegisterE2E" $ do
-  it "should provide a register route" . withApp $ \port -> do
-    req <- sampleIO
+  it "should provide a register route" . property $ \req -> withApp $ \port -> do
     result <- runRegister port req
     $('result `shouldMatchPattern` [p|Right (RegisterResponseDto (parseAccountId -> Just _))|])
