@@ -8,6 +8,7 @@ import Veins.Test.QuickCheck (propertyRuns)
 
 spec :: Spec
 spec = describe "LoginE2E" $ do
+  -- run only 5 tests. Logins are quite expensive because of the password check.
   it "should provide a login route" . propertyRuns 5 $ \req -> withApp $ \port -> do
     runRegister port req
     result <- runLogin port $ EmailPasswordLoginRequestDto {email = req.email, password = req.password}
