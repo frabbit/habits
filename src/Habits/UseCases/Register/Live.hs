@@ -25,8 +25,8 @@ import Data.Maybe (isJust)
 import Habits.Domain.PasswordHash (mkFromPassword)
 import Control.Monad.IO.Class (MonadIO)
 
-execute :: (MonadIO m, AccountRepo m) => Execute m
-execute req = liftE $ S.do
+mkExecute :: (MonadIO m, AccountRepo m, Monad n) => ReaderT (CE.ComposableEnv '[]) n (Execute m)
+mkExecute = pure $ \req -> liftE $ S.do
   account <- getByEmail req.email
   when (isJust account) $ failureE EmailAlreadyUsedError
   pwHash <- S.coerce $ mkFromPassword req.password
@@ -41,4 +41,6 @@ execute req = liftE $ S.do
 
 
 mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[R.Register m])
-mkLive = pure $ CE.empty & CE.insert R.Register {R._execute = execute}
+mkLive = CE.do
+  execute <- mkExecute
+  pure $ CE.empty & CE.insert R.Register {R._execute = execute}
