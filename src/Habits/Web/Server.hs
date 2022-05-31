@@ -53,10 +53,10 @@ tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow}
 
 envLayer :: forall m n. (MonadIO n, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
-  RTL.mkRefreshTokenIssuedRepoMemory
-    `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
-    `CE.provideAndChainLayerFlipped` LL.mkLive
+  LL.mkLive
     `CE.provideAndChainLayerFlipped` RL.mkLive
+    `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
+    `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
     `CE.provideLayerFlipped` ac
     `CE.provideLayerFlipped` tp
 
