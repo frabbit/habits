@@ -1,4 +1,5 @@
 {-# LANGUAGE BlockArguments #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec (spec) where
 

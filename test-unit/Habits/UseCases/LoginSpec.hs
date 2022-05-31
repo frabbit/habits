@@ -15,7 +15,6 @@ import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import qualified Habits.Domain.AuthConfig as AC
-import qualified Habits.Domain.AuthConfig.Class as ACC
 import Habits.Domain.Password (Password (..))
 import Habits.Domain.PasswordHash (mkFromPassword)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
@@ -29,8 +28,6 @@ import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LoginLive
 import Habits.UseCases.Login.LoginRequest (LoginRequest (EmailPasswordLoginRequest))
 import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
-import qualified Habits.UseCases.Register as R
-import qualified Habits.UseCases.Register.Live as RL
 import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
@@ -49,14 +46,12 @@ import qualified Data.Time as Time
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Veins.Data.Time.Utils (addHoursToUTCTime, addMillisecondsToUTCTime, addDaysToUTCTime)
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
-import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
 import Veins.Data.ComposableEnv ((<<-&&), (<<-))
 
-type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
-
+type Env m = CE.MkSorted '[AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m]
 
 atSecret :: _
 atSecret = ATS.mkAccessTokenSecret "abcd"
@@ -67,19 +62,12 @@ rtSecret = RTS.mkRefreshTokenSecret "abcde"
 timeNow :: Time.UTCTime
 timeNow = Time.UTCTime (Time.fromGregorian 2022 1 2) (Time.secondsToDiffTime 0)
 
-ac :: forall n. (Monad n) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AC.AuthConfig])
-ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret, AC._refreshTokenSecret = rtSecret}
-
-tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
-tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow }
-
-envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer = RL.mkLive
-  <<-&& LoginLive.mkLive
+envLayer :: forall m n. (MonadIO n, MonadIO m) => CE.ReaderCE '[] n (Env m)
+envLayer = LoginLive.mkLive
   <<-&& ARM.mkAccountRepoMemory
   <<-&& RTL.mkRefreshTokenIssuedRepoMemory
-  <<-&& ac
-  <<- tp
+  <<- AC.mkStatic atSecret rtSecret
+  <<- Clock.mkStaticClock timeNow
 
 AppTH.mkBoilerplate "runApp" ''Env
 

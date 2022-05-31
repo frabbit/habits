@@ -14,9 +14,7 @@ import Habits.Domain.AccessToken (AccessToken (..))
 import qualified Habits.Domain.AccessToken as AccessToken
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountRepo as AR
-import qualified Habits.Domain.AccountRepo.Class as ARC
 import qualified Habits.Domain.AuthConfig as AC
-import qualified Habits.Domain.AuthConfig.Class as ACC
 import qualified Habits.Domain.Clock as Clock
 import Habits.Domain.RefreshToken (RefreshToken (..), mkRefreshToken)
 import qualified Habits.Domain.RefreshToken as RefreshToken
@@ -52,7 +50,7 @@ import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.HSpec.TH (shouldMatchPattern)
 import Prelude hiding (id)
 
-type Env m = CE.MkSorted '[AR.AccountRepo m, Refresh.Refresh m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
+type Env m = CE.MkSorted '[AR.AccountRepo m, Refresh.Refresh m, RT.RefreshTokenIssuedRepo m]
 
 atSecret :: _
 atSecret = ATS.mkAccessTokenSecret "abcd"
@@ -66,19 +64,13 @@ timeNow = Time.UTCTime (Time.fromGregorian 2022 1 2) (Time.secondsToDiffTime 0)
 timeExpired :: Time.UTCTime
 timeExpired = Time.UTCTime (Time.fromGregorian 2021 1 2) (Time.secondsToDiffTime 0)
 
-ac :: forall n. (Monad n) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AC.AuthConfig])
-ac = pure $ CE.empty & CE.insert AC.AuthConfig {_accessTokenSecret = atSecret, _refreshTokenSecret = rtSecret}
-
-tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
-tp = pure $ CE.empty & CE.insert Clock.Clock {_getNow = pure timeNow}
-
-envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer :: forall m n. (MonadIO n, _) => CE.ReaderCE '[] n (Env m)
 envLayer =
   RefreshLive.mkLive
     <<-&& RTL.mkRefreshTokenIssuedRepoMemory
     <<-&& ARM.mkAccountRepoMemory
-    <<-&& ac
-    <<- tp
+    <<- AC.mkStatic atSecret rtSecret
+    <<- Clock.mkStaticClock timeNow
 
 AppTH.mkBoilerplate "runApp" ''Env
 

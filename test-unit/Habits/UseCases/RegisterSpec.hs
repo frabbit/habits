@@ -40,7 +40,7 @@ import Veins.Data.ComposableEnv ((<<-&&))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
-envLayer :: forall m n. (MonadIO n, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer :: forall m n. (MonadIO n, MonadIO m, _) => CE.ReaderCE '[] n (Env m)
 envLayer = RL.mkLive <<-&& ARM.mkAccountRepoMemory
 
 AppTH.mkBoilerplate "runApp" ''Env

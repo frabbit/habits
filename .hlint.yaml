@@ -4,3 +4,4 @@
 - warning: { name: Move brackets to avoid $ }
 - warning: { name: Use let }
 - ignore: { name: Use fewer LANGUAGE pragmas }
+- warning: { name: Redundant bracket }
