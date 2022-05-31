@@ -36,17 +36,11 @@ type instance ToSymbol (AccountRepo m) = "AccountRepo"
 
 type AccountRepoR env = AccountRepo (ReaderT env IO)
 
-add :: forall m env. (Has.Has (AccountRepo m) env, MonadReader env m) => Add m
-add r = do
-  f <- asks (Has.get @(AccountRepo m))
-  f._add r
+add :: forall m. AccountRepo m -> Add m
+add = (._add)
 
-getById :: forall m env. (Has.Has (AccountRepo m) env, MonadReader env m) => GetById m
-getById r = do
-  f <- asks (Has.get @(AccountRepo m))
-  f._getById r
+getById :: forall m. AccountRepo m -> GetById m
+getById = (._getById)
 
-getByEmail :: forall m env. (Has.Has (AccountRepo m) env, MonadReader env m) => GetByEmail m
-getByEmail r = do
-  f <- asks (Has.get @(AccountRepo m))
-  f._getByEmail r
+getByEmail :: forall m. AccountRepo m -> GetByEmail m
+getByEmail = (._getByEmail)
