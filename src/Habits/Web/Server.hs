@@ -6,9 +6,7 @@ import Control.Monad.Cont (MonadIO (liftIO))
 import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError))
 import Control.Monad.Morph (hoist)
 import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Function ((&))
 import Data.Proxy (Proxy (Proxy))
-import qualified Data.Time as Time
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
@@ -34,8 +32,9 @@ import qualified Servant.Server.Experimental.Auth as ServantAuth
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Data.ComposableEnv ((<<-&&), (<<-))
+import Habits.Domain.Clock (mkLiveClock)
 
-type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
+type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m]
 
 atSecret :: _
 atSecret = ATS.mkAccessTokenSecret "abcd"
@@ -43,23 +42,14 @@ atSecret = ATS.mkAccessTokenSecret "abcd"
 rtSecret :: _
 rtSecret = RTS.mkRefreshTokenSecret "abcde"
 
-timeNow :: Time.UTCTime
-timeNow = Time.UTCTime (Time.fromGregorian 2022 1 2) (Time.secondsToDiffTime 0)
-
-ac :: forall n. (Monad n) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AC.AuthConfig])
-ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret, AC._refreshTokenSecret = rtSecret}
-
-tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
-tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow}
-
 envLayer :: forall m n. (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
   LL.mkLive
     <<-&& RL.mkLive
     <<-&& RTL.mkRefreshTokenIssuedRepoMemory
     <<-&& ARM.mkAccountRepoMemory
-    <<- ac
-    <<- tp
+    <<- AC.mkStatic atSecret rtSecret
+    <<-&& mkLiveClock
 
 AppTH.mkBoilerplate "runApp" ''Env
 
@@ -76,12 +66,13 @@ serverApi = Proxy
 ntToHandler :: Env _ -> ExceptT ServerError _ a -> Handler a
 ntToHandler env = Handler . hoist (runApp env)
 
-mkAuthHandler :: ServerConfig -> JWTAuthHandler
-mkAuthHandler _ = ServantAuth.mkAuthHandler handler
+mkAuthHandler :: Env _ -> ServerConfig -> JWTAuthHandler
+mkAuthHandler env _ = ServantAuth.mkAuthHandler handler
   where
     throw401 msg = throwError $ err401 {errBody = msg}
     handler req = Handler $ do
-      case parseAuthenticatedAccount timeNow atSecret req of
+      now <- liftIO $ runApp env Clock.getNow
+      case parseAuthenticatedAccount now atSecret req of
         Left _ -> throw401 "Token invalid"
         Right a -> ExceptT $ pure $ Right a
 
@@ -89,7 +80,7 @@ mkApp :: (Monad n, MonadIO n, _) => ServerConfig -> n Application
 mkApp cfg = do
   env <- runReaderT envLayer CE.empty
   let context :: Context '[JWTAuthHandler]
-      context = mkAuthHandler cfg :. EmptyContext
+      context = mkAuthHandler env cfg :. EmptyContext
       contextProxy :: Proxy '[JWTAuthHandler]
       contextProxy = Proxy
       api = hoistServerWithContext serverApi contextProxy (ntToHandler env) server
