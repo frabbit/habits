@@ -68,11 +68,18 @@ dependencies:
 - servant
 - servant-server
 - servant-client
+- servant-client-core
+- servant-auth
+- servant-auth-server
 - aeson
 - wai
 - warp
 - mmorph
 - http-client
+- jose
+- containers
+- http-types
+- extra
 
 default-extensions:
   - TypeOperators

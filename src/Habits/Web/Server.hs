@@ -1,7 +1,9 @@
+{-# LANGUAGE MultiWayIf #-}
+
 module Habits.Web.Server where
 
-import Control.Monad.Except (ExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.Cont (MonadIO (liftIO))
+import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError))
 import Control.Monad.Morph (hoist)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
@@ -10,25 +12,27 @@ import qualified Data.Time as Time
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
+import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Domain.TimeProvider as TP
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
+import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Login as L
+import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LL
 import qualified Habits.UseCases.Register as R
 import Habits.UseCases.Register.Class (Register)
 import qualified Habits.UseCases.Register.Live as RL
+import Habits.Web.Auth (accountId, parseAuthenticatedAccount, JWTAuthHandler)
+import Habits.Web.Routes.LoginRoute (LoginApi, loginRoute)
+import Habits.Web.Routes.ProtectedRoute (ProtectedApi, protectedRoute)
 import Habits.Web.Routes.RegisterRoute (RegisterApi, registerRoute)
 import Network.Wai (Application)
 import Network.Wai.Handler.Warp (run)
-import Servant (Handler (Handler), HasServer (ServerT), ServerError, hoistServer, serve, type (:<|>) (..))
+import Servant (Context (EmptyContext, (:.)), Handler (Handler), HasServer (ServerT, hoistServerWithContext), ServerError, err401, errBody, serveWithContext, type (:<|>) (..))
+import qualified Servant.Server.Experimental.Auth as ServantAuth
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
-import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
-import Habits.Web.Routes.LoginRoute (LoginApi, loginRoute)
-import qualified Habits.UseCases.Login.Class as LC
-import Control.Monad.Cont (MonadIO(liftIO))
 
 type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
 
@@ -61,9 +65,9 @@ AppTH.mkBoilerplate "runApp" ''Env
 data ServerConfig = ServerConfig
 
 server :: (Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
-server = loginRoute :<|> registerRoute
+server = protectedRoute :<|> loginRoute :<|> registerRoute
 
-type ServerApi = LoginApi :<|> RegisterApi
+type ServerApi = ProtectedApi :<|> LoginApi :<|> RegisterApi
 
 serverApi :: Proxy ServerApi
 serverApi = Proxy
@@ -71,10 +75,27 @@ serverApi = Proxy
 ntToHandler :: Env _ -> ExceptT ServerError _ a -> Handler a
 ntToHandler env = Handler . hoist (runApp env)
 
-mkApp :: (Monad n, MonadIO n) => ServerConfig -> n Application
-mkApp _ = do
+mkAuthHandler :: ServerConfig -> JWTAuthHandler
+mkAuthHandler _ = ServantAuth.mkAuthHandler handler
+  where
+    throw401 msg = throwError $ err401 {errBody = msg}
+    handler req = Handler $ do
+      case parseAuthenticatedAccount timeNow atSecret req of
+        Left _ -> throw401 "Token invalid"
+        Right a -> ExceptT $ pure $ Right a
+
+mkApp :: (Monad n, MonadIO n, _) => ServerConfig -> n Application
+mkApp cfg = do
   env <- runReaderT envLayer CE.empty
-  pure $ serve serverApi $ hoistServer serverApi (ntToHandler env) server
+  let
+    context :: Context '[JWTAuthHandler]
+    context = mkAuthHandler cfg :. EmptyContext
+    contextProxy :: Proxy '[JWTAuthHandler]
+    contextProxy = Proxy
+    api = hoistServerWithContext serverApi contextProxy (ntToHandler env) server
+    app :: Application
+    app = serveWithContext serverApi context api
+  pure app
 
 runServer :: ServerConfig -> IO ()
 runServer cfg = do

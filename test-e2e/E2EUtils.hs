@@ -1,15 +1,27 @@
 module E2EUtils where
 
 import Data.Proxy (Proxy (Proxy))
+import Data.Text (Text)
+import Habits.Web.Routes.LoginRoute (LoginApi, LoginRequestDto, LoginResponseDto)
+import Habits.Web.Routes.ProtectedRoute (ProtectedApi, ProtectedResponseDto)
 import Habits.Web.Routes.RegisterRoute (RegisterApi, RegisterRequestDto, RegisterResponseDto)
 import Habits.Web.Server (ServerConfig (ServerConfig), mkApp)
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import qualified Network.Wai.Handler.Warp as Warp
+import Servant (AuthProtect)
 import Servant.Client (ClientEnv, ClientError, ClientM, baseUrlPort, client, mkClientEnv, parseBaseUrl, runClientM)
-import Habits.Web.Routes.LoginRoute (LoginRequestDto, LoginResponseDto, LoginApi)
+import Servant.Client.Core (AuthClientData, AuthenticatedRequest, mkAuthenticatedRequest, addHeader, Request)
+
+type instance AuthClientData (AuthProtect "JWT") = Text
 
 testConfig :: ServerConfig
 testConfig = ServerConfig
+
+authenticateRequest :: Text -> Request -> Request
+authenticateRequest token = addHeader "Authorization" ("Bearer " <> token)
+
+authenticated :: Text -> (AuthenticatedRequest (AuthProtect "JWT") -> a) -> a
+authenticated token f = f (mkAuthenticatedRequest token authenticateRequest)
 
 -- testWithApplication makes sure the action is executed after the server has
 -- started and is being properly shutdown.
@@ -39,3 +51,11 @@ runLogin :: Int -> LoginRequestDto -> IO (Either ClientError LoginResponseDto)
 runLogin port req = do
   env <- getClientTestEnv port
   runClientM (login req) env
+
+protected :: AuthenticatedRequest (AuthProtect "JWT") -> ClientM ProtectedResponseDto
+protected = client (Proxy :: Proxy ProtectedApi)
+
+runProtected :: Int -> Text -> IO (Either ClientError ProtectedResponseDto)
+runProtected port token = do
+  env <- getClientTestEnv port
+  runClientM (authenticated token protected) env
