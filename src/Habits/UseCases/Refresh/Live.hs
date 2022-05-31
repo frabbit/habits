@@ -12,7 +12,7 @@ import Habits.UseCases.Refresh
 import qualified Habits.UseCases.Refresh as R
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (..))
 import qualified Veins.Data.ComposableEnv as CE
-import qualified Habits.Domain.TimeProvider as TP
+import qualified Habits.Domain.Clock as Clock
 import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo (getByAccountId, deleteById, deleteByAccountId))
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError(RefreshTokenIssuedNotFoundError))
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
@@ -30,11 +30,11 @@ import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(..))
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
 import Control.Monad (when)
 
-mkExecute :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (RefreshExec m)
+mkExecute :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig]) n (RefreshExec m)
 mkExecute = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
-  getNow <- TP.mkGetNow
+  getNow <- Clock.mkGetNow
   pure $ \(RefreshRequest token) -> liftE $ S.do
     atSecret <- S.coerce getAccessSecret
     rtSecret <- S.coerce getRefreshSecret
@@ -61,7 +61,7 @@ mkExecute = do
     RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash }
     S.pure $ RefreshResponse { accessToken, refreshToken }
 
-mkLive :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[R.Refresh m])
+mkLive :: forall n m. (Monad n, MonadIO m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, Clock.Clock m]) n (CE.ComposableEnv '[R.Refresh m])
 mkLive = CE.do
   execute <- mkExecute
   CE.pure $ CE.empty & CE.insert (R.Refresh execute)

@@ -21,7 +21,7 @@ import Habits.Domain.PasswordHash (mkFromPassword)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
 import Habits.Domain.RefreshToken (RefreshToken (RefreshToken))
 import qualified Habits.Domain.RefreshToken as RefreshToken
-import qualified Habits.Domain.TimeProvider as TP
+import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Login as Login
@@ -69,8 +69,8 @@ timeNow = Time.UTCTime (Time.fromGregorian 2022 1 2) (Time.secondsToDiffTime 0)
 ac :: forall n. (Monad n) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AC.AuthConfig])
 ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret, AC._refreshTokenSecret = rtSecret}
 
-tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[TP.TimeProvider m])
-tp = pure $ CE.empty & CE.insert TP.TimeProvider {TP._getNow = pure timeNow }
+tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
+tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow }
 
 envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer = ARM.mkAccountRepoMemory

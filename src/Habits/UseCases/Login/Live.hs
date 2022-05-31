@@ -23,18 +23,18 @@ import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import qualified Veins.Data.ComposableEnv as CE
-import qualified Habits.Domain.TimeProvider as TP
+import qualified Habits.Domain.Clock as Clock
 import Veins.Data.Time.Utils (addHoursToUTCTime, addDaysToUTCTime)
 import Habits.Domain.RefreshTokenIssuedRepo.Class (RefreshTokenIssuedRepo)
 import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(RefreshTokenIssuedNew, accountId, expiration, refreshTokenHash))
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import Habits.Domain.RefreshTokenHash (mkFromRefreshToken)
 
-mkExecute :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[TP.TimeProvider m, AC.AuthConfig]) n (Execute m)
+mkExecute :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig]) n (Execute m)
 mkExecute = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
-  getNow <- TP.mkGetNow
+  getNow <- Clock.mkGetNow
   pure $ \(EmailPasswordLoginRequest email pw) -> liftE $ S.do
     acc <- getByEmailOrFail email
     unless (isValid pw acc.password) (failureE PasswordIncorrectError)
@@ -48,7 +48,7 @@ mkExecute = do
     RefreshTokenIssuedRepo.add $ RefreshTokenIssuedNew { accountId = acc.accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash}
     S.coerce . pure $ LoginResponse{ accessToken, refreshToken }
 
-mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, TP.TimeProvider m]) n (CE.ComposableEnv '[L.Login m])
+mkLive :: forall n m. (Monad n, MonadIO m, AccountRepo m, RefreshTokenIssuedRepo m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, Clock.Clock m]) n (CE.ComposableEnv '[L.Login m])
 mkLive = CE.do
   execute <- mkExecute
   CE.pure $ CE.empty & CE.insert L.Login {L._execute = execute}

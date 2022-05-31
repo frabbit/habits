@@ -14,7 +14,7 @@ import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Domain.RefreshTokenSecret as RTS
-import qualified Habits.Domain.TimeProvider as TP
+import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Login as L
@@ -48,8 +48,8 @@ timeNow = Time.UTCTime (Time.fromGregorian 2022 1 2) (Time.secondsToDiffTime 0)
 ac :: forall n. (Monad n) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AC.AuthConfig])
 ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret, AC._refreshTokenSecret = rtSecret}
 
-tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[TP.TimeProvider m])
-tp = pure $ CE.empty & CE.insert TP.TimeProvider {TP._getNow = pure timeNow}
+tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
+tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow}
 
 envLayer :: forall m n. (MonadIO n, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
