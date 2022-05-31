@@ -31,7 +31,6 @@ import Veins.Data.ComposableEnv
     provideAll',
     provideAndChainLayer,
     provideLayer,
-    provideLayer',
     remove,
     union,
   )
@@ -50,6 +49,8 @@ data D = D deriving (Show, Eq)
 
 data E = E deriving (Show, Eq)
 
+data F = F deriving (Show, Eq)
+
 type instance ToSymbol A = "A"
 
 type instance ToSymbol B = "B"
@@ -59,6 +60,8 @@ type instance ToSymbol C = "C"
 type instance ToSymbol D = "D"
 
 type instance ToSymbol E = "E"
+
+type instance ToSymbol F = "F"
 
 data K = K Int deriving (Show, Eq)
 
@@ -150,6 +153,13 @@ spec = describe "ComposableEnv" $ do
           app = expandLayer @'[C, D] layer
       r <- runReaderT app $ empty & insert A & insert C & insert D
       r `shouldBe` (empty & insert B & insert C & insert D)
+    it "should allow expanding with existing dependencies" $ do
+      let layer :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[B])
+          layer = pure $ empty & insert B
+          app :: ReaderT (ComposableEnv '[A,B]) IO (ComposableEnv '[A, B])
+          app = expandLayer @'[A,B] layer
+      r <- runReaderT app $ empty & insert A & insert B
+      r `shouldBe` (empty & insert A & insert B)
   describe "chainFromEnv" $ do
     it "should pass one dependency from the environment to result" $ do
       let layer :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
@@ -189,6 +199,12 @@ spec = describe "ComposableEnv" $ do
           app = expandEnv @'[A] layer
       r <- runReaderT app $ empty & insert A
       r `shouldBe` ()
+    it "should allow to expand with the same dependencies" $ do
+      let layer :: ReaderT (ComposableEnv '[A]) IO ()
+          layer = pure ()
+          app = expandEnv @'[A,B] layer
+      r <- runReaderT app $ empty & insert A & insert B
+      r `shouldBe` ()
     it "should expand the env of an existing computation" $ do
       let layer :: ReaderT (ComposableEnv '[A]) IO ()
           layer = pure ()
@@ -206,6 +222,71 @@ spec = describe "ComposableEnv" $ do
           out = provideAndChainLayer layer1 layer0
       r <- runReaderT out (empty & insert B)
       r `shouldBe` (empty & insert A)
+    it "combine env from both layers" $ do
+      let layer0 :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
+          layer0 = pure empty
+          layer1 :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[])
+          layer1 = pure empty
+
+          out :: ReaderT (ComposableEnv '[A,B]) IO (ComposableEnv '[])
+          out = provideAndChainLayer layer1 layer0
+      r <- runReaderT out (empty & insert A & insert B)
+      r `shouldBe` empty
+    it "combine env from both layers with additional deps" $ do
+      let layer0 :: ReaderT (ComposableEnv '[A,C]) IO (ComposableEnv '[])
+          layer0 = pure empty
+          layer1 :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[])
+          layer1 = pure empty
+
+          out :: ReaderT (ComposableEnv '[A,B,C]) IO (ComposableEnv '[])
+          out = provideAndChainLayer layer1 layer0
+
+          out1 :: ReaderT (ComposableEnv '[A,B,C]) IO (ComposableEnv '[])
+          out1 = provideAndChainLayer layer0 layer1
+
+      r <- runReaderT out (empty & insert A & insert B & insert C)
+      r `shouldBe` empty
+  describe "provideAndChainLayerFlipped should" $ do
+    it "combine env from both layers with additional deps" $ do
+      let layer0 :: ReaderT (ComposableEnv '[A,C]) IO (ComposableEnv '[])
+          layer0 = pure empty
+          layer1 :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[])
+          layer1 = pure empty
+
+          out :: ReaderT (ComposableEnv '[A,B,C]) IO (ComposableEnv '[])
+          out = layer0 `CE.provideAndChainLayerFlipped` layer1
+      r <- runReaderT out (empty & insert A & insert B & insert C)
+      r `shouldBe` empty
+    it "combine same dependencies from both layers" $ do
+      let layer0 :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
+          layer0 = pure empty
+          layer1 :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
+          layer1 = pure empty
+
+          out :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
+          out = layer0 `CE.provideAndChainLayerFlipped` layer1
+      r <- runReaderT out (empty & insert A)
+      r `shouldBe` empty
+    it "combine env from both layers with additional deps" $ do
+      let layer0 :: ReaderT (ComposableEnv '[A,C,E]) IO (ComposableEnv '[D])
+          layer0 = pure $ empty & insert D
+          layer1 :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[C, F])
+          layer1 = pure $ empty & insert C & insert F
+
+          out :: ReaderT (ComposableEnv '[A,B,E]) IO (ComposableEnv '[C,D, F])
+          out = layer0 `CE.provideAndChainLayerFlipped` layer1
+      r <- runReaderT out (empty & insert A & insert B & insert E)
+      r `shouldBe` (empty & insert C & insert D & insert F)
+    it "combine envs for polymorphic monads" $ do
+      let layer0 :: forall m . (Monad m) => ReaderT (ComposableEnv '[A,C,E]) m (ComposableEnv '[D])
+          layer0 = pure $ empty & insert D
+          layer1 :: forall m . (Monad m) => ReaderT (ComposableEnv '[B]) m (ComposableEnv '[C, F])
+          layer1 = pure $ empty & insert C & insert F
+
+          out :: forall m . (Monad m) => ReaderT (ComposableEnv '[A,B,E]) m (ComposableEnv '[C,D, F])
+          out = layer0 `CE.provideAndChainLayerFlipped` layer1
+      r <- runReaderT out (empty & insert A & insert B & insert E)
+      r `shouldBe` (empty & insert C & insert D & insert F)
   describe "provideLayer should" $ do
     it "remove one dependency from a computation that requires exactly that" $ do
       let app :: ReaderT (ComposableEnv '[A]) IO ()
@@ -257,13 +338,23 @@ spec = describe "ComposableEnv" $ do
 
       r <- runReaderT app' (empty & insert A)
       r `shouldBe` ()
-    it "ignores additional dependencies from layer when computation doesn't require them" $ do
+    it "combine environments of layers" $ do
       let app :: ReaderT (ComposableEnv '[A]) IO ()
           app = pure ()
-          layer :: ReaderT (ComposableEnv '[]) IO (ComposableEnv '[B])
-          layer = pure $ empty & insert B
+          layer :: ReaderT (ComposableEnv '[B]) IO (ComposableEnv '[])
+          layer = pure empty
+          app' :: ReaderT (ComposableEnv '[A,B]) IO ()
+          app' = provideLayer layer app
+
+      r <- runReaderT app' (empty & insert A & insert B)
+      r `shouldBe` ()
+    it "combine environments of layers 2" $ do
+      let app :: ReaderT (ComposableEnv '[A]) IO ()
+          app = pure ()
+          layer :: ReaderT (ComposableEnv '[A]) IO (ComposableEnv '[])
+          layer = pure empty
           app' :: ReaderT (ComposableEnv '[A]) IO ()
-          app' = provideLayer' layer app
+          app' = provideLayer layer app
 
       r <- runReaderT app' (empty & insert A)
       r `shouldBe` ()

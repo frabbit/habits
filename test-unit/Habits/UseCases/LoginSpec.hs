@@ -73,10 +73,10 @@ tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.Com
 tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow }
 
 envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer = ARM.mkAccountRepoMemory
-  `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
-  `CE.provideAndChainLayerFlipped` RL.mkLive
+envLayer = RL.mkLive
   `CE.provideAndChainLayerFlipped` LoginLive.mkLive
+  `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
+  `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
   `CE.provideAndChainLayerFlipped` ac
   `CE.provideLayerFlipped` tp
 
@@ -87,7 +87,7 @@ addUserWithPassword = S.do
   pw <- S.coerce sampleIO
   pwHash <- S.coerce $ mkFromPassword pw
   acc <- S.coerce $ sampleIO <&> \a -> a{password = pwHash}
-  id <- AR.add acc
+  id <- ARC.add acc
   S.pure (acc, pw, id)
 
 runWithEnv :: _ -> _ b -> IO b
@@ -148,6 +148,6 @@ spec = describe "Login.execute should" $ do
     S.do
       let pw = Password "InvalidPassword"
       acc <- S.coerce sampleIO
-      AR.add acc
+      ARC.add acc
       LC.execute $ EmailPasswordLoginRequest acc.email pw
       & expectError @PasswordIncorrectError

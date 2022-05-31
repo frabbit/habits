@@ -40,7 +40,7 @@ import qualified Veins.Test.AppTH as AppTH
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
 envLayer :: forall m n. (MonadIO n, ARC.AccountRepo m, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer = ARM.mkAccountRepoMemory `CE.provideAndChainLayerFlipped` RL.mkLive
+envLayer = RL.mkLive `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
 
 AppTH.mkBoilerplate "runApp" ''Env
 

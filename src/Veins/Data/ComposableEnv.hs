@@ -31,7 +31,8 @@ module Veins.Data.ComposableEnv
     fail,
     return,
     pure,
-  provideAndChainLayerFlipped)
+    provideAndChainLayerFlipped
+  , (<<|))
 where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
@@ -192,11 +193,9 @@ provideLayerFlipped = P.flip provideLayer
 provideLayer ::
   forall e0 e1 e2 m r out e2'.
   ( Monad m,
-    H.Excluding e2 e1 ~ e2',
-    H.CExcluding e0 out (H.Excluding out e0),
+    H.Excluding e2 e1 ~ e2', --
     H.Union e2' e0 ~ out,
-    H.UnionC (H.Excluding out e0) e1 e2,
-    H.ExcludingC out e2' e0
+    _
   ) =>
   ReaderT (ComposableEnv e0) m (ComposableEnv e1) ->
   ReaderT (ComposableEnv e2) m r ->
@@ -204,11 +203,11 @@ provideLayer ::
 provideLayer layer c =
   let f :: forall. ComposableEnv (H.Union e2' e0) -> m r
       f env = do
-        let e1 :: ComposableEnv e0
-            e1 = excluding @(H.Excluding e2 e1) env
-        l <- runReaderT layer e1
+        let e0 :: ComposableEnv e0
+            e0 = intersection @e0 env
+        l <- runReaderT layer e0
         let e2 :: forall. ComposableEnv e2
-            e2 = excluding @e0 env `union` l
+            e2 = intersection @e2 env `union` l
         runReaderT c e2
    in ReaderT f
 
@@ -352,38 +351,7 @@ excluding = wrap . H.excluding @e0 . unwrap
 provideAndChainLayer ::
   forall e0 e1 o1 o2 m.
   ( Monad m,
-    H.CExcluding
-      e0
-      (H.Union (H.Excluding (H.Union o1 e1) o1) e0)
-      (H.Excluding (H.Union (H.Excluding (H.Union o1 e1) o1) e0) e0),
-    H.CExcluding
-      (H.Excluding (H.Union o1 e1) o1)
-      (H.Union (H.Excluding (H.Union o1 e1) o1) e0)
-      e0,
-    H.CUnion
-      (H.Excluding (H.Union (H.Excluding (H.Union o1 e1) o1) e0) e0)
-      o1
-      (H.Union o1 e1),
-    H.CUnion
-      o2
-      (H.Intersection (H.Union o1 e1) o1)
-      (H.Union o2 (H.Intersection (H.Union o1 e1) o1)),
-    H.CIntersection
-      o1
-      (H.Union o1 e1)
-      (H.Intersection (H.Union o1 e1) o1),
-    H.CIntersection e1 (H.Union o1 e1) e1,
-    H.Union o2 (H.Intersection (H.Union o1 e1) o1) ~ H.Union o2 o1,
-    H.Intersection (H.Union o1 e1) e1 ~ e1,
-    H.Excluding e1 e1 ~ '[],
-    H.Union
-      (H.Excluding (H.Union (H.Excluding (H.Union o1 e1) o1) e0) e0)
-      o1
-      ~ H.Union o1 e1,
-    H.Excluding
-      (H.Union (H.Excluding (H.Union o1 e1) o1) e0)
-      (H.Excluding (H.Union o1 e1) o1)
-      ~ e0
+    _
   ) =>
   ReaderT (ComposableEnv e0) m (ComposableEnv o1) ->
   ReaderT (ComposableEnv e1) m (ComposableEnv o2) ->
@@ -391,7 +359,12 @@ provideAndChainLayer ::
 provideAndChainLayer layer = provideLayer layer . chainFromEnv @o1 . expandEnvBy @o1
 
 provideAndChainLayerFlipped :: _ => _
-provideAndChainLayerFlipped = P.flip provideAndChainLayer
+provideAndChainLayerFlipped a b = provideAndChainLayer b a
+
+(<<|) :: _ => _
+(<<|) = provideAndChainLayerFlipped
+
+infixl 8 <<|
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where
   get = get

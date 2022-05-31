@@ -48,8 +48,6 @@ runWithEnv mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
 
-
-
 spec :: Spec
 spec = describe "registerRoute should" $ do
   let wrap = runWithEnv

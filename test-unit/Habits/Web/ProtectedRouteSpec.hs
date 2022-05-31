@@ -14,7 +14,7 @@ import qualified Habits.UseCases.Login as L
 import Habits.Web.Routes.LoginRoute (fromDomain, loginRoute, setEmail, setPassword, toDomain)
 import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Servant (err400, err401, err500)
-import Test.Hspec (Spec, fdescribe, it)
+import Test.Hspec (Spec, fdescribe, it, describe)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Test.QuickCheck (property)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
@@ -50,7 +50,7 @@ run mocks app = do
   runApp env app
 
 spec :: Spec
-spec = fdescribe "loginRoute should" $ do
+spec = describe "loginRoute should" $ do
   it "return the converted response from Login service" . property $ \(rs, i) -> do
     let mocks = defaultMocks & L.over (loginL . executeL) (mockReturn $ pure rs)
     run mocks $ do

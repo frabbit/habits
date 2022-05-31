@@ -12,18 +12,18 @@ import qualified Data.Time as Time
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
+import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Domain.RefreshTokenSecret as RTS
-import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Login as L
 import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LL
 import qualified Habits.UseCases.Register as R
-import Habits.UseCases.Register.Class (Register)
+import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
-import Habits.Web.Auth (accountId, parseAuthenticatedAccount, JWTAuthHandler)
+import Habits.Web.Auth (JWTAuthHandler, parseAuthenticatedAccount)
 import Habits.Web.Routes.LoginRoute (LoginApi, loginRoute)
 import Habits.Web.Routes.ProtectedRoute (ProtectedApi, protectedRoute)
 import Habits.Web.Routes.RegisterRoute (RegisterApi, registerRoute)
@@ -51,7 +51,7 @@ ac = pure $ CE.empty & CE.insert AC.AuthConfig {AC._accessTokenSecret = atSecret
 tp :: forall n m. (Monad n, Monad m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock.Clock m])
 tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow}
 
-envLayer :: forall m n. (MonadIO n, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer :: forall m n. (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
   LL.mkLive
     `CE.provideAndChainLayerFlipped` RL.mkLive
@@ -64,7 +64,7 @@ AppTH.mkBoilerplate "runApp" ''Env
 
 data ServerConfig = ServerConfig
 
-server :: (Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
+server :: (RC.Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
 server = protectedRoute :<|> loginRoute :<|> registerRoute
 
 type ServerApi = ProtectedApi :<|> LoginApi :<|> RegisterApi
@@ -87,14 +87,13 @@ mkAuthHandler _ = ServantAuth.mkAuthHandler handler
 mkApp :: (Monad n, MonadIO n, _) => ServerConfig -> n Application
 mkApp cfg = do
   env <- runReaderT envLayer CE.empty
-  let
-    context :: Context '[JWTAuthHandler]
-    context = mkAuthHandler cfg :. EmptyContext
-    contextProxy :: Proxy '[JWTAuthHandler]
-    contextProxy = Proxy
-    api = hoistServerWithContext serverApi contextProxy (ntToHandler env) server
-    app :: Application
-    app = serveWithContext serverApi context api
+  let context :: Context '[JWTAuthHandler]
+      context = mkAuthHandler cfg :. EmptyContext
+      contextProxy :: Proxy '[JWTAuthHandler]
+      contextProxy = Proxy
+      api = hoistServerWithContext serverApi contextProxy (ntToHandler env) server
+      app :: Application
+      app = serveWithContext serverApi context api
   pure app
 
 runServer :: ServerConfig -> IO ()

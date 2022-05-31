@@ -23,7 +23,6 @@ import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError)
 import Habits.Domain.RefreshTokenHash (mkFromRefreshToken)
 import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError)
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError))
-import Habits.Domain.RefreshTokenIssuedRepo (getByAccountId)
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
 import qualified Habits.Domain.RefreshTokenSecret as RTS
@@ -50,6 +49,7 @@ import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.HSpec.TH (shouldMatchPattern)
 import Prelude hiding (id)
+import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as ARC
 
 type Env m = CE.MkSorted '[AR.AccountRepo m, Refresh.Refresh m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
 
@@ -73,9 +73,9 @@ tp = pure $ CE.empty & CE.insert Clock.Clock {_getNow = pure timeNow}
 
 envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
-  ARM.mkAccountRepoMemory
+  RefreshLive.mkLive
     `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
-    `CE.provideAndChainLayerFlipped` RefreshLive.mkLive
+    `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
     `CE.provideAndChainLayerFlipped` ac
     `CE.provideLayerFlipped` tp
 
@@ -150,5 +150,5 @@ spec = describe "refresh should" $ do
     (token, _, accountId) <- addValidToken
     refresh (RefreshRequest token)
     refresh (RefreshRequest token) & void & catchLiftRight (\RefreshTokenIssuedNotFoundError -> S.pure ())
-    tokens <- getByAccountId accountId
+    tokens <- ARC.getByAccountId accountId
     S.coerce $ tokens `shouldBe` []
