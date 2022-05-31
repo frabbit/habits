@@ -358,13 +358,27 @@ provideAndChainLayer ::
   LayerCE (H.Union (H.Excluding (H.Union o1 e1) o1) e0) m (H.Union o2 o1)
 provideAndChainLayer layer = provideLayer layer . chainFromEnv @o1 . expandEnvBy @o1
 
-provideAndChainLayerFlipped :: _ => _
+provideAndChainLayerFlipped ::
+  forall e0 e1 o1 o2 m.
+  ( Monad m,
+    _
+  ) =>
+  LayerCE e1 m o2 ->
+  LayerCE e0 m o1 ->
+  LayerCE (H.Union (H.Excluding (H.Union o1 e1) o1) e0) m (H.Union o2 o1)
 provideAndChainLayerFlipped a b = provideAndChainLayer b a
 
 
--- # A combinator for layers. The resulting environment of the second layer is provided for the first layer.
--- # The union of the remaining environment of the first layer and the environment of the second layer become the new environment.
-(<<-&&) :: _ => _
+-- | A combinator for layers. The resulting environment of the second layer is provided for the first layer.
+-- | The union of the remaining environment of the first layer and the environment of the second layer become the new environment.
+(<<-&&) ::
+  forall e0 e1 o1 o2 m.
+  ( Monad m,
+    _
+  ) =>
+  LayerCE e1 m o2 ->
+  LayerCE e0 m o1 ->
+  LayerCE (H.Union (H.Excluding (H.Union o1 e1) o1) e0) m (H.Union o2 o1)
 (<<-&&) = provideAndChainLayerFlipped
 
 (<<-) :: _ => _
