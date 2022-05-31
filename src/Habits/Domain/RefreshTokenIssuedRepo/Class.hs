@@ -9,6 +9,8 @@ import Habits.Domain.RefreshTokenIssuedRepo
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo as R
 import Veins.Data.Has (Has)
+import qualified Veins.Data.Has as Has
+import Control.Monad.Reader.Class (asks)
 
 class RefreshTokenIssuedRepo m where
   add :: Add m
@@ -17,9 +19,12 @@ class RefreshTokenIssuedRepo m where
   deleteByAccountId :: DeleteByAccountId m
   deleteById :: DeleteById m
 
+wrap :: (MonadReader r m, Has a r) => ((a -> b -> m c) -> b -> m c)
+wrap f r = flip f r =<< asks Has.get
+
 instance (MonadReader env m, Has (R.RefreshTokenIssuedRepo m) env) => RefreshTokenIssuedRepo m where
-  add = R.add
-  getById = R.getById
-  getByAccountId = R.getByAccountId
-  deleteByAccountId = R.deleteByAccountId
-  deleteById = R.deleteById
+  add = wrap R.add
+  getById = wrap R.getById
+  getByAccountId = wrap R.getByAccountId
+  deleteByAccountId = wrap R.deleteByAccountId
+  deleteById = wrap R.deleteById

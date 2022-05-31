@@ -1,7 +1,7 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Habits.Domain.RefreshTokenIssuedRepo where
 
-import Control.Monad.Reader (MonadReader)
-import Control.Monad.Reader.Class (asks)
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import Habits.Domain.RefreshTokenIssuedNew
@@ -9,9 +9,10 @@ import Habits.Domain.RefreshTokenIssuedNew
   )
 import Habits.Domain.RepositoryError (RepositoryError)
 import Haskus.Utils.Variant.Excepts (Excepts)
-import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 import Habits.Domain.AccountId (AccountId)
+import qualified Veins.Data.Has as Has
+import Control.Monad.Reader (asks, MonadReader)
 
 type Add m =
   RefreshTokenIssuedNew ->
@@ -43,27 +44,20 @@ data RefreshTokenIssuedRepo m = RefreshTokenIssuedRepo
 
 type instance ToSymbol (RefreshTokenIssuedRepo m) = "RefreshTokenIssuedRepo"
 
-add :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => Add m
-add r = do
-  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f._add r
+getRefreshTokenIssuedRepo :: (MonadReader r n, Has.Has (RefreshTokenIssuedRepo m) r) => n (RefreshTokenIssuedRepo m)
+getRefreshTokenIssuedRepo = asks Has.get
 
-getById :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetById m
-getById r = do
-  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f._getById r
+add :: forall m. RefreshTokenIssuedRepo m -> Add m
+add = (._add)
 
-getByAccountId :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => GetByAccountId m
-getByAccountId r = do
-  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f._getByAccountId r
+getById :: forall m. RefreshTokenIssuedRepo m -> GetById m
+getById= (._getById)
 
-deleteByAccountId :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => DeleteByAccountId m
-deleteByAccountId r = do
-  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f._deleteByAccountId r
+getByAccountId :: forall m. RefreshTokenIssuedRepo m -> GetByAccountId m
+getByAccountId = (._getByAccountId)
 
-deleteById :: forall m env. (Has.Has (RefreshTokenIssuedRepo m) env, MonadReader env m) => DeleteById m
-deleteById r = do
-  f <- asks (Has.get @(RefreshTokenIssuedRepo m))
-  f._deleteById r
+deleteByAccountId :: forall m. RefreshTokenIssuedRepo m -> DeleteByAccountId m
+deleteByAccountId = (._deleteByAccountId)
+
+deleteById :: forall m. RefreshTokenIssuedRepo m -> DeleteById m
+deleteById = (._deleteById)
