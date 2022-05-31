@@ -33,6 +33,7 @@ import Servant (Context (EmptyContext, (:.)), Handler (Handler), HasServer (Serv
 import qualified Servant.Server.Experimental.Auth as ServantAuth
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
+import Veins.Data.ComposableEnv ((<<-&&), (<<-))
 
 type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
 
@@ -54,11 +55,11 @@ tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow}
 envLayer :: forall m n. (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer =
   LL.mkLive
-    `CE.provideAndChainLayerFlipped` RL.mkLive
-    `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
-    `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
-    `CE.provideLayerFlipped` ac
-    `CE.provideLayerFlipped` tp
+    <<-&& RL.mkLive
+    <<-&& RTL.mkRefreshTokenIssuedRepoMemory
+    <<-&& ARM.mkAccountRepoMemory
+    <<- ac
+    <<- tp
 
 AppTH.mkBoilerplate "runApp" ''Env
 

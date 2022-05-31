@@ -36,11 +36,12 @@ import Test.Hspec.Expectations.Lifted (shouldBe, shouldNotBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
+import Veins.Data.ComposableEnv ((<<-&&))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
-envLayer :: forall m n. (MonadIO n, ARC.AccountRepo m, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer = RL.mkLive `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
+envLayer :: forall m n. (MonadIO n, MonadIO m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer = RL.mkLive <<-&& ARM.mkAccountRepoMemory
 
 AppTH.mkBoilerplate "runApp" ''Env
 

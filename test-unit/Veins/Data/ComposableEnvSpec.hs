@@ -241,9 +241,6 @@ spec = describe "ComposableEnv" $ do
           out :: ReaderT (ComposableEnv '[A,B,C]) IO (ComposableEnv '[])
           out = provideAndChainLayer layer1 layer0
 
-          out1 :: ReaderT (ComposableEnv '[A,B,C]) IO (ComposableEnv '[])
-          out1 = provideAndChainLayer layer0 layer1
-
       r <- runReaderT out (empty & insert A & insert B & insert C)
       r `shouldBe` empty
   describe "provideAndChainLayerFlipped should" $ do

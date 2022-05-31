@@ -7,7 +7,6 @@ import Control.Monad.Reader (runReaderT)
 import Data.Pool (Pool)
 import qualified Database.Persist.Postgresql as P
 import qualified Habits.Domain.AccountRepo as AR
-import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.Domain.AccountRepositoryContract
   ( mkSpec,
   )
@@ -21,11 +20,12 @@ import Test.Hspec
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.TestContainers.Postgres (withPostgresPool)
+import Veins.Data.ComposableEnv ((<<-&&))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
-envLayer :: forall n m. (MonadIO n, ARC.AccountRepo m, MonadIO m) => Pool P.SqlBackend -> CE.ReaderCE '[] n (Env m)
-envLayer pool = ARP.mkAccountRepoPostgres pool `CE.provideAndChainLayerFlipped` RL.mkLive
+envLayer :: forall n m. (MonadIO n, MonadIO m) => Pool P.SqlBackend -> CE.ReaderCE '[] n (Env m)
+envLayer pool = RL.mkLive <<-&& ARP.mkAccountRepoPostgres pool
 
 AppTH.mkBoilerplate "runApp" ''Env
 

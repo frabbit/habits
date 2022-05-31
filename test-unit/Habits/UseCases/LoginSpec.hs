@@ -53,6 +53,7 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTC
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
+import Veins.Data.ComposableEnv ((<<-&&), (<<-))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m, AC.AuthConfig]
 
@@ -74,11 +75,11 @@ tp = pure $ CE.empty & CE.insert Clock.Clock {Clock._getNow = pure timeNow }
 
 envLayer :: forall m n. (MonadIO n, RTC.RefreshTokenIssuedRepo m, ARC.AccountRepo m, MonadIO m, ACC.AuthConfig m, _) => ReaderT (CE.ComposableEnv '[]) n (Env m)
 envLayer = RL.mkLive
-  `CE.provideAndChainLayerFlipped` LoginLive.mkLive
-  `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
-  `CE.provideAndChainLayerFlipped` RTL.mkRefreshTokenIssuedRepoMemory
-  `CE.provideAndChainLayerFlipped` ac
-  `CE.provideLayerFlipped` tp
+  <<-&& LoginLive.mkLive
+  <<-&& ARM.mkAccountRepoMemory
+  <<-&& RTL.mkRefreshTokenIssuedRepoMemory
+  <<-&& ac
+  <<- tp
 
 AppTH.mkBoilerplate "runApp" ''Env
 

@@ -32,7 +32,7 @@ module Veins.Data.ComposableEnv
     return,
     pure,
     provideAndChainLayerFlipped
-  , (<<|))
+  , (<<-&&), (<<-))
 where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
@@ -54,7 +54,7 @@ import qualified Veins.Data.Type.List as L
 
 type ReaderCE env m x = ReaderT (ComposableEnv env) m x
 
-type LayerCE env m out = ReaderT (ComposableEnv env) m (ComposableEnv out)
+type LayerCE env m out = ReaderCE  env m (ComposableEnv out)
 
 type family MkSorted (xs :: [Type]) where
   MkSorted xs = ComposableEnv (Sorted xs)
@@ -159,16 +159,16 @@ provideAll ::
     H.Union out e2' ~ e1,
     H.CUnion out e2' e1
   ) =>
-  ReaderT (ComposableEnv e1) m r ->
+  ReaderCE e1 m r ->
   ComposableEnv e2 ->
-  ReaderT (ComposableEnv out) m r
+  ReaderCE out m r
 provideAll f e = ReaderT $ provideAll' (runReaderT f) e
 
 lift ::
   forall e0 e1 m a.
   (H.CExcluding (H.Difference e1 e0) e0 e1) =>
-  ReaderT (ComposableEnv e1) m a ->
-  ReaderT (ComposableEnv e0) m a
+  ReaderCE e1 m a ->
+  ReaderCE e0 m a
 lift r = ReaderT $ \(e :: ComposableEnv e0) ->
   runReaderT r (wrap (H.excluding @(H.Difference e1 e0) (unwrap e)))
 
@@ -178,9 +178,9 @@ type Bind =
     H.CExcluding (H.Difference e1 (H.Union e1 e2)) (H.Union e1 e2) e1,
     H.CExcluding (H.Difference e2 (H.Union e1 e2)) (H.Union e1 e2) e2
   ) =>
-  ReaderT (ComposableEnv e1) m a ->
-  (a -> ReaderT (ComposableEnv e2) m b) ->
-  ReaderT (ComposableEnv (H.Union e1 e2)) m b
+  ReaderCE e1 m a ->
+  (a -> ReaderCE e2 m b) ->
+  ReaderCE (H.Union e1 e2) m b
 
 bind :: Bind
 bind r f = do
@@ -197,9 +197,9 @@ provideLayer ::
     H.Union e2' e0 ~ out,
     _
   ) =>
-  ReaderT (ComposableEnv e0) m (ComposableEnv e1) ->
-  ReaderT (ComposableEnv e2) m r ->
-  ReaderT (ComposableEnv out) m r
+  LayerCE e0 m e1 ->
+  ReaderCE e2 m r ->
+  ReaderCE out m r
 provideLayer layer c =
   let f :: forall. ComposableEnv (H.Union e2' e0) -> m r
       f env = do
@@ -221,9 +221,9 @@ provideLayer' ::
     H.UnionC (H.Excluding out e0) e1' e2,
     H.ExcludingC out e2' e0
   ) =>
-  ReaderT (ComposableEnv e0) m (ComposableEnv e1) ->
-  ReaderT (ComposableEnv e2) m r ->
-  ReaderT (ComposableEnv out) m r
+  LayerCE e0 m e1 ->
+  ReaderCE e2 m r ->
+  ReaderCE out m r
 provideLayer' layer c =
   let f :: forall. ComposableEnv (H.Union e2' e0) -> m r
       f env = do
@@ -242,8 +242,8 @@ expandEnv ::
     H.Excluding e1 e1 ~ '[],
     H.Intersection e2 e1 ~ e1
   ) =>
-  ReaderT (ComposableEnv e1) m a ->
-  ReaderT (ComposableEnv e2) m a
+  ReaderCE e1 m a ->
+  ReaderCE e2 m a
 expandEnv or = ReaderT f
   where
     f efull = runReaderT (provideAll or efull) empty
@@ -254,8 +254,8 @@ expandEnvBy ::
     H.Excluding e1 e1 ~ '[],
     H.Intersection (H.Union e0 e1) e1 ~ e1
   ) =>
-  ReaderT (ComposableEnv e1) m a ->
-  ReaderT (ComposableEnv (H.Union e0 e1)) m a
+  ReaderCE e1 m a ->
+  ReaderCE (H.Union e0 e1) m a
 expandEnvBy or = ReaderT f
   where
     f efull = runReaderT (provideAll or efull) empty
@@ -270,8 +270,8 @@ chainFromEnv ::
     H.CIntersection e2 e0 (H.Intersection e0 e2),
     H.Union e1 (H.Intersection e0 e2) ~ H.Union e1 e2
   ) =>
-  ReaderT (ComposableEnv e0) m (ComposableEnv e1) ->
-  ReaderT (ComposableEnv e0) m (ComposableEnv (H.Union e1 e2))
+  LayerCE e0 m e1 ->
+  LayerCE e0 m (H.Union e1 e2)
 chainFromEnv (ReaderT f) = ReaderT $ \e -> do
   base <- (f e :: m (ComposableEnv e1))
   let r = base `union` intersection @e2 e
@@ -295,8 +295,8 @@ expandLayer ::
     H.Union ein e0 ~ H.Union e0 ein,
     H.Intersection (H.Union e0 ein) ein ~ ein
   ) =>
-  ReaderT (ComposableEnv ein) m (ComposableEnv eout) ->
-  ReaderT (ComposableEnv (H.Union ein e0)) m (ComposableEnv (H.Union eout e0))
+  LayerCE ein m eout ->
+  LayerCE (H.Union ein e0) m (H.Union eout e0)
 expandLayer = chainFromEnv @e0 . expandEnvBy @e0
 
 addLayer ::
@@ -319,12 +319,12 @@ addLayer ::
       '[],
     H.CUnion xs ys (H.Union xs ys)
   ) =>
-  ReaderT (ComposableEnv e2) m (ComposableEnv xs) ->
-  ReaderT (ComposableEnv e3) m (ComposableEnv ys) ->
-  ReaderT
-    (ComposableEnv (H.Union e2 (H.Union e3 '[])))
+  LayerCE e2 m xs ->
+  LayerCE e3 m ys ->
+  LayerCE
+    (H.Union e2 (H.Union e3 '[]))
     m
-    (ComposableEnv (H.Union xs ys))
+    (H.Union xs ys)
 addLayer p0 p1 =
   p0 >>= \l1 ->
     p1 >>= \l2 ->
@@ -334,7 +334,7 @@ addLayer p0 p1 =
 (>>=) :: Bind
 (>>=) = bind
 
-type Pure = forall m a. (Monad m) => a -> ReaderT (ComposableEnv '[]) m a
+type Pure = forall m a. (Monad m) => a -> ReaderCE '[] m a
 
 pure :: Pure
 pure a = ReaderT $ \_ -> P.pure a
@@ -342,7 +342,7 @@ pure a = ReaderT $ \_ -> P.pure a
 return :: Pure
 return = pure
 
-fail :: P.MonadFail m => P.String -> ReaderT (ComposableEnv '[]) m a
+fail :: P.MonadFail m => P.String -> ReaderCE '[] m a
 fail = P.fail
 
 excluding :: forall e0 e1. (H.CExcluding e0 e1 (H.Excluding e1 e0)) => ComposableEnv e1 -> ComposableEnv (H.Excluding e1 e0)
@@ -353,18 +353,25 @@ provideAndChainLayer ::
   ( Monad m,
     _
   ) =>
-  ReaderT (ComposableEnv e0) m (ComposableEnv o1) ->
-  ReaderT (ComposableEnv e1) m (ComposableEnv o2) ->
-  ReaderT (ComposableEnv (H.Union (H.Excluding (H.Union o1 e1) o1) e0)) m (ComposableEnv (H.Union o2 o1))
+  LayerCE e0 m o1 ->
+  LayerCE e1 m o2 ->
+  LayerCE (H.Union (H.Excluding (H.Union o1 e1) o1) e0) m (H.Union o2 o1)
 provideAndChainLayer layer = provideLayer layer . chainFromEnv @o1 . expandEnvBy @o1
 
 provideAndChainLayerFlipped :: _ => _
 provideAndChainLayerFlipped a b = provideAndChainLayer b a
 
-(<<|) :: _ => _
-(<<|) = provideAndChainLayerFlipped
 
-infixl 8 <<|
+-- # A combinator for layers. The resulting environment of the second layer is provided for the first layer.
+-- # The union of the remaining environment of the first layer and the environment of the second layer become the new environment.
+(<<-&&) :: _ => _
+(<<-&&) = provideAndChainLayerFlipped
+
+(<<-) :: _ => _
+(<<-) = provideLayerFlipped
+
+infixl 9 <<-&&
+infixl 9 <<-
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where
   get = get

@@ -18,11 +18,12 @@ import Test.Hspec
   )
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
+import Veins.Data.ComposableEnv ((<<-&&))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
 envLayer :: forall n m . (MonadIO n, MonadIO m) => CE.ReaderCE '[] n (Env m)
-envLayer = RL.mkLive `CE.provideAndChainLayerFlipped` ARM.mkAccountRepoMemory
+envLayer = RL.mkLive <<-&& ARM.mkAccountRepoMemory
 
 AppTH.mkBoilerplate "runApp" ''Env
 
