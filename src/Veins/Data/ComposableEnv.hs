@@ -384,8 +384,8 @@ provideAndChainLayerFlipped a b = provideAndChainLayer b a
 (<<-) :: _ => _
 (<<-) = provideLayerFlipped
 
-infixl 9 <<-&&
-infixl 9 <<-
+infixl 1 <<-&&
+infixl 1 <<-
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where
   get = get
