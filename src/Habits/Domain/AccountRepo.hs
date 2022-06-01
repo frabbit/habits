@@ -33,8 +33,6 @@ data AccountRepo m = AccountRepo
 
 type instance ToSymbol (AccountRepo m) = "AccountRepo"
 
-type AccountRepoR env = AccountRepo (ReaderT env IO)
-
 getAccountRepo :: (MonadReader r n, Has.Has (AccountRepo m) r) => n (AccountRepo m)
 getAccountRepo = asks Has.get
 
