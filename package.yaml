@@ -62,7 +62,7 @@ dependencies:
 - jwt
 - fixed
 - timeit
-- record-dot-preprocessor
+- record-dot-preprocessor >= 0.2.14
 - record-hasfield
 - validation
 - servant
@@ -156,9 +156,11 @@ tests:
     ghc-options:
     - -threaded
     - -rtsopts
-    - -with-rtsopts=-N
+    - -with-rtsopts=-A128m
+    - -with-rtsopts=-N2m
+    - -O0
+    - -j8
     dependencies:
-    - habits
     - hspec
     - hspec-expectations-lifted
     - testcontainers >= 0.3.0.1

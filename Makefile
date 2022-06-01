@@ -1,10 +1,16 @@
-.PHONY: test-unit test-integration repl test-unit-ghcid test-integration-ghcid build-watch test-unit-watch test-e2e
+.PHONY: test-unit test-integration repl test-unit-ghcid test-integration-ghcid build-watch test-unit-watch test-e2e build-all clean
+
+clean:
+	stack clean
 
 build-watch:
 	stack build --file-watch
 
+build-all:
+	stack build --no-run-tests --ghc-options " -fprint-potential-instances -O0 -j8 +RTS -A128m -n2m -RTS" habits:habits-test-all
+
 build-watch-all:
-	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-all
+	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances -j4 +RTS -A32m -RTS" habits:habits-test-all
 
 build-watch-unit:
 	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-unit
