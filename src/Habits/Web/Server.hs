@@ -16,7 +16,6 @@ import qualified Habits.UseCases.Login as L
 import qualified Habits.UseCases.Login.Live as LL
 import qualified Habits.UseCases.Register as R
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
-import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
 import Habits.Web.Auth (JWTAuthHandler, parseAuthenticatedAccount)
 import Habits.Web.Routes.LoginRoute (LoginApi, loginRoute)
