@@ -4,11 +4,9 @@
 
 module Habits.Web.Routes.RegisterRoute where
 
-import Prelude
-import Control.Monad.Except (ExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Habits.Prelude
+
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text (Text)
 import GHC.Generics (Generic)
 import Habits.Domain.Email (Email (unEmail), emailFromText)
 import Habits.Domain.Password (Password (unPassword), passwordFromText)
@@ -16,12 +14,10 @@ import qualified Habits.UseCases.Register.Class as RC
 import Habits.UseCases.Register.RegisterRequest (RegisterRequest (..))
 import Habits.UseCases.Register.RegisterResponse (RegisterResponse)
 import Habits.Web.Utils (mapAllErrorsToServerError)
-import Haskus.Utils.Variant.Excepts (liftE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Haskus.Utils.Variant.Excepts.Utils (fromValidation, toExceptT)
 import Servant (ServerError)
 import Servant.API (JSON, Post, ReqBody, type (:>))
-import Test.QuickCheck (Arbitrary (arbitrary))
 import Veins.Data.Codec (Encoder, idCodec)
 import qualified Veins.Data.Codec as Codec
 import Veins.RecordDot.Utils (set)

@@ -2,9 +2,8 @@
 
 module Habits.UseCases.Login.Class where
 
-import Control.Monad.RWS
-  ( MonadReader,
-  )
+import Habits.Prelude
+
 import Veins.Data.Has
   ( Has,
   )

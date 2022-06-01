@@ -5,14 +5,11 @@
 
 module Habits.Web.Routes.ProtectedRoute where
 
-import Prelude
-import Control.Monad.Except (ExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Servant (ServerError, AuthProtect)
 import Servant.API (JSON, type (:>), Get)
-import Data.Text (Text)
 import Habits.Web.Auth (AuthenticatedAccount)
 
 data ProtectedResponseDto = ProtectedResponseDto {

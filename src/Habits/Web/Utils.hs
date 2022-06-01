@@ -1,11 +1,9 @@
 module Habits.Web.Utils where
 
-import Prelude
-import Data.Function ((&))
+import Habits.Prelude
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
 import Habits.Domain.RepositoryError (RepositoryError)
-import Haskus.Utils.Variant.Excepts (Excepts, failureE)
 import Haskus.Utils.Variant.Excepts.Utils (catchExcepts)
 import Servant (ServerError, err400, err401, err500, err409)
 import qualified Veins.Data.Codec as Codec

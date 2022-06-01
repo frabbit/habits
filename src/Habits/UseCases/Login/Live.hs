@@ -1,10 +1,7 @@
 module Habits.UseCases.Login.Live where
 
-import Prelude
+import Habits.Prelude
 import Control.Monad (unless)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT)
-import Data.Function ((&))
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.AccessToken (mkAccessToken)
 import qualified Habits.Domain.AuthConfig as AC
@@ -17,7 +14,6 @@ import Habits.UseCases.Login
 import qualified Habits.UseCases.Login as L
 import Habits.UseCases.Login.LoginRequest (LoginRequest (..))
 import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Habits.Domain.Clock as Clock

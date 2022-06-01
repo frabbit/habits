@@ -1,12 +1,11 @@
 module Habits.UseCases.Login where
 
-import Haskus.Utils.Variant.Excepts (Excepts)
+import Habits.Prelude
 import qualified Veins.Data.Has as Has
 import Habits.UseCases.Login.LoginRequest (LoginRequest)
 import Habits.UseCases.Login.LoginResponse (LoginResponse)
 import Habits.Domain.RepositoryError (RepositoryError)
 import Veins.Data.ToSymbol (ToSymbol)
-import Control.Monad.Reader (MonadReader, asks)
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
 import Veins.Control.Lens.Utils (makeLensesWithoutUnderscoreAndWithSuffixL)

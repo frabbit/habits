@@ -1,6 +1,6 @@
 module Habits.UseCases.Register.Live where
 
-import Prelude
+import Habits.Prelude
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN
@@ -11,15 +11,10 @@ import Habits.UseCases.Register
       ),
   )
 import qualified Habits.UseCases.Register as R
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
-import Data.Function ((&))
 import qualified Veins.Data.ComposableEnv as CE
-import Control.Monad.Reader (ReaderT)
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(..))
 import Control.Monad (when)
-import Data.Maybe (isJust)
 import Habits.Domain.PasswordHash (mkFromPassword)
-import Control.Monad.IO.Class (MonadIO)
 import qualified Habits.Domain.AccountRepo as AR
 
 mkRegister :: (MonadIO m, Monad n) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (RegisterExec m)

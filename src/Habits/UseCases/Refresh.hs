@@ -1,10 +1,9 @@
 module Habits.UseCases.Refresh where
 
+import Habits.Prelude
 import Habits.Domain.RepositoryError (RepositoryError)
-import Haskus.Utils.Variant.Excepts (Excepts)
 import Veins.Data.ToSymbol (ToSymbol)
 import qualified Veins.Data.Has as Has
-import Control.Monad.Reader (MonadReader, asks)
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest)
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse)
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError)

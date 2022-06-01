@@ -3,10 +3,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 module Habits.UseCases.Refresh.Live where
 
-import Prelude
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT)
-import Data.Function ((&))
+import Habits.Prelude
 import qualified Habits.Domain.AuthConfig as AC
 import Habits.UseCases.Refresh
   ( RefreshExec,
@@ -16,7 +13,6 @@ import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (..))
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Habits.Domain.Clock as Clock
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError(RefreshTokenIssuedNotFoundError))
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Habits.Domain.RefreshToken (getAccountId, mkRefreshToken, isExpired)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Data.Foldable (find)

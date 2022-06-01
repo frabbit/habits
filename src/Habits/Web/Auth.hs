@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Habits.Web.Auth where
 
-import Veins.Prelude
+import Habits.Prelude
 import GHC.Generics (Generic)
 import Servant (AuthProtect)
 import Data.Text (splitOn)

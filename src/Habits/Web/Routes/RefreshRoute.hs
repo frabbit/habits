@@ -4,21 +4,16 @@
 
 module Habits.Web.Routes.RefreshRoute where
 
-import Prelude
-import Control.Monad.Except (ExceptT)
-import Control.Monad.IO.Class (MonadIO)
+import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
-import Data.Text (Text)
 import GHC.Generics (Generic)
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (..))
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse)
 import Habits.Web.Utils (mapAllErrorsToServerError)
-import Haskus.Utils.Variant.Excepts (liftE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Haskus.Utils.Variant.Excepts.Utils (fromValidation, toExceptT)
 import Servant (ServerError)
 import Servant.API (JSON, Post, ReqBody, type (:>))
-import Test.QuickCheck (Arbitrary (arbitrary))
 import Veins.Data.Codec (Encoder)
 import qualified Veins.Data.Codec as Codec
 import Veins.RecordDot.Utils (set)

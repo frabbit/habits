@@ -8,7 +8,7 @@ module Habits.UseCases.Register
   )
 where
 
-import Control.Monad.Reader (MonadReader, asks)
+import Habits.Prelude
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError)
 import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.UseCases.Register.RegisterRequest
@@ -17,7 +17,6 @@ import Habits.UseCases.Register.RegisterRequest
 import Habits.UseCases.Register.RegisterResponse
   ( RegisterResponse (..),
   )
-import Haskus.Utils.Variant.Excepts (Excepts)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 import Veins.Control.Lens.Utils (makeLensesWithoutUnderscoreAndWithSuffixL)

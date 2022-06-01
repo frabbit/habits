@@ -2,12 +2,10 @@
 
 module Habits.UseCases.Refresh.RefreshResponse where
 
-import Prelude
+import Habits.Prelude
 
 import Habits.Domain.AccessToken (AccessToken)
 import Habits.Domain.RefreshToken (RefreshToken)
-import Test.QuickCheck (Arbitrary)
-import Test.QuickCheck.Arbitrary (Arbitrary (arbitrary))
 
 data RefreshResponse = RefreshResponse
   { accessToken :: AccessToken,
