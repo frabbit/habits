@@ -1,11 +1,10 @@
 {-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.UseCases.LoginSpec (spec) where
 
-import Prelude hiding (id)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
+import Habits.TestPrelude
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Habits.Domain.AccessToken (AccessToken (AccessToken))
@@ -30,11 +29,6 @@ import Habits.UseCases.Login.LoginRequest (LoginRequest (EmailPasswordLoginReque
 import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
 import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
-import Test.Hspec
-  ( Spec,
-    describe,
-    it,
-  )
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
