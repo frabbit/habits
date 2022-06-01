@@ -5,7 +5,7 @@ import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))
-import Habits.UseCases.Register (executeL)
+import Habits.UseCases.Register (unRegisterL)
 import qualified Habits.UseCases.Register as R
 import Habits.Web.Routes.RegisterRoute (fromDomain, registerRoute, setEmail, setPassword, toDomain)
 import Test.Hspec (Spec, describe, it)
@@ -52,12 +52,12 @@ spec :: Spec
 spec = describe "registerRoute should" $ do
   let wrap = runWithEnv
   it "return the response from Register service converted to Dto" . property $ \(rs,i) -> do
-    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ pure rs)
+    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ pure rs)
     wrap mocks $ do
       out <- runExceptT $ registerRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the request converted from Dto to Register service" . property $ \(rs,i) -> do
-    (spy, mocks) <- defaultMocks & L.over (registerL . executeL) (mockReturn $ pure rs) & withSpy (registerL . executeL)
+    (spy, mocks) <- defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ pure rs) & withSpy (registerL . unRegisterL)
     wrap mocks $ do
       runExceptT $ registerRoute i
       Success i' <- pure $ toDomain i
@@ -72,12 +72,12 @@ spec = describe "registerRoute should" $ do
       out <- runExceptT $ registerRoute (rs & setPassword "")
       out `shouldBe` Left err400
   it "fail with 400 when email is already used" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ (liftE . failureE) EmailAlreadyUsedError)
+    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ (liftE . failureE) EmailAlreadyUsedError)
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs
       out `shouldBe` Left err409
   it "fail with 500 on repository error" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (registerL . executeL) (mockReturn $ (liftE . failureE) RepositoryError)
+    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ (liftE . failureE) RepositoryError)
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs
       out `shouldBe` Left err500

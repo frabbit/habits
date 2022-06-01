@@ -59,19 +59,19 @@ spec = describe "Register should" $ do
   let wrap = runWithEnv . evalE . catchAllToFail
   it "succeed when creating a new account which email does not exist yet." . wrap $ S.do
     rr <- S.coerce sampleIO
-    resp <- RC.execute rr
+    resp <- RC.register rr
     account <- ARC.getById resp.accountId
     S.coerce $ account.email `shouldBe` rr.email
     S.coerce $ account.name `shouldBe` rr.name
   it "encode the password and store it encrypted." . wrap $ S.do
     rr <- S.coerce sampleIO
-    resp <- RC.execute rr
+    resp <- RC.register rr
     account <- ARC.getById resp.accountId
 
     S.coerce $ account.password `shouldNotBe` PasswordHash (rr.password & unPassword)
   it "encode the password and store it encrypted." . wrap $ S.do
     rr <- S.coerce sampleIO
-    accountId <- RC.execute rr <&> (.accountId)
+    accountId <- RC.register rr <&> (.accountId)
     account <- ARC.getById accountId
     S.coerce $ isValid rr.password account.password `shouldBe` True
 
@@ -79,5 +79,5 @@ spec = describe "Register should" $ do
     S.do
       an :: AN.AccountNew <- S.coerce sampleIO
       ARC.add an
-      RC.execute (accountNewToRegisterRequest an (Password "pw"))
+      RC.register (accountNewToRegisterRequest an (Password "pw"))
       & expectError @EmailAlreadyUsedError
