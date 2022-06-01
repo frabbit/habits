@@ -15,11 +15,18 @@ import Network.Wai (requestHeaders)
 import qualified Network.Wai as Wai
 import Data.Time (UTCTime)
 import Veins.Data.List.Utils (safeHead)
+import Test.QuickCheck (Arbitrary)
+import Test.QuickCheck.Arbitrary (arbitrary)
 
 
 data AuthenticatedAccount = AuthenticatedAccount {
   accountId :: Text
 } deriving (Generic, Eq, Show)
+
+instance Arbitrary AuthenticatedAccount where
+  arbitrary = do
+    accountId <- arbitrary
+    pure $ AuthenticatedAccount { accountId }
 
 type instance AuthServerData (AuthProtect "JWT") = AuthenticatedAccount
 
