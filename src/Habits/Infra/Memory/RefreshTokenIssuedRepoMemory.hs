@@ -2,14 +2,9 @@
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemory where
 
-import Prelude
-import Control.Monad.IO.Class
-  ( MonadIO,
-    liftIO,
-  )
-import Control.Monad.Reader (ReaderT)
+import Habits.Prelude
+
 import Data.Foldable (find)
-import Data.Function ((&))
 import Data.UUID (toText)
 import Data.UUID.V4 (nextRandom)
 import GHC.Conc

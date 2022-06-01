@@ -61,7 +61,7 @@ instance FromJSON RefreshRequestDto
 
 type RefreshApi = "account" :> "refresh" :> ReqBody '[JSON] RefreshRequestDto :> Post '[JSON] RefreshResponseDto
 
-refreshRoute :: forall m. (MonadIO m, RefreshM m, _) => RefreshRequestDto -> ExceptT ServerError m RefreshResponseDto
+refreshRoute :: forall m. (MonadIO m, RefreshM m) => RefreshRequestDto -> ExceptT ServerError m RefreshResponseDto
 refreshRoute req = toExceptT . mapAllErrorsToServerError $
   liftE $ S.do
     req' <- fromValidation . toDomain $ req

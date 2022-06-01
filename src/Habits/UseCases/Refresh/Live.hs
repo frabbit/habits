@@ -24,7 +24,6 @@ import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError(RefreshT
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(..))
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
-import Control.Monad (when)
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 
 mkExecute :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig, RT.RefreshTokenIssuedRepo m]) n (RefreshExec m)
@@ -62,6 +61,4 @@ mkExecute = do
     S.pure $ RefreshResponse { accessToken, refreshToken }
 
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m]) n (CE.ComposableEnv '[R.Refresh m])
-mkLive = CE.do
-  execute <- mkExecute
-  CE.pure $ CE.singleton (R.Refresh execute)
+mkLive = CE.singleton . R.Refresh <$> mkExecute

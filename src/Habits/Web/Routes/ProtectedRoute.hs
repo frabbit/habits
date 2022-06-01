@@ -7,7 +7,6 @@ module Habits.Web.Routes.ProtectedRoute where
 
 import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics (Generic)
 import Servant (ServerError, AuthProtect)
 import Servant.API (JSON, type (:>), Get)
 import Habits.Web.Auth (AuthenticatedAccount)
@@ -23,7 +22,7 @@ instance FromJSON ProtectedResponseDto
 
 type ProtectedApi = AuthProtect "JWT" :> "account" :> "auth" :> "status" :> Get '[JSON] ProtectedResponseDto
 
-protectedRoute :: forall m. (MonadIO m, _) => AuthenticatedAccount -> ExceptT ServerError m ProtectedResponseDto
+protectedRoute :: forall m. (MonadIO m) => AuthenticatedAccount -> ExceptT ServerError m ProtectedResponseDto
 protectedRoute a = pure $ ProtectedResponseDto { accountId = a.accountId }
 
 
