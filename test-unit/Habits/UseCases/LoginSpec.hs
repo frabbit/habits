@@ -1,12 +1,10 @@
 {-# LANGUAGE PartialTypeSignatures #-}
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.UseCases.LoginSpec (spec) where
 
-import Habits.TestPrelude
-import Data.Function ((&))
-import Data.Functor ((<&>))
+import Habits.Test.Prelude
+
 import Habits.Domain.AccessToken (AccessToken (AccessToken))
 import qualified Habits.Domain.AccessToken as AccessToken
 import qualified Habits.Domain.AccessTokenSecret as ATS
@@ -27,13 +25,11 @@ import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LoginLive
 import Habits.UseCases.Login.LoginRequest (LoginRequest (EmailPasswordLoginRequest))
 import Habits.UseCases.Login.LoginResponse (LoginResponse (..))
-import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.HSpec.TH (shouldMatchPattern)
 
 import System.TimeIt (timeIt)
 import qualified Data.Time as Time
@@ -43,7 +39,6 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
-import Veins.Data.ComposableEnv ((<<-&&), (<<-))
 
 type Env m = CE.MkSorted '[AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m]
 

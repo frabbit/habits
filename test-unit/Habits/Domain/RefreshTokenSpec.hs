@@ -1,7 +1,6 @@
 module Habits.Domain.RefreshTokenSpec where
 
-import Prelude
-import Test.Hspec (Spec, it, describe)
+import Habits.Test.Prelude
 import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, getAccountId)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
@@ -20,7 +19,7 @@ timeFuture :: POSIXTime
 timeFuture = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2022 1 2) (secondsToDiffTime 0)
 
 coerceIO :: IO a -> IO a
-coerceIO = id
+coerceIO = identity
 
 spec :: Spec
 spec = describe "RefreshToken" $ do

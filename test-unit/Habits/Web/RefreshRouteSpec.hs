@@ -1,27 +1,19 @@
 module Habits.Web.RefreshRouteSpec where
 
+import Habits.Test.Prelude
+
 import qualified Control.Lens as L
-import Control.Monad.Except (runExceptT)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Function ((&))
 import Data.Validation (Validation (Success))
 import Habits.Domain.RepositoryError (RepositoryError (RepositoryError))
 import Habits.UseCases.Refresh (unRefreshL)
 import qualified Habits.UseCases.Refresh as R
 import Habits.Web.Routes.RefreshRoute (fromDomain, refreshRoute, toDomain, setRefreshToken)
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Servant (err400, err401, err500)
-import Test.Hspec (Spec, fdescribe, it, describe)
 import Test.Hspec.Expectations.Lifted (shouldBe)
-import Test.QuickCheck (property)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Data.HList as HL
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.Mock (getSpyArgsIO, mockReturn, mockify, withSpy)
-import Veins.Test.QuickCheck (propertyOne)
-import Prelude
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
 import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError(RefreshTokenInvalidError))
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError(RefreshTokenIssuedNotFoundError))

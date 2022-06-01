@@ -1,17 +1,13 @@
 module Habits.Domain.PasswordSpec where
 
-import Prelude
-import Test.Hspec ( it, Spec, describe )
-import Test.QuickCheck (Testable(property))
+import Habits.Test.Prelude
 import Test.Hspec.Expectations.Lifted (shouldSatisfy)
-import Data.Maybe (isJust)
 import Habits.Domain.Password (Password(unPassword), parsePassword, passwordFromText)
 import qualified Veins.Data.Codec as Codec
-import Data.Either (isRight)
 import Data.Validation (toEither)
 
 coerceIO :: IO a -> IO a
-coerceIO = id
+coerceIO = identity
 
 spec :: Spec
 spec = describe "PasswordSpec" $ do

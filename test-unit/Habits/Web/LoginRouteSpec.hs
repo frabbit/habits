@@ -1,11 +1,8 @@
 module Habits.Web.LoginRouteSpec where
 
-import Prelude
+import Habits.Test.Prelude
+
 import qualified Control.Lens as L
-import Control.Monad.Except (runExceptT)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Function ((&))
 import Data.Validation (Validation (Success))
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError (PasswordIncorrectError))
@@ -13,17 +10,12 @@ import Habits.Domain.RepositoryError (RepositoryError (RepositoryError))
 import Habits.UseCases.Login (unLoginL)
 import qualified Habits.UseCases.Login as L
 import Habits.Web.Routes.LoginRoute (fromDomain, loginRoute, setEmail, setPassword, toDomain)
-import Haskus.Utils.Variant.Excepts (failureE, liftE)
 import Servant (err400, err401, err500)
-import Test.Hspec (Spec, fdescribe, it, describe)
 import Test.Hspec.Expectations.Lifted (shouldBe)
-import Test.QuickCheck (property)
 import Veins.Control.Lens.Utils (makeLensesWithSuffixL)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Data.HList as HL
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.Mock (getSpyArgsIO, mockReturn, mockify, withSpy)
-import Veins.Test.QuickCheck (propertyOne)
 
 type Env m = CE.MkSorted '[L.Login m]
 

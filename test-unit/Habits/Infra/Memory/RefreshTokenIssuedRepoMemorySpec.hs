@@ -3,17 +3,12 @@
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec (spec) where
 
-import Prelude
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
+import Habits.Test.Prelude
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RTIR
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTIM
 
 import Habits.Domain.RefreshTokenIssuedRepoContract
   ( mkSpec,
-  )
-import Test.Hspec
-  ( Spec,
   )
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH

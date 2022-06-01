@@ -1,16 +1,12 @@
 module Habits.Domain.AccessTokenSpec (spec) where
 
-import Prelude
-import Test.Hspec (Spec, it, describe)
+import Habits.Test.Prelude
 import Habits.Domain.AccessToken (mkAccessToken, verifyAccessToken, isExpired)
 import Veins.Test.QuickCheck (sampleIO)
 import Data.Time (UTCTime(UTCTime), fromGregorian, secondsToDiffTime)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds, POSIXTime)
 import Test.Hspec.Expectations.Lifted (shouldBe)
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret(AccessTokenSecret))
-import Test.QuickCheck.Property
-
-
 
 timeNow :: POSIXTime
 timeNow = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2022 1 1) (secondsToDiffTime 0)
@@ -21,7 +17,7 @@ timeFuture :: POSIXTime
 timeFuture = utcTimeToPOSIXSeconds $ UTCTime (fromGregorian 2022 1 2) (secondsToDiffTime 0)
 
 coerceIO :: IO a -> IO a
-coerceIO = id
+coerceIO = identity
 
 spec :: Spec
 spec = describe "AccessToken" $ do

@@ -11,11 +11,9 @@
 
 module Habits.UseCases.RegisterSpec (spec) where
 
-import Prelude
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Function ((&))
-import Data.Functor ((<&>))
+
+import Habits.Test.Prelude
+
 import qualified Habits.Domain.AccountNew as AN
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
@@ -26,18 +24,11 @@ import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
-import Haskus.Utils.Variant.Excepts (evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
-import Test.Hspec
-  ( Spec,
-    describe,
-    it,
-  )
 import Test.Hspec.Expectations.Lifted (shouldBe, shouldNotBe)
 import Utils (catchAllToFail, expectError, sampleIO)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Data.ComposableEnv ((<<-&&))
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 

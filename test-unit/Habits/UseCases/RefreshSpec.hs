@@ -4,11 +4,9 @@
 
 module Habits.UseCases.RefreshSpec (spec) where
 
-import Prelude
+import Habits.Test.Prelude
+
 import Control.Monad (void)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Function ((&))
 import qualified Data.Time as Time
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.AccessToken (AccessToken (..))
@@ -34,22 +32,14 @@ import Habits.UseCases.Refresh.Class (RefreshM (refresh))
 import qualified Habits.UseCases.Refresh.Live as RefreshLive
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (RefreshRequest))
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse (..))
-import Haskus.Utils.Variant.Excepts (catchLiftRight, evalE)
+import Haskus.Utils.Variant.Excepts (catchLiftRight)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
-import Test.Hspec
-  ( Spec,
-    describe,
-    it,
-  )
 import Test.Hspec.Expectations.Lifted
   ( shouldBe,
   )
 import Utils (catchAllToFail, expectError, sampleIO)
-import Veins.Data.ComposableEnv ((<<-), (<<-&&))
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Test.HSpec.TH (shouldMatchPattern)
-import Prelude hiding (id)
 
 type Env m = CE.MkSorted '[AR.AccountRepo m, Refresh.Refresh m, RT.RefreshTokenIssuedRepo m]
 

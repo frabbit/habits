@@ -1,14 +1,10 @@
 module Habits.Web.ProtectedRouteSpec where
 
-import Control.Monad.Except (runExceptT)
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Test.Hspec (Spec, fdescribe, it)
+import Habits.Test.Prelude
+
 import Test.Hspec.Expectations.Lifted (shouldBe)
-import Test.QuickCheck (property)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Prelude
 import Habits.Web.Routes.ProtectedRoute (protectedRoute, ProtectedResponseDto (ProtectedResponseDto, accountId))
 import Data.Kind (Type)
 

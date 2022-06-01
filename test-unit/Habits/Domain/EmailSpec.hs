@@ -1,17 +1,13 @@
 module Habits.Domain.EmailSpec where
 
-import Prelude
-import Test.Hspec (Spec, describe, it, fit)
-import Test.QuickCheck (Testable(property))
+import Habits.Test.Prelude
 import Habits.Domain.Email (parseEmail, unEmail, emailFromText)
-import Test.Hspec.Expectations.Lifted (shouldBe, shouldSatisfy)
-import Data.Maybe (isJust)
+import Test.Hspec.Expectations.Lifted (shouldSatisfy)
 import qualified Veins.Data.Codec as Codec
 import Data.Validation (toEither)
-import Data.Either (isRight)
 
 coerceIO :: IO a -> IO a
-coerceIO = id
+coerceIO = identity
 
 spec :: Spec
 spec = describe "EmailSpec" $ do
