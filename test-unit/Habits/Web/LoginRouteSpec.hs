@@ -32,7 +32,7 @@ defaultMocks =
 makeLensesWithSuffixL ''Mocks
 
 envLayer :: forall m n. (MonadIO n) => Mocks m -> CE.ReaderCE '[] n (Env m)
-envLayer mocks = pure $ CE.empty & CE.insert mocks.login
+envLayer mocks = pure $ CE.singleton mocks.login
 
 AppTH.mkBoilerplate "runApp" ''Env
 

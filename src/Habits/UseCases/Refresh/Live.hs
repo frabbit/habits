@@ -64,4 +64,4 @@ mkExecute = do
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m]) n (CE.ComposableEnv '[R.Refresh m])
 mkLive = CE.do
   execute <- mkExecute
-  CE.pure $ CE.empty & CE.insert (R.Refresh execute)
+  CE.pure $ CE.singleton (R.Refresh execute)

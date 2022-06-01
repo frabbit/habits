@@ -95,4 +95,4 @@ mkAccountRepoPostgres pool = do
   _add <- mkAdd pool
   _getById <- mkGetById pool
   _getByEmail <- mkGetByEmail pool
-  pure $ CE.empty & CE.insert (AccountRepo {..})
+  pure $ CE.singleton (AccountRepo {..})

@@ -36,4 +36,4 @@ mkRegister = do
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (CE.ComposableEnv '[R.Register m])
 mkLive = CE.do
   f <- mkRegister
-  CE.pure $ CE.empty & CE.insert (R.Register f)
+  CE.pure $ CE.singleton (R.Register f)

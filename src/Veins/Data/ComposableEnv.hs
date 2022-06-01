@@ -3,6 +3,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
 {-# HLINT ignore "Redundant lambda" #-}
 {-# HLINT ignore "Use fewer LANGUAGE pragmas" #-}
 
@@ -31,8 +32,11 @@ module Veins.Data.ComposableEnv
     fail,
     return,
     pure,
-    provideAndChainLayerFlipped
-  , (<<-&&), (<<-))
+    provideAndChainLayerFlipped,
+    (<<-&&),
+    (<<-),
+    singleton,
+  )
 where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
@@ -42,6 +46,7 @@ import qualified Veins.Data.HSet as H
 import qualified Veins.Data.HSortedList as HSL
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (CmpToSymbol)
+import qualified Veins.Data.Type.List as L
 import Prelude
   ( Eq (..),
     Monad,
@@ -50,28 +55,26 @@ import Prelude
     (.),
   )
 import qualified Prelude as P
-import qualified Veins.Data.Type.List as L
 
 type ReaderCE env m x = ReaderT (ComposableEnv env) m x
 
-type LayerCE env m out = ReaderCE  env m (ComposableEnv out)
+type LayerCE env m out = ReaderCE env m (ComposableEnv out)
 
 type family MkSorted (xs :: [Type]) where
   MkSorted xs = ComposableEnv (Sorted xs)
 
-type family ConvertAcc (tup::(k, [k], [k])) :: (P.Maybe k, [k]) where
+type family ConvertAcc (tup :: (k, [k], [k])) :: (P.Maybe k, [k]) where
   ConvertAcc '(x, _, acc) = '( 'P.Just x, L.Reverse acc)
 
 type family FindSmallest (xs :: [k]) :: (P.Maybe k, [k]) where
   FindSmallest '[] = '( 'P.Nothing, '[])
   FindSmallest (x ': tail) = ConvertAcc (FindSmallest' x tail '[])
 
-
-type family FindSmallest' (c::k) (xs :: [k]) (acc:: [k]) :: (k, [k], [k]) where
+type family FindSmallest' (c :: k) (xs :: [k]) (acc :: [k]) :: (k, [k], [k]) where
   FindSmallest' min (x ': tail) acc = FindSmallestCase (CmpToSymbol min x) min x tail acc
-  FindSmallest min '[] acc= '(min, '[], acc)
+  FindSmallest min '[] acc = '(min, '[], acc)
 
-type family FindSmallestCase (ord :: P.Ordering) min y (tail :: [k]) (acc :: [k]):: (k, [k], [k]) where
+type family FindSmallestCase (ord :: P.Ordering) min y (tail :: [k]) (acc :: [k]) :: (k, [k], [k]) where
   FindSmallestCase 'P.EQ x y tail acc = FindSmallest' x tail (y ': acc)
   FindSmallestCase 'P.LT x y tail acc = FindSmallest' x tail (y ': acc)
   FindSmallestCase 'P.GT x y tail acc = FindSmallest' y tail (x ': acc)
@@ -81,8 +84,8 @@ type family Sorted (xs :: [k]) :: [k] where
   Sorted (x : '[]) = x : '[]
   Sorted (x : tail) = Sorted' x (FindSmallest tail)
 
-type family Sorted' (x::k) (rest:: ( P.Maybe k, [k])) :: [k] where
-  Sorted x '( 'P.Nothing, _ )= x : '[]
+type family Sorted' (x :: k) (rest :: (P.Maybe k, [k])) :: [k] where
+  Sorted x '( 'P.Nothing, _) = x : '[]
   Sorted x '( 'P.Just y, tail) = SortedCase (CmpToSymbol x y) x y tail
 
 type family SortedCase (ord :: P.Ordering) x y (tail :: [k]) :: [k] where
@@ -106,6 +109,9 @@ wrap = ComposableEnv
 
 empty :: ComposableEnv '[]
 empty = ComposableEnv H.empty
+
+singleton :: a -> ComposableEnv '[a]
+singleton = P.flip insert empty
 
 remove ::
   forall x xs.
@@ -368,7 +374,6 @@ provideAndChainLayerFlipped ::
   LayerCE (H.Union (H.Excluding (H.Union o1 e1) o1) e0) m (H.Union o2 o1)
 provideAndChainLayerFlipped a b = provideAndChainLayer b a
 
-
 -- | A combinator for layers. The resulting environment of the second layer is provided for the first layer.
 -- | The union of the remaining environment of the first layer and the environment of the second layer become the new environment.
 (<<-&&) ::
@@ -385,6 +390,7 @@ provideAndChainLayerFlipped a b = provideAndChainLayer b a
 (<<-) = provideLayerFlipped
 
 infixl 1 <<-&&
+
 infixl 1 <<-
 
 instance (HL.HGetFirst y m) => Has.Has y (ComposableEnv m) where

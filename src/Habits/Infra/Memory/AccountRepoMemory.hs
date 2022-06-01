@@ -85,4 +85,4 @@ mkAccountRepoMemory = do
   _getById <- mkGetById accountsVar
   _getByEmail <- mkGetByEmail accountsVar
   _add <- mkAdd accountsVar
-  pure $ CE.empty & CE.insert AccountRepo {_add, _getById, AR._getByEmail = _getByEmail }
+  pure $ CE.singleton AccountRepo {_add, _getById, AR._getByEmail = _getByEmail }

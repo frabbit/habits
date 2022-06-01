@@ -47,4 +47,4 @@ mkLogin = do
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m, AR.AccountRepo m]) n (CE.ComposableEnv '[L.Login m])
 mkLive = CE.do
   f <- mkLogin
-  CE.pure $ CE.empty & CE.insert (L.Login f)
+  CE.pure $ CE.singleton (L.Login f)

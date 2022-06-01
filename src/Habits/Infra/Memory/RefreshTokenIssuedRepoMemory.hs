@@ -98,4 +98,4 @@ mkRefreshTokenIssuedRepoMemory = do
   _getByAccountId <- mkGetByAccountId entitiesVar
   _deleteByAccountId <- mkDeleteByAccountId entitiesVar
   _deleteById <- mkDeleteById entitiesVar
-  pure $ CE.empty & CE.insert RefreshTokenIssuedRepo {_add, _getById, _getByAccountId, _deleteByAccountId, _deleteById }
+  pure $ CE.singleton RefreshTokenIssuedRepo {_add, _getById, _getByAccountId, _deleteByAccountId, _deleteById }
