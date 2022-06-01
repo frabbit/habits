@@ -10,7 +10,6 @@ import Habits.Web.Routes.RefreshRoute (RefreshRequestDto(RefreshRequestDto, refr
 
 spec :: Spec
 spec = fdescribe "RefreshE2E" $ do
-  -- run only 5 tests. Logins are quite expensive because of the password check.
   it "should provide a refresh route" . propertyOne $ \req -> withApp $ \port -> do
     runRegister port req
     Right (LoginResponseDto { refreshToken }) <- runLogin port $ EmailPasswordLoginRequestDto {email = req.email, password = req.password}
