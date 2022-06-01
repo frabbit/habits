@@ -1,5 +1,7 @@
 module Veins.Test.HSpec.TH where
 
+import Prelude
+
 import Language.Haskell.TH (Exp (LitE, VarE), Lit (StringL), Name, Pat, Q, pprint)
 import Test.Hspec.Expectations.Lifted (expectationFailure)
 

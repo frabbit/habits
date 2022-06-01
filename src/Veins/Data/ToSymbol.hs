@@ -5,6 +5,7 @@
 
 module Veins.Data.ToSymbol where
 
+import Prelude
 import Data.ByteString (ByteString)
 import Data.Data (Proxy (..))
 import Data.Text (Text)

@@ -1,5 +1,6 @@
 module Habits.Domain.AccountRepo where
 
+import Prelude
 import Control.Monad.Reader (MonadReader, ReaderT)
 import Control.Monad.Reader.Class (asks)
 import Habits.Domain.Account (Account)

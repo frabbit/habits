@@ -2,6 +2,7 @@
 
 module Veins.Data.CodecSpec where
 
+import Prelude
 import Data.Text (Text)
 import Data.Validation (Validation (Failure, Success))
 import qualified Test.Hspec as HS

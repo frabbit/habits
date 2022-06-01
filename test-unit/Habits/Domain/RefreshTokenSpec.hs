@@ -1,4 +1,6 @@
 module Habits.Domain.RefreshTokenSpec where
+
+import Prelude
 import Test.Hspec (Spec, it, describe)
 import Habits.Domain.RefreshToken (mkRefreshToken, verifyRefreshToken, isExpired, getAccountId)
 import Veins.Test.QuickCheck (sampleIO)

@@ -2,6 +2,7 @@
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemory where
 
+import Prelude
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,

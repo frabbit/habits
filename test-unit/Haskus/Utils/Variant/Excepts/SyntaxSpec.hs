@@ -1,6 +1,8 @@
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Use let" #-}
 module Haskus.Utils.Variant.Excepts.SyntaxSpec where
+
+import Prelude
 import Test.Hspec (Spec, describe, it, shouldBe, context)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Haskus.Utils.Variant.Excepts (evalE, Excepts, failureE, runE, pattern VRight)

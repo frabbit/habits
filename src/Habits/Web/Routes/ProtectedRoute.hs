@@ -5,6 +5,7 @@
 
 module Habits.Web.Routes.ProtectedRoute where
 
+import Prelude
 import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson (FromJSON, ToJSON)

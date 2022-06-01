@@ -1,5 +1,6 @@
 module Habits.Domain.PasswordHash where
 
+import Prelude
 import Data.Text (Text)
 import qualified Data.Password.Bcrypt as PW
 import Test.QuickCheck.Instances ()

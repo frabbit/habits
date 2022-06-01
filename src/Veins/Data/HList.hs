@@ -17,6 +17,7 @@ module Veins.Data.HList
   hreverse)
 where
 
+import Prelude
 import Data.Kind (Type)
 import Data.Proxy (Proxy (..))
 

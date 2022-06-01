@@ -3,6 +3,7 @@ module Habits.Domain.AccountNotFoundError
   )
 where
 
+import Prelude
 import Control.Exception (Exception)
 import Data.Typeable (Typeable)
 

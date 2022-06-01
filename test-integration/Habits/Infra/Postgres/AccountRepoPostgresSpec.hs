@@ -2,6 +2,7 @@
 
 module Habits.Infra.Postgres.AccountRepoPostgresSpec where
 
+import Prelude
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (runReaderT)
 import Data.Pool (Pool)

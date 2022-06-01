@@ -1,4 +1,6 @@
 module Habits.Domain.AccessTokenSpec (spec) where
+
+import Prelude
 import Test.Hspec (Spec, it, describe)
 import Habits.Domain.AccessToken (mkAccessToken, verifyAccessToken, isExpired)
 import Veins.Test.QuickCheck (sampleIO)

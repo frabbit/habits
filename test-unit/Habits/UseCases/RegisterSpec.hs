@@ -11,6 +11,7 @@
 
 module Habits.UseCases.RegisterSpec (spec) where
 
+import Prelude
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Function ((&))

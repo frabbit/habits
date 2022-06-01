@@ -13,6 +13,7 @@
 
 module Habits.Infra.Postgres.Schema where
 
+import Prelude
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,

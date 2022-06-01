@@ -2,6 +2,8 @@
 
 module Haskus.Utils.Variant.Excepts.Utils where
 
+import Prelude
+
 import Control.Monad.Except (ExceptT (ExceptT))
 import Haskus.Utils.Variant.Excepts (Excepts, successE, evalE, catchLiftLeft, Remove, catchLiftBoth, failureE)
 import Data.Function ((&))

@@ -1,5 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.UseCases.Register.RegisterResponse where
+
+import Prelude
 import Habits.Domain.AccountId (AccountId)
 import Test.QuickCheck (Arbitrary (arbitrary))
 

@@ -30,6 +30,8 @@ module Veins.Data.HSet
   )
 where
 
+import Prelude
+
 import Data.Kind
   ( Constraint,
     Type,

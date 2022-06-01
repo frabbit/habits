@@ -11,6 +11,8 @@ module Veins.Data.Type.Bool
   )
 where
 
+import Prelude
+
 type family Not (x :: Bool) :: Bool where
   Not 'True = 'False
   Not 'False = 'True

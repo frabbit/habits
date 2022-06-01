@@ -7,6 +7,7 @@
 
 module Veins.Data.ComposableEnvSpec where
 
+import Prelude
 import Control.Monad.Reader
   ( ReaderT (runReaderT),
     asks,

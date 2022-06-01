@@ -12,6 +12,7 @@ module Veins.Data.Type.List
   )
 where
 
+import Prelude
 import Data.Kind (Type)
 import Data.Type.Bool (Not)
 import Veins.Data.Type.Bool (And)

@@ -4,6 +4,7 @@
 
 module Habits.UseCases.RefreshSpec (spec) where
 
+import Prelude
 import Control.Monad (void)
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))

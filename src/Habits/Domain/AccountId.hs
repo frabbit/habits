@@ -1,5 +1,7 @@
 module Habits.Domain.AccountId where
 
+import Prelude
+
 import Data.Text (Text)
 import Data.UUID (toText)
 import Test.QuickCheck (Arbitrary (arbitrary))

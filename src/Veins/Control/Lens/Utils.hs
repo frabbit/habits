@@ -1,5 +1,7 @@
 module Veins.Control.Lens.Utils where
 
+import Prelude
+
 import Control.Lens (makeLensesWith, lensRules, lensField, (.~), (&), DefName (TopName))
 import Language.Haskell.TH (nameBase, mkName, Name, Dec, Q)
 

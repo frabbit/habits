@@ -1,6 +1,7 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
 module Veins.Data.HSetSpec (spec) where
 
+import Prelude
 import Data.Function ((&))
 import qualified Test.Hspec as HS
 import Veins.Data.HSet

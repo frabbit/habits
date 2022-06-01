@@ -2,6 +2,8 @@
 
 module Habits.Domain.RefreshTokenIssued where
 
+import Prelude
+
 import Data.Time (UTCTime)
 import Habits.Domain.AccountId (AccountId)
 

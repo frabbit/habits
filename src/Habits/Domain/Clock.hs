@@ -1,5 +1,6 @@
 module Habits.Domain.Clock where
 
+import Prelude
 import Veins.Data.ToSymbol (ToSymbol)
 import Control.Monad.Reader (MonadReader, asks, ReaderT)
 import qualified Veins.Data.Has as Has

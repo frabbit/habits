@@ -1,5 +1,6 @@
 module RefreshE2ESpec (spec) where
 
+import Prelude
 import E2EUtils (runLogin, runRegister, withApp, runRefresh)
 import Habits.Web.Routes.LoginRoute (LoginRequestDto (EmailPasswordLoginRequestDto), LoginResponseDto (LoginResponseDto), email, password, refreshToken)
 import Test.Hspec (Spec, it, fdescribe)

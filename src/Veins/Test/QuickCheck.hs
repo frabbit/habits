@@ -1,5 +1,7 @@
 module Veins.Test.QuickCheck where
 
+import Prelude
+
 import Data.Text (Text)
 import qualified Data.Text as T
 import Test.QuickCheck (Gen, Arbitrary (arbitrary), generate, Testable (property), Property, withMaxSuccess)

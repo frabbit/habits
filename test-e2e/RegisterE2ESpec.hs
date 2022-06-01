@@ -1,5 +1,6 @@
 module RegisterE2ESpec (spec) where
 
+import Prelude
 import Habits.Domain.AccountId (parseAccountId)
 import Habits.Web.Routes.RegisterRoute (RegisterResponseDto (RegisterResponseDto))
 import Test.Hspec (Spec, describe, it)

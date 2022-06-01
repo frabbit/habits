@@ -2,6 +2,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 module Habits.Domain.RefreshTokenIssuedRepo where
 
+import Prelude
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import Habits.Domain.RefreshTokenIssuedNew

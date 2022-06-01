@@ -1,5 +1,6 @@
 module Habits.Domain.PasswordSpec where
 
+import Prelude
 import Test.Hspec ( it, Spec, describe )
 import Test.QuickCheck (Testable(property))
 import Test.Hspec.Expectations.Lifted (shouldSatisfy)

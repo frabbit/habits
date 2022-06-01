@@ -11,6 +11,7 @@
 
 module Veins.Test.Mock where
 
+import Prelude
 import Control.Lens (Lens)
 import qualified Control.Lens as L
 import Control.Monad.IO.Class (MonadIO (liftIO))

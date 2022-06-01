@@ -1,5 +1,7 @@
 module Habits.Domain.Password where
 
+import Prelude
+
 import Data.Text (Text)
 import Test.QuickCheck (Arbitrary, arbitrary, chooseInt)
 import Test.QuickCheck.Instances ()

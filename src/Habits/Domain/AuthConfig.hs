@@ -1,5 +1,6 @@
 module Habits.Domain.AuthConfig where
 
+import Prelude
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret)
 import Habits.Domain.RefreshTokenSecret ( RefreshTokenSecret )
 import Veins.Data.ToSymbol (ToSymbol)

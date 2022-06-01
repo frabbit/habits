@@ -4,6 +4,7 @@ module Habits.Domain.AccessTokenSecret
   )
 where
 
+import Prelude
 import Data.Text (Text)
 import Test.QuickCheck.Instances ()
 import Test.QuickCheck (Arbitrary (arbitrary), Gen, elements)

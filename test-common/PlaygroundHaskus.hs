@@ -1,5 +1,7 @@
 module PlaygroundHaskus where
 
+import Prelude
+
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
 

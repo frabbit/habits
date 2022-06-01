@@ -4,6 +4,7 @@
 
 module Habits.Infra.Memory.AccountRepoMemorySpec (spec) where
 
+import Prelude
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Habits.Domain.AccountRepo as AR

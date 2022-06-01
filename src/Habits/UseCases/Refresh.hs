@@ -1,4 +1,5 @@
 module Habits.UseCases.Refresh where
+
 import Habits.Domain.RepositoryError (RepositoryError)
 import Haskus.Utils.Variant.Excepts (Excepts)
 import Veins.Data.ToSymbol (ToSymbol)

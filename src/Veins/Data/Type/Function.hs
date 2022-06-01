@@ -10,6 +10,7 @@
 
 module Veins.Data.Type.Function where
 
+import Prelude
 import Data.Kind (Type)
 import qualified Veins.Data.HList as HL
 import qualified Veins.Data.Type.List as L

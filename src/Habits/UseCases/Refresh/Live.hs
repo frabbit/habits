@@ -3,6 +3,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 module Habits.UseCases.Refresh.Live where
 
+import Prelude
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT)
 import Data.Function ((&))

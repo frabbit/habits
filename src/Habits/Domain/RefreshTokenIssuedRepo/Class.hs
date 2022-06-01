@@ -1,5 +1,6 @@
 module Habits.Domain.RefreshTokenIssuedRepo.Class where
 
+import Prelude
 import Control.Monad.RWS
   ( MonadReader,
   )

@@ -4,6 +4,7 @@
 
 module Habits.Domain.AccountRepositoryContract where
 
+import Prelude
 import Data.Function ((&))
 import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)

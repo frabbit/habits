@@ -1,6 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.Domain.RefreshTokenIssuedNew where
 
+import Prelude
 import Data.Time (UTCTime)
 import Habits.Domain.AccountId (AccountId)
 

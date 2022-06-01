@@ -1,5 +1,7 @@
 module Habits.AppT where
 
+import Prelude
+
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Control.Monad.Reader.Class

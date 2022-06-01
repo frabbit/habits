@@ -3,6 +3,7 @@
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemorySpec (spec) where
 
+import Prelude
 import Control.Monad.IO.Class (MonadIO)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RTIR

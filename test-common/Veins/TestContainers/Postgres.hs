@@ -1,5 +1,7 @@
 module Veins.TestContainers.Postgres where
 
+import Prelude
+
 import Control.Monad.IO.Class ( liftIO )
 import Data.Function ((&))
 import Data.Text (Text)

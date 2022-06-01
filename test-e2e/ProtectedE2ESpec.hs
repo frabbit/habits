@@ -1,5 +1,6 @@
 module ProtectedE2ESpec (spec) where
 
+import Prelude
 import E2EUtils (runLogin, runRegister, withApp, runProtected, testConfig)
 import Habits.Web.Routes.LoginRoute (LoginRequestDto (EmailPasswordLoginRequestDto), email, password)
 import Test.Hspec (Spec, describe, fit, shouldBe)

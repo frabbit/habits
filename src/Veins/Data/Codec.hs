@@ -1,5 +1,7 @@
 module Veins.Data.Codec where
 
+import Prelude
+
 import qualified Data.Maybe as Maybe
 import Data.Text (Text)
 import qualified Data.Text as Text

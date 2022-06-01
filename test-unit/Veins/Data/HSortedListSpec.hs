@@ -4,6 +4,7 @@
 
 module Veins.Data.HSortedListSpec where
 
+import Prelude
 import Data.Proxy (Proxy (Proxy))
 import Data.Text (Text)
 import Data.Type.Equality (type (==))

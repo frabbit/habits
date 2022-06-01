@@ -2,6 +2,8 @@
 
 module Habits.Infra.Postgres.Utils where
 
+import Prelude
+
 import Control.Monad.IO.Class
   ( MonadIO,
     liftIO,

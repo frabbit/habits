@@ -1,4 +1,7 @@
 module Habits.UseCases.Login.LoginRequest where
+
+import Prelude
+
 import Habits.Domain.Email (Email)
 import Habits.Domain.Password (Password)
 

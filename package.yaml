@@ -108,6 +108,7 @@ default-extensions:
   - PatternSynonyms
   - PartialTypeSignatures
   - ViewPatterns
+  - NoImplicitPrelude
 
 ghc-options:
   - -Wall
@@ -120,6 +121,7 @@ ghc-options:
   - -Wmissing-methods
   - -Werror=missing-fields
   - -fplugin=RecordDotPreprocessor
+
 
 library:
   source-dirs: src

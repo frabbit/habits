@@ -1,5 +1,6 @@
 module Habits.Web.Utils where
 
+import Prelude
 import Data.Function ((&))
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)

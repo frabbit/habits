@@ -3,6 +3,8 @@
 
 module Utils where
 
+import Prelude
+
 import Control.Exception
   ( Exception,
     throw,

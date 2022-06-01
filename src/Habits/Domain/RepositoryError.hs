@@ -1,4 +1,6 @@
 module Habits.Domain.RepositoryError where
+
+import Prelude
 import Control.Exception (Exception)
 import Data.Typeable (Typeable)
 

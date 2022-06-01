@@ -3,6 +3,7 @@ module Habits.Domain.EmailAlreadyUsedError
   )
 where
 
+import Prelude
 import Control.Exception (Exception)
 import Data.Typeable (Typeable)
 

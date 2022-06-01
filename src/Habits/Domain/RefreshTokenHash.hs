@@ -3,6 +3,7 @@ module Habits.Domain.RefreshTokenHash
   mkFromRefreshToken, isValid)
 where
 
+import Prelude
 import Data.Text (Text)
 import Test.QuickCheck.Instances ()
 import Test.QuickCheck (Arbitrary (arbitrary), Gen, vector)

@@ -1,5 +1,6 @@
 module Habits.Web.LoginRouteSpec where
 
+import Prelude
 import qualified Control.Lens as L
 import Control.Monad.Except (runExceptT)
 import Control.Monad.IO.Class (MonadIO)
@@ -23,7 +24,6 @@ import qualified Veins.Data.HList as HL
 import qualified Veins.Test.AppTH as AppTH
 import Veins.Test.Mock (getSpyArgsIO, mockReturn, mockify, withSpy)
 import Veins.Test.QuickCheck (propertyOne)
-import Prelude
 
 type Env m = CE.MkSorted '[L.Login m]
 

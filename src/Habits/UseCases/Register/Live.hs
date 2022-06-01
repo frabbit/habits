@@ -1,5 +1,6 @@
 module Habits.UseCases.Register.Live where
 
+import Prelude
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN

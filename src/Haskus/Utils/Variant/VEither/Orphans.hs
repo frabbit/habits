@@ -1,5 +1,7 @@
 {-# OPTIONS_GHC -Wno-orphans #-}
 module Haskus.Utils.Variant.VEither.Orphans where
+
+import Prelude
 import Haskus.Utils.Variant (V)
 import Haskus.Utils.Variant.VEither (VEither, pattern VLeft, pattern VRight)
 

@@ -4,6 +4,7 @@
 
 module Habits.Web.Routes.RefreshRoute where
 
+import Prelude
 import Control.Monad.Except (ExceptT)
 import Control.Monad.IO.Class (MonadIO)
 import Data.Aeson (FromJSON, ToJSON)

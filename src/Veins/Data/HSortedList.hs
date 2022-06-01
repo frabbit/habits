@@ -7,6 +7,8 @@
 
 module Veins.Data.HSortedList where
 
+import Prelude
+
 import Data.Function ((&))
 import Data.Kind (Type)
 import Data.Proxy (Proxy (..))

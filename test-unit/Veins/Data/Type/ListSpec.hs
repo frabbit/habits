@@ -4,6 +4,7 @@
 
 module Veins.Data.Type.ListSpec where
 
+import Prelude
 import Veins.Test.HSpec (passTrue)
 import Data.Proxy (Proxy (Proxy))
 import Test.Hspec

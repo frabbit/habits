@@ -2,6 +2,8 @@
 
 module Habits.UseCases.Refresh.RefreshResponse where
 
+import Prelude
+
 import Habits.Domain.AccessToken (AccessToken)
 import Habits.Domain.RefreshToken (RefreshToken)
 import Test.QuickCheck (Arbitrary)

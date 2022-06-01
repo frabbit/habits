@@ -1,5 +1,7 @@
 module Veins.Test.AppTH where
 
+import Prelude
+
 import qualified Habits.AppT as AppT
 
 import Control.Monad.Reader (MonadReader)

@@ -1,5 +1,7 @@
 module Habits.Domain.Email where
 
+import Prelude
+
 import Test.QuickCheck (Arbitrary, arbitrary)
 import Test.QuickCheck.Instances ()
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)

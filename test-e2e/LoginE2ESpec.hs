@@ -1,5 +1,6 @@
 module LoginE2ESpec (spec) where
 
+import Prelude
 import E2EUtils (runLogin, runRegister, withApp)
 import Habits.Web.Routes.LoginRoute (LoginRequestDto (EmailPasswordLoginRequestDto), LoginResponseDto (LoginResponseDto), email, password)
 import Test.Hspec (Spec, describe, it)

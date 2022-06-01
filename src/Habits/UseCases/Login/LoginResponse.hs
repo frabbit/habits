@@ -1,5 +1,7 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.UseCases.Login.LoginResponse where
+
+import Prelude
 import Habits.Domain.RefreshToken (RefreshToken)
 import Habits.Domain.AccessToken (AccessToken)
 import Test.QuickCheck (Arbitrary (arbitrary))

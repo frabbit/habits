@@ -1,5 +1,7 @@
 module TestContainers.WaitStrategies where
 
+import Prelude
+
 import Control.Concurrent (threadDelay)
 import Control.Monad.IO.Class (liftIO)
 import TestContainers.Docker (WaitUntilReady (..))

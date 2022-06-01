@@ -2,6 +2,7 @@
 
 module Habits.Web.Server where
 
+import Prelude
 import Control.Monad.Cont (MonadIO (liftIO))
 import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError))
 import Control.Monad.Morph (hoist)

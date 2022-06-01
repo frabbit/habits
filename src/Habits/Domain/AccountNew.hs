@@ -2,6 +2,7 @@
 
 module Habits.Domain.AccountNew where
 
+import Prelude
 import Data.Text (Text)
 import Habits.Domain.Email (Email)
 import Habits.Domain.PasswordHash (PasswordHash)

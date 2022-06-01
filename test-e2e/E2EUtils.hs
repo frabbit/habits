@@ -1,5 +1,6 @@
 module E2EUtils where
 
+import Prelude
 import Data.Proxy (Proxy (Proxy))
 import Data.Text (Text)
 import Habits.Web.Routes.LoginRoute (LoginApi, LoginRequestDto, LoginResponseDto)

@@ -1,6 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.UseCases.Register.RegisterRequest where
 
+import Prelude
+
 import Data.Text (Text)
 import Habits.Domain.Email (Email)
 import Habits.Domain.Password (Password)

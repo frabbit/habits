@@ -1,4 +1,7 @@
 module Veins.Data.Time.Utils where
+
+import Prelude
+
 import Data.Time (UTCTime (UTCTime, utctDay), addDays, addUTCTime, secondsToNominalDiffTime)
 
 
