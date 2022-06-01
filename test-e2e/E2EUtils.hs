@@ -13,6 +13,7 @@ import Servant.Client (ClientEnv, ClientError, ClientM, baseUrlPort, client, mkC
 import Servant.Client.Core (AuthClientData, AuthenticatedRequest, mkAuthenticatedRequest, addHeader, Request)
 import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Domain.AccessTokenSecret as ATS
+import Habits.Web.Routes.RefreshRoute (RefreshRequestDto, RefreshResponseDto, RefreshApi)
 
 type instance AuthClientData (AuthProtect "JWT") = Text
 
@@ -55,6 +56,14 @@ runLogin :: Int -> LoginRequestDto -> IO (Either ClientError LoginResponseDto)
 runLogin port req = do
   env <- getClientTestEnv port
   runClientM (login req) env
+
+refresh :: RefreshRequestDto -> ClientM RefreshResponseDto
+refresh = client (Proxy :: Proxy RefreshApi)
+
+runRefresh :: Int -> RefreshRequestDto -> IO (Either ClientError RefreshResponseDto)
+runRefresh port req = do
+  env <- getClientTestEnv port
+  runClientM (refresh req) env
 
 protected :: AuthenticatedRequest (AuthProtect "JWT") -> ClientM ProtectedResponseDto
 protected = client (Proxy :: Proxy ProtectedApi)

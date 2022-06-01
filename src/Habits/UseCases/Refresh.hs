@@ -9,12 +9,15 @@ import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse)
 import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFoundError)
 import Habits.Domain.RefreshTokenInvalidError (RefreshTokenInvalidError)
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError)
+import Veins.Control.Lens.Utils (makeLensesWithoutUnderscoreAndWithSuffixL)
 
 type RefreshExec m =
   RefreshRequest ->
   Excepts '[RepositoryError, RefreshTokenIssuedNotFoundError, RefreshTokenInvalidError, RefreshTokenExpiredError] m RefreshResponse
 
-newtype Refresh m = Refresh (RefreshExec m)
+newtype Refresh m = Refresh { unRefresh :: RefreshExec m }
+
+makeLensesWithoutUnderscoreAndWithSuffixL ''Refresh
 
 type instance ToSymbol (Refresh m) = "Refresh"
 

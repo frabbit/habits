@@ -12,6 +12,8 @@ import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, 
 import Prelude hiding (exp, id)
 import Test.QuickCheck (Arbitrary (arbitrary))
 import qualified Data.Text as Text
+import Veins.Data.Codec (Codec)
+import qualified Veins.Data.Codec as Codec
 
 newtype RefreshToken = RefreshToken {unRefreshToken :: Text} deriving (Show, Eq, Ord)
 
@@ -57,3 +59,15 @@ getAccountId (RefreshTokenSecret s) (RefreshToken t) = case verifiedJwt of
   Just x -> fmap (AccountId . Text.pack . show)  . sub . claims $ x
   where
     verifiedJwt = decodeAndVerifySignature (toVerify . hmacSecret $ s) t
+
+
+parseRefreshToken :: Text -> Maybe RefreshToken
+parseRefreshToken t
+  | t == "" = Nothing
+  | otherwise = Just . RefreshToken $ t
+
+refreshTokenFromText :: Codec Text RefreshToken
+refreshTokenFromText = Codec.withContext (Codec.VECNamed "RefreshTokenFromText") (Codec.Codec encoder decoder)
+  where
+    encoder = Codec.encoderFromMaybe (Codec.convError "Text" "RefreshToken") parseRefreshToken
+    decoder p = p.unRefreshToken

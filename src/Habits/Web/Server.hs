@@ -32,8 +32,12 @@ import qualified Veins.Test.AppTH as AppTH
 import Habits.Domain.Clock (mkLiveClock)
 import Habits.Domain.RefreshTokenSecret
 import Habits.Domain.AccessTokenSecret
+import qualified Habits.UseCases.Refresh as Refresh
+import qualified Habits.UseCases.Refresh.Live as RefreshLive
+import qualified Habits.UseCases.Refresh.Class as RefreshClass
+import Habits.Web.Routes.RefreshRoute (RefreshApi, refreshRoute)
 
-type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
+type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
 
 data ServerConfig = ServerConfig {refreshTokenSecret :: RefreshTokenSecret, accessTokenSecret :: AccessTokenSecret }
 
@@ -41,6 +45,7 @@ envLayer :: forall m n. (MonadIO n, MonadIO m) => ServerConfig -> ReaderT (CE.Co
 envLayer cfg =
   LL.mkLive
     CE.<<-&& RL.mkLive
+    CE.<<-&& RefreshLive.mkLive
     CE.<<-&& RTL.mkRefreshTokenIssuedRepoMemory
     CE.<<-&& ARM.mkAccountRepoMemory
     CE.<<-&& AC.mkStatic cfg.accessTokenSecret cfg.refreshTokenSecret
@@ -48,10 +53,10 @@ envLayer cfg =
 
 
 
-server :: (RC.Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
-server = protectedRoute :<|> loginRoute :<|> registerRoute
+server :: (RefreshClass.Refresh m, RC.Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
+server = refreshRoute :<|> protectedRoute :<|> loginRoute :<|> registerRoute
 
-type ServerApi = ProtectedApi :<|> LoginApi :<|> RegisterApi
+type ServerApi = RefreshApi :<|> ProtectedApi :<|> LoginApi :<|> RegisterApi
 
 serverApi :: Proxy ServerApi
 serverApi = Proxy
