@@ -6,7 +6,6 @@ module Habits.Web.Routes.RefreshRoute where
 
 import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics (Generic)
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (..))
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse)
 import Habits.Web.Utils (mapAllErrorsToServerError)

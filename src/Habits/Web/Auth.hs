@@ -2,7 +2,6 @@
 module Habits.Web.Auth where
 
 import Habits.Prelude
-import GHC.Generics (Generic)
 import Servant (AuthProtect)
 import Data.Text (splitOn)
 import Servant.Server.Experimental.Auth (AuthServerData, AuthHandler)

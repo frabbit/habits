@@ -10,7 +10,11 @@ import qualified Prelude
 import Data.Function as M ((&))
 import Data.Functor as M ((<&>))
 
-import Control.Monad as M (replicateM)
+import Control.Monad as M (replicateM, when, unless)
+
+import Data.Proxy as M (Proxy (Proxy))
+
+import GHC.Generics as M (Generic)
 
 import Haskus.Utils.Variant.Excepts as M (failureE, liftE, successE, Excepts, evalE, throwE)
 
@@ -20,7 +24,7 @@ import Control.Monad.IO.Class as M (MonadIO, liftIO)
 
 import Test.QuickCheck as M (Arbitrary, arbitrary)
 
-import Control.Monad.Except as M (runExceptT, ExceptT)
+import Control.Monad.Except as M (runExceptT, ExceptT(ExceptT), MonadError (throwError))
 
 import Data.Maybe as M (isJust)
 

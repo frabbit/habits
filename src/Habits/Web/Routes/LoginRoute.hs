@@ -6,7 +6,6 @@ module Habits.Web.Routes.LoginRoute where
 
 import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
-import GHC.Generics (Generic)
 import Habits.Domain.Email (Email (unEmail), emailFromText)
 import Habits.Domain.Password (Password (unPassword), passwordFromText)
 import Habits.UseCases.Login.LoginRequest (LoginRequest (..))

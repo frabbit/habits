@@ -2,21 +2,15 @@
 
 module Habits.Web.Server where
 
-import Prelude
-import Control.Monad.Cont (MonadIO (liftIO))
-import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError))
+import Habits.Prelude
 import Control.Monad.Morph (hoist)
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Data.Proxy (Proxy (Proxy))
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
 import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
-import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Login as L
 import qualified Habits.UseCases.Login.Live as LL
 import qualified Habits.UseCases.Register as R
-import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register.Live as RL
 import Habits.Web.Auth (JWTAuthHandler, parseAuthenticatedAccount)
 import Habits.Web.Routes.LoginRoute (LoginApi, loginRoute)
@@ -37,6 +31,8 @@ import Habits.Web.Routes.RefreshRoute (RefreshApi, refreshRoute)
 import Habits.UseCases.Register.Class (RegisterM)
 import Habits.UseCases.Login.Class (LoginM)
 import Habits.UseCases.Refresh.Class (RefreshM)
+import Habits.Infra.Memory.RefreshTokenIssuedRepoMemory (mkRefreshTokenIssuedRepoMemory)
+import Habits.Infra.Memory.AccountRepoMemory (mkAccountRepoMemory)
 
 type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
 
@@ -47,8 +43,8 @@ envLayer cfg =
   LL.mkLive
     CE.<<-&& RL.mkLive
     CE.<<-&& RefreshLive.mkLive
-    CE.<<-&& RTL.mkRefreshTokenIssuedRepoMemory
-    CE.<<-&& ARM.mkAccountRepoMemory
+    CE.<<-&& mkRefreshTokenIssuedRepoMemory
+    CE.<<-&& mkAccountRepoMemory
     CE.<<-&& AC.mkStatic cfg.accessTokenSecret cfg.refreshTokenSecret
     CE.<<-&& mkLiveClock
 
