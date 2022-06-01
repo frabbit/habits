@@ -2,14 +2,8 @@
 
 module Habits.Infra.Memory.AccountRepoMemory where
 
-import Prelude
-import Control.Monad.IO.Class
-  ( MonadIO,
-    liftIO,
-  )
-import Control.Monad.Reader (ReaderT)
+import Habits.Prelude
 import Data.Foldable (find)
-import Data.Function ((&))
 import Data.UUID (toText)
 import Data.UUID.V4 (nextRandom)
 import GHC.Conc
@@ -31,7 +25,6 @@ import Habits.Domain.AccountRepo
     Add,
     GetById, GetByEmail,
   )
-import Haskus.Utils.Variant.Excepts (throwE)
 import UnliftIO
   ( TVar,
     atomically,
@@ -51,6 +44,7 @@ mkAdd accountsVar = pure f
       atomically $ modifyTVar accountsVar $ \a -> reverse (newAccount : reverse a)
       pure id'
 
+{- HLINT ignore mkGetById "Redundant bracket" -}
 mkGetById ::
   forall m n.
   (Applicative n, MonadIO m) =>
@@ -66,6 +60,7 @@ mkGetById accountsVar = pure f
         Nothing -> throwE AccountNotFoundError
         Just account -> pure account
 
+{- HLINT ignore mkGetByEmail "Redundant bracket" -}
 mkGetByEmail ::
   forall m n.
   (Applicative n, MonadIO m) =>

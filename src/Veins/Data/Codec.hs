@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Veins.Data.Codec where
 
 import Prelude
@@ -56,6 +58,7 @@ textFromString =
       decoder = Text.unpack
     }
 
+{- HLINT ignore mapValidationError "Redundant bracket" -}
 mapValidationError :: (ValidationError -> ValidationError) -> Codec a b -> Codec a b
 mapValidationError m c =
   Codec
@@ -69,7 +72,7 @@ withContext :: ValidationErrorContext -> Codec a b -> Codec a b
 withContext ctx = mapValidationError (VEContext ctx)
 
 
-convError :: _ => Text -> Text -> _
+convError :: (Show a) => Text -> Text -> (a -> ValidationError)
 convError a b s = VESimple $ "Cannot convert " <> show a <> " \"" <> show s <> "\" to " <> show b
 
 encoderFromMaybe :: (a -> ValidationError) -> (a -> Maybe b) -> Encoder a b
@@ -82,7 +85,7 @@ intFromString =
       decoder = show
     }
 
-
+{- HLINT ignore compose "Redundant bracket" -}
 compose :: Codec a b -> Codec b c -> Codec a c
 compose c1 c2 =
   Codec {encoder, decoder}
@@ -90,9 +93,11 @@ compose c1 c2 =
     encoder i = c1.encoder i `bindValidation` c2.encoder
     decoder = c1.decoder . c2.decoder
 
+{- HLINT ignore encode "Redundant bracket" -}
 encode :: Codec a b -> Encoder a b
 encode c = c.encoder
 
+{- HLINT ignore decode "Redundant bracket" -}
 decode :: Codec a b -> Decoder b a
 decode c = c.decoder
 

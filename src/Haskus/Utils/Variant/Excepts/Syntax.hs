@@ -2,6 +2,7 @@
 {-# LANGUAGE UndecidableInstances #-}
 {-# LANGUAGE UndecidableSuperClasses #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Haskus.Utils.Variant.Excepts.Syntax where
 
@@ -41,7 +42,7 @@ pure = P.pure
 return :: (Monad m) => a -> Excepts '[] m a
 return = P.return
 
-fmap :: _ => (a -> b) -> Excepts e1 m a -> Excepts e1 m b
+fmap :: (Functor m) => (a -> b) -> Excepts e1 m a -> Excepts e1 m b
 fmap = P.fmap
 
 (<*>) :: _ => Excepts e1 m (a -> b) -> Excepts e2 m a -> Excepts (Union e1 e2) m b

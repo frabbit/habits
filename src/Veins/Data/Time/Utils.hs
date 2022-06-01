@@ -5,6 +5,9 @@ import Prelude
 import Data.Time (UTCTime (UTCTime, utctDay), addDays, addUTCTime, secondsToNominalDiffTime)
 
 
+sui :: ()
+sui = ()
+
 addDaysToUTCTime :: Integer -> UTCTime -> UTCTime
 addDaysToUTCTime days utime@UTCTime { utctDay } = utime { utctDay = addDays days utctDay }
 

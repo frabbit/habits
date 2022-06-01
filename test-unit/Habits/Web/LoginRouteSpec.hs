@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{- HLINT ignore "Redundant bracket" -}
+
 module Habits.Web.LoginRouteSpec where
 
 import Habits.Test.Prelude
@@ -34,9 +37,9 @@ makeLensesWithSuffixL ''Mocks
 envLayer :: forall m n. (MonadIO n) => Mocks m -> CE.ReaderCE '[] n (Env m)
 envLayer mocks = pure $ CE.singleton mocks.login
 
-AppTH.mkBoilerplate "runApp" ''Env
+AppTH.mkBoilerplateForName "App" ''Env
 
-run :: _ -> _ b -> IO b
+run :: Mocks App -> App b -> IO b
 run mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app

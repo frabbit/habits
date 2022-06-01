@@ -1,4 +1,4 @@
-module Habits.UseCases.Utils where
+module Habits.Utils where
 
 import Habits.Prelude
 

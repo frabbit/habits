@@ -1,7 +1,6 @@
 module Habits.UseCases.Login.Live where
 
 import Habits.Prelude
-import Control.Monad (unless)
 import Data.Time.Clock.POSIX (utcTimeToPOSIXSeconds)
 import Habits.Domain.AccessToken (mkAccessToken)
 import qualified Habits.Domain.AuthConfig as AC
@@ -24,7 +23,9 @@ import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import Habits.Domain.AccountRepo (getAccountRepo)
 
-mkLogin :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]) n (LoginExec m)
+type Deps m = CE.MkSorted '[Clock.Clock m, AC.AuthConfig, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
+
+mkLogin :: forall n m. (Monad n, MonadIO m) => ReaderT (Deps m) n (LoginExec m)
 mkLogin = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
@@ -44,7 +45,5 @@ mkLogin = do
     RT.add rtr $ RefreshTokenIssuedNew { accountId = acc.accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash}
     S.coerce . pure $ LoginResponse{ accessToken, refreshToken }
 
-mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m, AR.AccountRepo m]) n (CE.ComposableEnv '[L.Login m])
-mkLive = CE.do
-  f <- mkLogin
-  CE.pure $ CE.singleton (L.Login f)
+mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (Deps m) n (CE.ComposableEnv '[L.Login m])
+mkLive = CE.singleton . L.Login <$> mkLogin

@@ -13,8 +13,7 @@ import qualified Habits.Domain.AccountRepo as AR
 import Habits.Domain.Email (Email)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Veins.Data.Has (Has)
-import qualified Veins.Data.Has as Has
-import Habits.UseCases.Utils (applyFirstM)
+import Habits.Utils (applyFirstM)
 
 class AccountRepo m where
   add :: Add m

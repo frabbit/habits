@@ -2,15 +2,10 @@
 
 module Habits.Infra.Postgres.Utils where
 
-import Prelude
+import Habits.Prelude
 
-import Control.Monad.IO.Class
-  ( MonadIO,
-    liftIO,
-  )
 import qualified Data.Pool as P'
 import qualified Database.Persist.Postgresql as P
-import Control.Monad.Reader (ReaderT)
 import Control.Monad.Logger (NoLoggingT)
 import UnliftIO.Resource (ResourceT)
 

@@ -36,6 +36,7 @@ makeLensesWithoutUnderscoreAndWithSuffixL ''Register
 askRegister :: (MonadReader r n, Has.Has (Register m) r) => n (Register m)
 askRegister = asks Has.get
 
+{- HLINT ignore "Redundant bracket" -}
 register :: forall m. Register m -> RegisterExec m
 register = (.unRegister)
 

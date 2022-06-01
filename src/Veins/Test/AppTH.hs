@@ -124,6 +124,22 @@ mkHasInstance Context { nameAppEnv, envName} = do
   let inst = TH.InstanceD Nothing [constraint] type' [dec]
   pure [inst]
 
+mkBoilerplateForName :: String -> TH.Name -> Q [Dec]
+mkBoilerplateForName appName envName = do
+  let nameApp = TH.mkName appName
+  let nameUnApp = TH.mkName $ "un" <> appName
+  let nameAppEnv = TH.mkName $ appName <> "Env"
+  let ctx = Context {
+    nameApp,
+    nameUnApp,
+    nameAppEnv,
+    envName
+  }
+  a <- mkHasInstance ctx
+  b <- mkRunApp ctx ("run" <> appName)
+  c <- mkAppEnv ctx
+  d <- mkApp ctx
+  pure $ a <> b <> c <> d
 
 mkBoilerplate :: String -> TH.Name -> Q [Dec]
 mkBoilerplate name envName = do

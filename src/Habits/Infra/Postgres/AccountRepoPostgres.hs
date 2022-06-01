@@ -3,11 +3,7 @@
 
 module Habits.Infra.Postgres.AccountRepoPostgres where
 
-import Prelude
-import Control.Monad.IO.Class
-  ( MonadIO,
-    liftIO,
-  )
+import Habits.Prelude
 import qualified Data.Pool as P'
 import qualified Data.UUID as UUID
 import Data.UUID.V4 (nextRandom)
@@ -29,10 +25,8 @@ import Habits.Domain.AccountRepo
   )
 import Habits.Domain.Email (Email (..))
 import qualified Habits.Infra.Postgres.Schema as S
-import Haskus.Utils.Variant.Excepts (throwE)
 import Database.Persist ((==.), SelectOpt (LimitTo))
 import qualified Veins.Data.ComposableEnv as CE
-import Data.Function ((&))
 import Habits.Infra.Postgres.Utils (withPool)
 import Habits.Domain.PasswordHash (PasswordHash(PasswordHash, unPasswordHash))
 
@@ -49,7 +43,7 @@ convertToDomain (P.Entity key a) =
     }
 
 
-
+{- HLINT ignore mkAdd "Redundant bracket" -}
 mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Add m)
 mkAdd pool = pure f
   where

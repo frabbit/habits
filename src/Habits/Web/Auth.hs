@@ -1,4 +1,6 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Habits.Web.Auth where
 
 import Habits.Prelude
@@ -9,7 +11,6 @@ import qualified Habits.Domain.AccessToken as AT
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret(..))
 import qualified Data.Text.Encoding as Text
 import Data.Either.Extra (eitherToMaybe, maybeToEither)
-import Control.Monad (unless, when)
 import qualified Data.Time.Clock.POSIX as Posix
 import Network.Wai (requestHeaders)
 import qualified Network.Wai as Wai
@@ -35,6 +36,7 @@ data TokenValidationError
   | TveUnverified
   | TveNoAccountId
 
+{- HLINT ignore parseAuthenticatedAccount "Redundant bracket" -}
 parseAuthenticatedAccount :: UTCTime -> AccessTokenSecret -> Wai.Request -> Either TokenValidationError AuthenticatedAccount
 parseAuthenticatedAccount timeNow secret req = do
   token <- maybeToEither TveInvalidHeader $ parseTokenFromHeader =<< getAuthorizationHeader req

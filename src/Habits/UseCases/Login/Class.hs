@@ -8,7 +8,7 @@ import Veins.Data.Has
   ( Has,
   )
 import qualified Habits.UseCases.Login as L
-import Habits.UseCases.Utils (applyFirstM)
+import Habits.Utils (applyFirstM)
 
 class LoginM m where
   login :: L.LoginExec m

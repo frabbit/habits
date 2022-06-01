@@ -36,9 +36,11 @@ type instance ToSymbol (AccountRepo m) = "AccountRepo"
 getAccountRepo :: (MonadReader r n, Has.Has (AccountRepo m) r) => n (AccountRepo m)
 getAccountRepo = asks Has.get
 
+{- HLINT ignore "Redundant bracket" -}
 add :: forall m. AccountRepo m -> Add m
 add = (._add)
 
+{- HLINT ignore "Redundant bracket" -}
 getById :: forall m. AccountRepo m -> GetById m
 getById = (._getById)
 

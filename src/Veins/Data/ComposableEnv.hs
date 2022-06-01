@@ -4,7 +4,6 @@
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Redundant lambda" #-}
 {-# HLINT ignore "Use fewer LANGUAGE pragmas" #-}
 
 module Veins.Data.ComposableEnv
@@ -145,6 +144,7 @@ intersection ::
   ComposableEnv (H.Intersection xs ys)
 intersection xs = ComposableEnv $ H.intersection @ys (unwrap xs)
 
+{- HLINT ignore "Redundant lambda" -}
 provideAll' ::
   forall e1 e2 r out e2'.
   ( H.IntersectionC e2 e1 e2',

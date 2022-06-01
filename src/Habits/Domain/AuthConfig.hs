@@ -27,8 +27,7 @@ mkGetAccessTokenSecret = asks $ pure . _accessTokenSecret . Has.get
 mkGetRefreshTokenSecret :: forall n m env. (Applicative n, Has.Has AuthConfig env, MonadReader env m) => m (n RefreshTokenSecret)
 mkGetRefreshTokenSecret = asks $ pure . _refreshTokenSecret . Has.get
 
-
 type instance ToSymbol AuthConfig = "AuthConfig"
 
-mkAuthConfigStatic :: forall n. (Monad n) => _ -> _ -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig])
+mkAuthConfigStatic :: forall n. (Monad n) => AccessTokenSecret -> RefreshTokenSecret -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig])
 mkAuthConfigStatic atSecret rtSecret = pure $ CE.singleton AuthConfig {_accessTokenSecret = atSecret, _refreshTokenSecret = rtSecret}

@@ -21,8 +21,11 @@ makeLensesWithoutUnderscoreAndWithSuffixL ''Refresh
 
 type instance ToSymbol (Refresh m) = "Refresh"
 
-refresh :: forall m env. (Has.Has (Refresh m) env, MonadReader env m) => RefreshExec m
-refresh r = do
-  Refresh f <- asks (Has.get @(Refresh m))
-  f r
+askRefresh :: (MonadReader r n, Has.Has (Refresh m) r) => n (Refresh m)
+askRefresh = asks Has.get
+
+refresh :: forall m. Refresh m -> RefreshExec m
+refresh = (.unRefresh)
+
+
 

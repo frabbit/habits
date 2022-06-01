@@ -13,14 +13,9 @@
 
 module Habits.Infra.Postgres.Schema where
 
-import Prelude
-import Control.Monad.IO.Class
-  ( MonadIO,
-    liftIO,
-  )
+import Habits.Prelude
 import Control.Monad.Logger (runStderrLoggingT)
 import qualified Data.Pool as P'
-import Data.Text (Text)
 import Database.Persist
 import Database.Persist.Postgresql
 import Database.Persist.TH
