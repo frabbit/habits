@@ -4,7 +4,7 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Habits.Domain.AccountNew (AccountNew (AccountNew))
 import qualified Habits.Domain.AccountNew as AN
 import Habits.UseCases.Register
-  ( Execute,
+  ( RegisterExec,
     RegisterResponse
       ( RegisterResponse
       ),
@@ -21,8 +21,8 @@ import Habits.Domain.PasswordHash (mkFromPassword)
 import Control.Monad.IO.Class (MonadIO)
 import qualified Habits.Domain.AccountRepo as AR
 
-mkExecute :: (MonadIO m, Monad n) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (Execute m)
-mkExecute = do
+mkRegister :: (MonadIO m, Monad n) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (RegisterExec m)
+mkRegister = do
   ar <- AR.getAccountRepo
   pure $ \req -> liftE $ S.do
     account <- AR.getByEmail ar req.email
@@ -39,5 +39,5 @@ mkExecute = do
 
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (CE.ComposableEnv '[R.Register m])
 mkLive = CE.do
-  execute <- mkExecute
-  CE.pure $ CE.empty & CE.insert R.Register {R._execute = execute}
+  f <- mkRegister
+  CE.pure $ CE.empty & CE.insert (R.Register f)

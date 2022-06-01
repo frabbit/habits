@@ -80,5 +80,5 @@ type RegisterApi = "account" :> ReqBody '[JSON] RegisterRequestDto :> Post '[JSO
 registerRoute :: forall m. (MonadIO m, RC.Register m, _) => RegisterRequestDto -> ExceptT ServerError m RegisterResponseDto
 registerRoute req = toExceptT . mapAllErrorsToServerError . liftE $ S.do
   req' <- fromValidation . toDomain $ req
-  resp <- RC.execute req'
+  resp <- RC.register req'
   S.pure $ fromDomain resp

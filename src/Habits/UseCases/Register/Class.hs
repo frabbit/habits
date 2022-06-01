@@ -11,7 +11,7 @@ import Veins.Data.Has
 import qualified Habits.UseCases.Register as R
 
 class Register m where
-  execute :: R.Execute m
+  register :: R.RegisterExec m
 
 instance (MonadReader env m, Has (R.Register m) env) => Register m where
-  execute = R.execute
+  register = R.register

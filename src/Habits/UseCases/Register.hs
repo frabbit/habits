@@ -2,9 +2,9 @@ module Habits.UseCases.Register
   ( RegisterResponse (..),
     RegisterRequest (..),
     Register (..),
-    Execute,
-    execute,
-    executeL,
+    RegisterExec,
+    register,
+    unRegisterL,
   )
 where
 
@@ -22,19 +22,19 @@ import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 import Veins.Control.Lens.Utils (makeLensesWithoutUnderscoreAndWithSuffixL)
 
-type Execute m =
+type RegisterExec m =
   RegisterRequest ->
   Excepts '[EmailAlreadyUsedError, RepositoryError] m RegisterResponse
 
 newtype Register m = Register
-  { _execute :: Execute m
+  { unRegister :: RegisterExec m
   }
 
 type instance ToSymbol (Register m) = "Register"
 
 makeLensesWithoutUnderscoreAndWithSuffixL ''Register
 
-execute :: forall m env. (Has.Has (Register m) env, MonadReader env m) => Execute m
-execute r = do
-  Register {_execute = f} <- asks (Has.get @(Register m))
+register :: forall m env. (Has.Has (Register m) env, MonadReader env m) => RegisterExec m
+register r = do
+  Register {unRegister = f} <- asks (Has.get @(Register m))
   f r
