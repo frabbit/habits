@@ -30,5 +30,5 @@ mkGetRefreshTokenSecret = asks $ pure . _refreshTokenSecret . Has.get
 
 type instance ToSymbol AuthConfig = "AuthConfig"
 
-mkStatic :: forall n. (Monad n) => _ -> _ -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig])
-mkStatic atSecret rtSecret = pure $ CE.empty & CE.insert AuthConfig {_accessTokenSecret = atSecret, _refreshTokenSecret = rtSecret}
+mkAuthConfigStatic :: forall n. (Monad n) => _ -> _ -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig])
+mkAuthConfigStatic atSecret rtSecret = pure $ CE.empty & CE.insert AuthConfig {_accessTokenSecret = atSecret, _refreshTokenSecret = rtSecret}

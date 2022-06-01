@@ -55,7 +55,7 @@ envLayer :: forall m n. (MonadIO n, MonadIO m) => CE.ReaderCE '[] n (Env m)
 envLayer = LoginLive.mkLive
   <<-&& ARM.mkAccountRepoMemory
   <<-&& RTL.mkRefreshTokenIssuedRepoMemory
-  <<- AC.mkStatic atSecret rtSecret
+  <<- AC.mkAuthConfigStatic atSecret rtSecret
   <<- Clock.mkStaticClock timeNow
 
 AppTH.mkBoilerplate "runApp" ''Env

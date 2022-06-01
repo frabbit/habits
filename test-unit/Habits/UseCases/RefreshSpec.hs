@@ -60,7 +60,7 @@ envLayer =
   RefreshLive.mkLive
     <<-&& RTL.mkRefreshTokenIssuedRepoMemory
     <<-&& ARM.mkAccountRepoMemory
-    <<- AC.mkStatic atSecret rtSecret
+    <<- AC.mkAuthConfigStatic atSecret rtSecret
     <<- Clock.mkStaticClock timeNow
 
 AppTH.mkBoilerplate "runApp" ''Env
