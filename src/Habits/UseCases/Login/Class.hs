@@ -8,9 +8,10 @@ import Veins.Data.Has
   ( Has,
   )
 import qualified Habits.UseCases.Login as L
+import Habits.UseCases.Utils (applyFirstM)
 
 class LoginM m where
   login :: L.LoginExec m
 
 instance (MonadReader env m, Has (L.Login m) env) => LoginM m where
-  login = L.login
+  login = applyFirstM L.login

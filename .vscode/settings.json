@@ -11,7 +11,7 @@
 	"haskell.plugin.tactics.config.auto_gas": 100,
 	"haskell.plugin.refineImports.codeLensOn": false,
 	"haskell.plugin.importLens.codeLensOn": false,
-
+	"cSpell.enabled": false,
 	"haskell.formattingProvider": "ormolu",
 	"haskell.toolchain": {
 		"ghc": null,

@@ -23,7 +23,9 @@ type instance ToSymbol (Login m) = "Login"
 
 makeLensesWithoutUnderscoreAndWithSuffixL ''Login
 
-login :: forall m env. (Has.Has (Login m) env, MonadReader env m) => LoginExec m
-login r = do
-  Login {unLogin = f} <- asks (Has.get @(Login m))
-  f r
+askLogin :: (MonadReader r n, Has.Has (Login m) r) => n (Login m)
+askLogin = asks Has.get
+
+login :: forall m. Login m -> LoginExec m
+login = (.unLogin)
+

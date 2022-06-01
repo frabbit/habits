@@ -5,7 +5,7 @@ module Habits.UseCases.Register
     RegisterExec,
     register,
     unRegisterL,
-  )
+    askRegister)
 where
 
 import Habits.Prelude
@@ -33,7 +33,9 @@ type instance ToSymbol (Register m) = "Register"
 
 makeLensesWithoutUnderscoreAndWithSuffixL ''Register
 
-register :: forall m env. (Has.Has (Register m) env, MonadReader env m) => RegisterExec m
-register r = do
-  Register {unRegister = f} <- asks (Has.get @(Register m))
-  f r
+askRegister :: (MonadReader r n, Has.Has (Register m) r) => n (Register m)
+askRegister = asks Has.get
+
+register :: forall m. Register m -> RegisterExec m
+register = (.unRegister)
+
