@@ -29,7 +29,7 @@ import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Refresh as Refresh
-import Habits.UseCases.Refresh.Class (Refresh (refresh))
+import Habits.UseCases.Refresh.Class (RefreshM (refresh))
 import qualified Habits.UseCases.Refresh.Live as RefreshLive
 import Habits.UseCases.Refresh.RefreshRequest (RefreshRequest (RefreshRequest))
 import Habits.UseCases.Refresh.RefreshResponse (RefreshResponse (..))

@@ -8,8 +8,8 @@ import Veins.Data.Has
   )
 import qualified Habits.UseCases.Refresh as R
 
-class Refresh m where
+class RefreshM m where
   refresh :: R.RefreshExec m
 
-instance (MonadReader env m, Has (R.Refresh m) env) => Refresh m where
+instance (MonadReader env m, Has (R.Refresh m) env) => RefreshM m where
   refresh = R.refresh

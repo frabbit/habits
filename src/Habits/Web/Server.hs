@@ -32,10 +32,10 @@ import Habits.Domain.RefreshTokenSecret
 import Habits.Domain.AccessTokenSecret
 import qualified Habits.UseCases.Refresh as Refresh
 import qualified Habits.UseCases.Refresh.Live as RefreshLive
-import qualified Habits.UseCases.Refresh.Class as RefreshClass
 import Habits.Web.Routes.RefreshRoute (RefreshApi, refreshRoute)
 import Habits.UseCases.Register.Class (RegisterM)
 import Habits.UseCases.Login.Class (LoginM)
+import Habits.UseCases.Refresh.Class (RefreshM)
 
 type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
 
@@ -53,7 +53,7 @@ envLayer cfg =
 
 
 
-server :: (RefreshClass.Refresh m, RegisterM m, LoginM m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
+server :: (RefreshM m, RegisterM m, LoginM m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
 server = refreshRoute :<|> protectedRoute :<|> loginRoute :<|> registerRoute
 
 type ServerApi = RefreshApi :<|> ProtectedApi :<|> LoginApi :<|> RegisterApi
