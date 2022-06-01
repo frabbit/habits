@@ -9,7 +9,7 @@ import Habits.Prelude
 import Data.Aeson (FromJSON, ToJSON)
 import Habits.Domain.Email (Email (unEmail), emailFromText)
 import Habits.Domain.Password (Password (unPassword), passwordFromText)
-import qualified Habits.UseCases.Register.Class as RC
+
 import Habits.UseCases.Register.RegisterRequest (RegisterRequest (..))
 import Habits.UseCases.Register.RegisterResponse (RegisterResponse)
 import Habits.Web.Utils (mapAllErrorsToServerError)
@@ -21,7 +21,7 @@ import Veins.Data.Codec (Encoder, idCodec)
 import qualified Veins.Data.Codec as Codec
 import Veins.RecordDot.Utils (set)
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
-import Habits.UseCases.Register.Class (RegisterM)
+import Habits.UseCases.Register.Class (RegisterM (register))
 
 newtype RegisterResponseDto = RegisterResponseDto
   { accountId :: Text
@@ -77,5 +77,5 @@ type RegisterApi = "account" :> ReqBody '[JSON] RegisterRequestDto :> Post '[JSO
 registerRoute :: forall m. (MonadIO m, RegisterM m, _) => RegisterRequestDto -> ExceptT ServerError m RegisterResponseDto
 registerRoute req = toExceptT . mapAllErrorsToServerError . liftE $ S.do
   req' <- fromValidation . toDomain $ req
-  resp <- RC.register req'
+  resp <- register req'
   S.pure $ fromDomain resp
