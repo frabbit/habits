@@ -91,21 +91,21 @@ spec :: Spec
 spec = describe "Login.execute should" $ do
   it "be successfull when account with same password and email exists" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- LC.login $ EmailPasswordLoginRequest acc.email pw
     S.coerce $ $('resp `shouldMatchPattern` [p|LoginResponse (AccessToken _) (RefreshToken _)|])
   it "return a valid access token" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
-    resp <- timeIt $ LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- timeIt $ LC.login $ EmailPasswordLoginRequest acc.email pw
     let verifyResult = AccessToken.verifyAccessToken atSecret (resp.accessToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return a valid refresh token" . embed $ S.do
     (acc, pw,_) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- LC.login $ EmailPasswordLoginRequest acc.email pw
     let verifyResult = RefreshToken.verifyRefreshToken rtSecret (resp.refreshToken)
     S.coerce $ verifyResult `shouldBe` True
   it "return an access token which is 3 hours valid" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- LC.login $ EmailPasswordLoginRequest acc.email pw
     let now = timeNow
     let almost = addHoursToUTCTime 3 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
@@ -114,7 +114,7 @@ spec = describe "Login.execute should" $ do
     S.coerce $ AccessToken.isExpired atSecret resp.accessToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "return a refresh token which is 7 days valid" . embed $ S.do
     (acc, pw, _) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- LC.login $ EmailPasswordLoginRequest acc.email pw
     let now = timeNow
     let almost = addDaysToUTCTime 7 timeNow
     let expired = addMillisecondsToUTCTime 1 almost
@@ -123,7 +123,7 @@ spec = describe "Login.execute should" $ do
     S.coerce $ RefreshToken.isExpired rtSecret resp.refreshToken (utcTimeToPOSIXSeconds expired) `shouldBe` True
   it "store the hash of the generated refresh token" . embed $ S.do
     (acc, pw, id) <- addUserWithPassword
-    resp <- LC.execute $ EmailPasswordLoginRequest acc.email pw
+    resp <- LC.login $ EmailPasswordLoginRequest acc.email pw
     [info] <- RefreshTokenIssuedRepo.getByAccountId id
     S.coerce $ RefreshTokenHash.isValid resp.refreshToken info.refreshTokenHash `shouldBe` True
 
@@ -131,12 +131,12 @@ spec = describe "Login.execute should" $ do
     S.do
       pw <- S.coerce sampleIO
       email <- S.coerce sampleIO
-      LC.execute $ EmailPasswordLoginRequest email pw
+      LC.login $ EmailPasswordLoginRequest email pw
       & expectError @AccountNotFoundError
   it "fail with PasswordIncorrectError when account with email exists but password is wrong" . embed $
     S.do
       let pw = Password "InvalidPassword"
       acc <- S.coerce sampleIO
       ARC.add acc
-      LC.execute $ EmailPasswordLoginRequest acc.email pw
+      LC.login $ EmailPasswordLoginRequest acc.email pw
       & expectError @PasswordIncorrectError

@@ -11,7 +11,7 @@ import Veins.Data.Has
 import qualified Habits.UseCases.Login as L
 
 class Login m where
-  execute :: L.Execute m
+  login :: L.LoginExec m
 
 instance (MonadReader env m, Has (L.Login m) env) => Login m where
-  execute = L.execute
+  login = L.login

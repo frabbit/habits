@@ -11,7 +11,7 @@ import Habits.Domain.PasswordHash (isValid)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError (PasswordIncorrectError))
 import Habits.Domain.RefreshToken (mkRefreshToken)
 import Habits.UseCases.Login
-  ( Execute,
+  ( LoginExec,
   )
 import qualified Habits.UseCases.Login as L
 import Habits.UseCases.Login.LoginRequest (LoginRequest (..))
@@ -27,8 +27,8 @@ import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import Habits.Domain.AccountRepo (getAccountRepo)
 
-mkExecute :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]) n (Execute m)
-mkExecute = do
+mkLogin :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]) n (LoginExec m)
+mkLogin = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
   rtr <- RT.getRefreshTokenIssuedRepo
@@ -49,5 +49,5 @@ mkExecute = do
 
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m, AR.AccountRepo m]) n (CE.ComposableEnv '[L.Login m])
 mkLive = CE.do
-  execute <- mkExecute
-  CE.pure $ CE.empty & CE.insert L.Login {L._execute = execute}
+  f <- mkLogin
+  CE.pure $ CE.empty & CE.insert (L.Login f)

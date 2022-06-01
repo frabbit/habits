@@ -76,5 +76,5 @@ loginRoute :: forall m. (MonadIO m, RC.Login m, _) => LoginRequestDto -> ExceptT
 loginRoute req = toExceptT . mapAllErrorsToServerError $
   liftE $ S.do
     req' <- fromValidation . toDomain $ req
-    resp <- RC.execute req'
+    resp <- RC.login req'
     S.pure $ fromDomain resp
