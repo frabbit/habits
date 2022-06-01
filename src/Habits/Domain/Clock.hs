@@ -22,8 +22,8 @@ mkGetNow = asks (_getNow . Has.get)
 
 type instance ToSymbol (Clock m) = "Clock"
 
-mkStaticClock :: forall n m. (Monad n, Monad m) => UTCTime -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock m])
-mkStaticClock timeNow = pure $ CE.empty & CE.insert Clock {_getNow = pure timeNow }
+mkClockStatic :: forall n m. (Monad n, Monad m) => UTCTime -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock m])
+mkClockStatic timeNow = pure $ CE.empty & CE.insert Clock {_getNow = pure timeNow }
 
-mkLiveClock :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock m])
-mkLiveClock = pure $ CE.empty & CE.insert Clock {_getNow = liftIO getCurrentTime }
+mkClockLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock m])
+mkClockLive = pure $ CE.empty & CE.insert Clock {_getNow = liftIO getCurrentTime }

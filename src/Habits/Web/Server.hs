@@ -22,7 +22,7 @@ import Servant (Context (EmptyContext, (:.)), Handler (Handler), HasServer (Serv
 import qualified Servant.Server.Experimental.Auth as ServantAuth
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Habits.Domain.Clock (mkLiveClock)
+import Habits.Domain.Clock (mkClockLive)
 import Habits.Domain.RefreshTokenSecret
 import Habits.Domain.AccessTokenSecret
 import qualified Habits.UseCases.Refresh as Refresh
@@ -45,8 +45,8 @@ envLayer cfg =
     CE.<<-&& RefreshLive.mkLive
     CE.<<-&& mkRefreshTokenIssuedRepoMemory
     CE.<<-&& mkAccountRepoMemory
-    CE.<<-&& AC.mkStatic cfg.accessTokenSecret cfg.refreshTokenSecret
-    CE.<<-&& mkLiveClock
+    CE.<<-&& AC.mkAuthConfigStatic cfg.accessTokenSecret cfg.refreshTokenSecret
+    CE.<<-&& mkClockLive
 
 
 
