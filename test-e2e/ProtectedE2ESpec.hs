@@ -1,6 +1,6 @@
 module ProtectedE2ESpec (spec) where
 
-import E2EUtils (runLogin, runRegister, withApp, runProtected)
+import E2EUtils (runLogin, runRegister, withApp, runProtected, testConfig)
 import Habits.Web.Routes.LoginRoute (LoginRequestDto (EmailPasswordLoginRequestDto), email, password)
 import Test.Hspec (Spec, describe, fit, shouldBe)
 import Veins.Test.QuickCheck (propertyRuns)
@@ -9,7 +9,6 @@ import Network.HTTP.Types (Status(statusCode))
 import Habits.Domain.AccessToken (mkAccessToken)
 import Data.Time.Clock.POSIX (POSIXTime, utcTimeToPOSIXSeconds)
 import Data.Time (UTCTime(..), fromGregorian, secondsToDiffTime)
-import qualified Habits.Web.Server as Server
 import Habits.Domain.AccountId (AccountId(AccountId))
 
 timePast :: POSIXTime
@@ -30,7 +29,7 @@ spec = describe "ProtectedE2E" $ do
     (statusCode . responseStatusCode $ resp) `shouldBe` 401
   fit "should fail for expired tokens" . propertyRuns 1 $ \req -> withApp $ \port -> do
     Right rr <- runRegister port req
-    let outdatedToken = mkAccessToken Server.atSecret (AccountId rr.accountId) timePast
+    let outdatedToken = mkAccessToken testConfig.accessTokenSecret (AccountId rr.accountId) timePast
     Right _ <- runLogin port $ EmailPasswordLoginRequestDto {email = req.email, password = req.password}
     Left (FailureResponse _ resp) <- runProtected port outdatedToken.unAccessToken
     (statusCode . responseStatusCode $ resp) `shouldBe` 401

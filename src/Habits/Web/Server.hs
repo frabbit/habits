@@ -7,18 +7,16 @@ import Control.Monad.Except (ExceptT (ExceptT), MonadError (throwError))
 import Control.Monad.Morph (hoist)
 import Control.Monad.Reader (ReaderT (runReaderT))
 import Data.Proxy (Proxy (Proxy))
-import qualified Habits.Domain.AccessTokenSecret as ATS
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
 import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
-import qualified Habits.Domain.RefreshTokenSecret as RTS
-import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.UseCases.Login as L
 import qualified Habits.UseCases.Login.Class as LC
 import qualified Habits.UseCases.Login.Live as LL
 import qualified Habits.UseCases.Register as R
+import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
 import Habits.Web.Auth (JWTAuthHandler, parseAuthenticatedAccount)
@@ -31,29 +29,24 @@ import Servant (Context (EmptyContext, (:.)), Handler (Handler), HasServer (Serv
 import qualified Servant.Server.Experimental.Auth as ServantAuth
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
-import Veins.Data.ComposableEnv ((<<-&&), (<<-))
 import Habits.Domain.Clock (mkLiveClock)
+import Habits.Domain.RefreshTokenSecret
+import Habits.Domain.AccessTokenSecret
 
-type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m]
+type Env m = CE.MkSorted '[R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
 
-atSecret :: _
-atSecret = ATS.mkAccessTokenSecret "abcd"
+data ServerConfig = ServerConfig {refreshTokenSecret :: RefreshTokenSecret, accessTokenSecret :: AccessTokenSecret }
 
-rtSecret :: _
-rtSecret = RTS.mkRefreshTokenSecret "abcde"
-
-envLayer :: forall m n. (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (Env m)
-envLayer =
+envLayer :: forall m n. (MonadIO n, MonadIO m) => ServerConfig -> ReaderT (CE.ComposableEnv '[]) n (Env m)
+envLayer cfg =
   LL.mkLive
-    <<-&& RL.mkLive
-    <<-&& RTL.mkRefreshTokenIssuedRepoMemory
-    <<-&& ARM.mkAccountRepoMemory
-    <<- AC.mkStatic atSecret rtSecret
-    <<-&& mkLiveClock
+    CE.<<-&& RL.mkLive
+    CE.<<-&& RTL.mkRefreshTokenIssuedRepoMemory
+    CE.<<-&& ARM.mkAccountRepoMemory
+    CE.<<-&& AC.mkStatic cfg.accessTokenSecret cfg.refreshTokenSecret
+    CE.<<-&& mkLiveClock
 
-AppTH.mkBoilerplate "runApp" ''Env
 
-data ServerConfig = ServerConfig
 
 server :: (RC.Register m, LC.Login m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
 server = protectedRoute :<|> loginRoute :<|> registerRoute
@@ -63,24 +56,27 @@ type ServerApi = ProtectedApi :<|> LoginApi :<|> RegisterApi
 serverApi :: Proxy ServerApi
 serverApi = Proxy
 
+AppTH.mkBoilerplate "runApp" ''Env
+
 ntToHandler :: Env _ -> ExceptT ServerError _ a -> Handler a
 ntToHandler env = Handler . hoist (runApp env)
 
-mkAuthHandler :: Env _ -> ServerConfig -> JWTAuthHandler
-mkAuthHandler env _ = ServantAuth.mkAuthHandler handler
+mkAuthHandler :: Env _ -> JWTAuthHandler
+mkAuthHandler env = ServantAuth.mkAuthHandler handler
   where
     throw401 msg = throwError $ err401 {errBody = msg}
     handler req = Handler $ do
       now <- liftIO $ runApp env Clock.getNow
+      atSecret <- liftIO $ runApp env AC.getAccessTokenSecret
       case parseAuthenticatedAccount now atSecret req of
         Left _ -> throw401 "Token invalid"
         Right a -> ExceptT $ pure $ Right a
 
 mkApp :: (Monad n, MonadIO n, _) => ServerConfig -> n Application
 mkApp cfg = do
-  env <- runReaderT envLayer CE.empty
+  env <- runReaderT (envLayer cfg) CE.empty
   let context :: Context '[JWTAuthHandler]
-      context = mkAuthHandler env cfg :. EmptyContext
+      context = mkAuthHandler env :. EmptyContext
       contextProxy :: Proxy '[JWTAuthHandler]
       contextProxy = Proxy
       api = hoistServerWithContext serverApi contextProxy (ntToHandler env) server

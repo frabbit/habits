@@ -5,17 +5,21 @@ import Data.Text (Text)
 import Habits.Web.Routes.LoginRoute (LoginApi, LoginRequestDto, LoginResponseDto)
 import Habits.Web.Routes.ProtectedRoute (ProtectedApi, ProtectedResponseDto)
 import Habits.Web.Routes.RegisterRoute (RegisterApi, RegisterRequestDto, RegisterResponseDto)
-import Habits.Web.Server (ServerConfig (ServerConfig), mkApp)
+import Habits.Web.Server (ServerConfig (ServerConfig), mkApp, refreshTokenSecret, accessTokenSecret)
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import qualified Network.Wai.Handler.Warp as Warp
 import Servant (AuthProtect)
 import Servant.Client (ClientEnv, ClientError, ClientM, baseUrlPort, client, mkClientEnv, parseBaseUrl, runClientM)
 import Servant.Client.Core (AuthClientData, AuthenticatedRequest, mkAuthenticatedRequest, addHeader, Request)
+import qualified Habits.Domain.RefreshTokenSecret as RTS
+import qualified Habits.Domain.AccessTokenSecret as ATS
 
 type instance AuthClientData (AuthProtect "JWT") = Text
 
+
 testConfig :: ServerConfig
-testConfig = ServerConfig
+testConfig = ServerConfig { refreshTokenSecret = RTS.mkRefreshTokenSecret "abcde",accessTokenSecret = ATS.mkAccessTokenSecret "abc" }
+
 
 authenticateRequest :: Text -> Request -> Request
 authenticateRequest token = addHeader "Authorization" ("Bearer " <> token)
