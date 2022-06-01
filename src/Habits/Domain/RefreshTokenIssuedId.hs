@@ -1,9 +1,7 @@
 module Habits.Domain.RefreshTokenIssuedId where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
 import Data.UUID (toText)
-import Test.QuickCheck (Arbitrary (arbitrary))
 import Test.QuickCheck.Instances.UUID ()
 
 newtype RefreshTokenIssuedId = RefreshTokenIssuedId Text deriving (Eq, Show, Ord)

@@ -1,8 +1,6 @@
 module Habits.Domain.AccountRepo where
 
-import Prelude
-import Control.Monad.Reader (MonadReader, ReaderT)
-import Control.Monad.Reader.Class (asks)
+import Habits.Prelude
 import Habits.Domain.Account (Account)
 import Habits.Domain.AccountId (AccountId)
 import Habits.Domain.AccountNew
@@ -11,7 +9,6 @@ import Habits.Domain.AccountNew
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
 import Habits.Domain.Email (Email)
 import Habits.Domain.RepositoryError (RepositoryError)
-import Haskus.Utils.Variant.Excepts (Excepts, liftE, failureE)
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (ToSymbol)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S

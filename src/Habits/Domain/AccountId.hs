@@ -1,10 +1,8 @@
 module Habits.Domain.AccountId where
 
-import Prelude
+import Habits.Prelude
 
-import Data.Text (Text)
 import Data.UUID (toText)
-import Test.QuickCheck (Arbitrary (arbitrary))
 import Test.QuickCheck.Instances.UUID ()
 import qualified Data.UUID as UUID
 import Veins.Data.Functor.Utils ((<.>))

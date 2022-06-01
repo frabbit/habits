@@ -2,18 +2,16 @@
 {-# HLINT ignore "Redundant bracket" #-}
 module Habits.Domain.RefreshTokenIssuedRepo where
 
-import Prelude
+import Habits.Prelude
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId)
 import Habits.Domain.RefreshTokenIssuedNew
   ( RefreshTokenIssuedNew,
   )
 import Habits.Domain.RepositoryError (RepositoryError)
-import Haskus.Utils.Variant.Excepts (Excepts)
 import Veins.Data.ToSymbol (ToSymbol)
 import Habits.Domain.AccountId (AccountId)
 import qualified Veins.Data.Has as Has
-import Control.Monad.Reader (asks, MonadReader)
 
 type Add m =
   RefreshTokenIssuedNew ->

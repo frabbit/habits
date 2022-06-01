@@ -1,7 +1,6 @@
 module Habits.Domain.AuthConfig.Class where
 
-import Prelude
-import Control.Monad.Reader (MonadReader, asks)
+import Habits.Prelude
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret)
 import qualified Habits.Domain.AuthConfig as AC
 import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret)

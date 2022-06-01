@@ -1,8 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Habits.Domain.Account where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
+
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.AccountNew as AN
 import Habits.Domain.Email (Email)

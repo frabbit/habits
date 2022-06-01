@@ -1,14 +1,12 @@
 module Habits.Domain.Email where
 
-import Prelude
+import Veins.Prelude
 
-import Test.QuickCheck (Arbitrary, arbitrary)
 import Test.QuickCheck.Instances ()
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
 import qualified Veins.Data.Codec as Codec
 import Veins.Data.Codec (Codec)
 import qualified Data.Text as Text
-import Data.Text (Text)
 
 newtype Email = Email {unEmail :: Text} deriving (Show, Eq, Ord)
 

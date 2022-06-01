@@ -3,13 +3,12 @@ module Habits.Domain.RefreshTokenHash
   mkFromRefreshToken, isValid)
 where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
+
 import Test.QuickCheck.Instances ()
-import Test.QuickCheck (Arbitrary (arbitrary), Gen, vector)
+import Test.QuickCheck (Gen, vector)
 import qualified Data.Password.Bcrypt as PW
 import Habits.Domain.RefreshToken (RefreshToken (RefreshToken))
-import Control.Monad.IO.Class (MonadIO)
 import qualified Data.ByteString as BS
 
 newtype RefreshTokenHash = RefreshTokenHash {unRefreshTokenHash :: Text} deriving (Show, Eq, Ord)

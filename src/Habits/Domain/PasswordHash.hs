@@ -1,13 +1,11 @@
 module Habits.Domain.PasswordHash where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
 import qualified Data.Password.Bcrypt as PW
 import Test.QuickCheck.Instances ()
 import Habits.Domain.Password (Password(..))
-import Control.Monad.IO.Class (MonadIO)
-import Test.QuickCheck
 import qualified Data.ByteString as BS
+import Test.QuickCheck (Gen, vector)
 
 newtype PasswordHash = PasswordHash {unPasswordHash :: Text} deriving (Show, Eq, Ord)
 

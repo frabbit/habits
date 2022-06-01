@@ -4,11 +4,9 @@ module Habits.Domain.AccessTokenSecret
   )
 where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
 import Test.QuickCheck.Instances ()
-import Test.QuickCheck (Arbitrary (arbitrary), Gen, elements)
-import Control.Monad (replicateM)
+import Test.QuickCheck (Gen, elements)
 import qualified Data.Text as Text
 
 newtype AccessTokenSecret = AccessTokenSecret {unAccessTokenSecret :: Text} deriving (Show, Eq, Ord)

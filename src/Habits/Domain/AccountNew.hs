@@ -2,14 +2,10 @@
 
 module Habits.Domain.AccountNew where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
+
 import Habits.Domain.Email (Email)
 import Habits.Domain.PasswordHash (PasswordHash)
-import Test.QuickCheck
-  ( Arbitrary,
-    arbitrary,
-  )
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
 
 data AccountNew = AccountNew

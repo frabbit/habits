@@ -1,14 +1,12 @@
 module Habits.Domain.Clock where
 
-import Prelude
+import Habits.Prelude
+
 import Veins.Data.ToSymbol (ToSymbol)
-import Control.Monad.Reader (MonadReader, asks, ReaderT)
 import qualified Veins.Data.Has as Has
 import Data.Time (UTCTime, getCurrentTime)
 import Control.Monad (join)
 import qualified Veins.Data.ComposableEnv as CE
-import Data.Function ((&))
-import Control.Monad.IO.Class (MonadIO (liftIO))
 
 type GetNow m = m UTCTime
 

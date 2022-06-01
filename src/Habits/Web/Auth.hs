@@ -1,10 +1,10 @@
 {-# LANGUAGE DeriveGeneric #-}
 module Habits.Web.Auth where
 
-import Prelude
+import Veins.Prelude
 import GHC.Generics (Generic)
 import Servant (AuthProtect)
-import Data.Text (Text, splitOn)
+import Data.Text (splitOn)
 import Servant.Server.Experimental.Auth (AuthServerData, AuthHandler)
 import qualified Habits.Domain.AccessToken as AT
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret(..))
@@ -16,9 +16,6 @@ import Network.Wai (requestHeaders)
 import qualified Network.Wai as Wai
 import Data.Time (UTCTime)
 import Veins.Data.List.Utils (safeHead)
-import Test.QuickCheck (Arbitrary)
-import Test.QuickCheck.Arbitrary (arbitrary)
-
 
 data AuthenticatedAccount = AuthenticatedAccount {
   accountId :: Text

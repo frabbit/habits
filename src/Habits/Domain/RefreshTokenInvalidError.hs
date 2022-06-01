@@ -3,7 +3,7 @@ module Habits.Domain.RefreshTokenInvalidError
   )
 where
 
-import Prelude
+import Habits.Prelude
 
 import Control.Exception (Exception)
 import Data.Typeable (Typeable)

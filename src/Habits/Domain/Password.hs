@@ -1,15 +1,12 @@
 module Habits.Domain.Password where
 
-import Prelude
-
-import Data.Text (Text)
-import Test.QuickCheck (Arbitrary, arbitrary, chooseInt)
+import Habits.Prelude
+import Test.QuickCheck (chooseInt)
 import Test.QuickCheck.Instances ()
 import Veins.Test.QuickCheck (genUtf8CharacterWithoutNullByte)
 import qualified Veins.Data.Codec as Codec
 import Veins.Data.Codec (Codec)
 import qualified Data.Text as Text
-import Control.Monad (replicateM)
 import qualified Data.ByteString as BS
 import Data.Text.Encoding (decodeUtf8')
 

@@ -4,11 +4,9 @@ module Habits.Domain.RefreshTokenSecret
   )
 where
 
-import Prelude
-import Data.Text (Text)
+import Habits.Prelude
 import Test.QuickCheck.Instances ()
-import Test.QuickCheck (Arbitrary (arbitrary), Gen, elements)
-import Control.Monad (replicateM)
+import Test.QuickCheck (Gen, elements)
 import qualified Data.Text as Text
 
 newtype RefreshTokenSecret = RefreshTokenSecret {unRefreshTokenSecret :: Text} deriving (Show, Eq, Ord)

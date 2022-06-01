@@ -1,9 +1,7 @@
 module Habits.Domain.RefreshTokenIssuedRepo.Class where
 
-import Prelude
-import Control.Monad.RWS
-  ( MonadReader,
-  )
+import Habits.Prelude
+
 import Habits.Domain.RefreshTokenIssuedRepo
   ( Add,
     GetById, GetByAccountId, DeleteByAccountId, DeleteById,
@@ -11,7 +9,6 @@ import Habits.Domain.RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenIssuedRepo as R
 import Veins.Data.Has (Has)
 import qualified Veins.Data.Has as Has
-import Control.Monad.Reader.Class (asks)
 
 class RefreshTokenIssuedRepo m where
   add :: Add m

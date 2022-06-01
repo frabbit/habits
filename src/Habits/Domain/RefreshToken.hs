@@ -1,7 +1,6 @@
 module Habits.Domain.RefreshToken where
 
-import Data.Maybe (isJust)
-import Data.Text (Text)
+import Habits.Prelude hiding (exp)
 import Data.Time
   ( NominalDiffTime,
   )
@@ -9,8 +8,6 @@ import Habits.Domain.AccountId (AccountId (AccountId))
 import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret (RefreshTokenSecret))
 import Test.QuickCheck.Instances ()
 import Web.JWT (JWTClaimsSet (exp, iss, sub), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
-import Prelude hiding (exp, id)
-import Test.QuickCheck (Arbitrary (arbitrary))
 import qualified Data.Text as Text
 import Veins.Data.Codec (Codec)
 import qualified Veins.Data.Codec as Codec

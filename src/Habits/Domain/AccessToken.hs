@@ -1,19 +1,13 @@
 module Habits.Domain.AccessToken where
 
-import Data.Maybe (isJust)
-import Data.Text (Text)
+import Veins.Prelude hiding (exp)
 import Data.Time
   ( NominalDiffTime,
   )
 import Habits.Domain.AccountId (AccountId (AccountId))
 import Habits.Domain.AccessTokenSecret (AccessTokenSecret (AccessTokenSecret))
 import Test.QuickCheck.Instances ()
-import Web.JWT (JWTClaimsSet (..), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify, ClaimsMap (ClaimsMap))
-import Prelude hiding (exp, id)
-import Test.QuickCheck (Arbitrary (arbitrary))
-import qualified Data.Map as Map
-import Data.Aeson (object, KeyValue ((.=)))
-import Debug.Trace (trace)
+import Web.JWT (JWTClaimsSet (..), claims, decodeAndVerifySignature, encodeSigned, hmacSecret, numericDate, secondsSinceEpoch, stringOrURI, toVerify)
 import qualified Data.Text as Text
 
 newtype AccessToken = AccessToken {unAccessToken :: Text} deriving (Show, Eq, Ord)

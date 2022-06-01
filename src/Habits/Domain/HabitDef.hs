@@ -1,6 +1,6 @@
 module Habits.Domain.HabitDef where
 
-import Prelude
+import Habits.Prelude
 
 data HabitInterval
   = HabitIntervalPerWeek Int
