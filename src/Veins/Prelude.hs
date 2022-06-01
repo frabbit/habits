@@ -12,7 +12,7 @@ import Data.Functor as M ((<&>))
 
 import Control.Monad as M (replicateM)
 
-import Haskus.Utils.Variant.Excepts as M (failureE, liftE, successE, Excepts, evalE)
+import Haskus.Utils.Variant.Excepts as M (failureE, liftE, successE, Excepts, evalE, throwE)
 
 import Control.Monad.Reader as M (ReaderT (runReaderT), MonadReader, asks)
 

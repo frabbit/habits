@@ -40,16 +40,19 @@ runWithEnv mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
 
+setRegister :: _
+setRegister = L.over (registerL . unRegisterL)
+
 spec :: Spec
 spec = describe "registerRoute should" $ do
   let wrap = runWithEnv
   it "return the response from Register service converted to Dto" . property $ \(rs,i) -> do
-    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ pure rs)
+    let mocks = defaultMocks & setRegister (mockReturn $ pure rs)
     wrap mocks $ do
       out <- runExceptT $ registerRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the request converted from Dto to Register service" . property $ \(rs,i) -> do
-    (spy, mocks) <- defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ pure rs) & withSpy (registerL . unRegisterL)
+    (spy, mocks) <- defaultMocks & setRegister (mockReturn $ pure rs) & withSpy (registerL . unRegisterL)
     wrap mocks $ do
       runExceptT $ registerRoute i
       Success i' <- pure $ toDomain i
@@ -64,12 +67,12 @@ spec = describe "registerRoute should" $ do
       out <- runExceptT $ registerRoute (rs & setPassword "")
       out `shouldBe` Left err400
   it "fail with 400 when email is already used" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ (liftE . failureE) EmailAlreadyUsedError)
+    let mocks = defaultMocks & setRegister (mockReturn $ throwE EmailAlreadyUsedError)
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs
       out `shouldBe` Left err409
   it "fail with 500 on repository error" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (registerL . unRegisterL) (mockReturn $ (liftE . failureE) RepositoryError)
+    let mocks = defaultMocks & setRegister (mockReturn $ throwE RepositoryError)
     wrap mocks $ do
       out <- runExceptT $ registerRoute rs
       out `shouldBe` Left err500

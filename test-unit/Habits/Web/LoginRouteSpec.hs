@@ -41,15 +41,18 @@ run mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
 
+setLogin :: _
+setLogin = L.over (loginL . unLoginL)
+
 spec :: Spec
 spec = describe "loginRoute should" $ do
   it "return the converted response from Login service" . property $ \(rs, i) -> do
-    let mocks = defaultMocks & L.over (loginL . unLoginL) (mockReturn $ pure rs)
+    let mocks = defaultMocks & setLogin (mockReturn $ pure rs)
     run mocks $ do
       out <- runExceptT $ loginRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the converted request to Login service" . property $ \(rs, i) -> do
-    (spy, mocks) <- defaultMocks & L.over (loginL . unLoginL) (mockReturn $ pure rs) & withSpy (loginL . unLoginL)
+    (spy, mocks) <- defaultMocks & setLogin (mockReturn $ pure rs) & withSpy (loginL . unLoginL)
     run mocks $ do
       runExceptT $ loginRoute i
       Success i' <- pure $ toDomain i
@@ -64,17 +67,17 @@ spec = describe "loginRoute should" $ do
     out <- runExceptT $ loginRoute (rs & setPassword "")
     out `shouldBe` Left err400
   it "fail with 500 on repository error" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (loginL . unLoginL) (mockReturn . liftE . failureE $ RepositoryError)
+    let mocks = defaultMocks & setLogin (mockReturn . throwE $ RepositoryError)
     run mocks $ do
       out <- runExceptT $ loginRoute rs
       out `shouldBe` Left err500
   it "fail with 401 on password incorrect error" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (loginL . unLoginL) (mockReturn . liftE . failureE $ PasswordIncorrectError)
+    let mocks = defaultMocks & setLogin (mockReturn . throwE $ PasswordIncorrectError)
     run mocks $ do
       out <- runExceptT $ loginRoute rs
       out `shouldBe` Left err401
   it "fail with 400 on account not found error " . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (loginL . unLoginL) (mockReturn . liftE . failureE $ AccountNotFoundError)
+    let mocks = defaultMocks & setLogin (mockReturn . throwE $ AccountNotFoundError)
     run mocks $ do
       out <- runExceptT $ loginRoute rs
       out `shouldBe` Left err400

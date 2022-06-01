@@ -42,15 +42,18 @@ run mocks app = do
   env <- runReaderT (envLayer mocks) CE.empty
   runApp env app
 
+setRefresh :: _
+setRefresh = L.over (refreshL . unRefreshL)
+
 spec :: Spec
 spec = fdescribe "refreshRoute should" $ do
   it "return the converted response from Refresh service" . property $ \(rs, i) -> do
-    let mocks = defaultMocks & L.over (refreshL . unRefreshL) (mockReturn $ pure rs)
+    let mocks = defaultMocks & setRefresh (mockReturn $ pure rs)
     run mocks $ do
       out <- runExceptT $ refreshRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the converted request to Refresh service" . property $ \(rs, i) -> do
-    (spy, mocks) <- defaultMocks & L.over (refreshL . unRefreshL) (mockReturn $ pure rs) & withSpy (refreshL . unRefreshL)
+    (spy, mocks) <- defaultMocks & setRefresh (mockReturn $ pure rs) & withSpy (refreshL . unRefreshL)
     run mocks $ do
       runExceptT $ refreshRoute i
       Success i' <- pure $ toDomain i
@@ -62,22 +65,22 @@ spec = fdescribe "refreshRoute should" $ do
     out <- runExceptT $ refreshRoute rr
     out `shouldBe` Left err400
   it "fail with 500 on repository error" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (refreshL . unRefreshL) (mockReturn . liftE . failureE $ RepositoryError)
+    let mocks = defaultMocks & setRefresh (mockReturn . throwE $ RepositoryError)
     run mocks $ do
       out <- runExceptT $ refreshRoute rs
       out `shouldBe` Left err500
   it "fail with 401 on RefreshTokenExpiredError" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (refreshL . unRefreshL) (mockReturn . liftE . failureE $ RefreshTokenExpiredError)
+    let mocks = defaultMocks & setRefresh (mockReturn . throwE $ RefreshTokenExpiredError)
     run mocks $ do
       out <- runExceptT $ refreshRoute rs
       out `shouldBe` Left err401
   it "fail with 401 on RefreshTokenInvalidError" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (refreshL . unRefreshL) (mockReturn . liftE . failureE $ RefreshTokenInvalidError)
+    let mocks = defaultMocks & setRefresh (mockReturn . throwE $ RefreshTokenInvalidError)
     run mocks $ do
       out <- runExceptT $ refreshRoute rs
       out `shouldBe` Left err401
   it "fail with 401 on RefreshTokenIssuedNotFoundError" . propertyOne $ \rs -> do
-    let mocks = defaultMocks & L.over (refreshL . unRefreshL) (mockReturn . liftE . failureE $ RefreshTokenIssuedNotFoundError)
+    let mocks = defaultMocks & setRefresh (mockReturn . throwE $ RefreshTokenIssuedNotFoundError)
     run mocks $ do
       out <- runExceptT $ refreshRoute rs
       out `shouldBe` Left err401
