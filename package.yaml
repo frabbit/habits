@@ -144,12 +144,31 @@ executables:
 #                 https://github.com/commercialhaskell/stack/issues/5380
 
 tests:
+  habits-test-all:
+    main:                Spec.hs
+    source-dirs:
+    - src # Adding src, see Note above
+    - test-common
+    - test-unit
+    - test-integration
+    - test-e2e
+    - test-main
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - habits
+    - hspec
+    - hspec-expectations-lifted
+    - testcontainers >= 0.3.0.1
   habits-test-unit:
     main:                Spec.hs
     source-dirs:
     - src # Adding src, see Note above
     - test-common
     - test-unit
+    - test-main
     ghc-options:
     - -threaded
     - -rtsopts
@@ -165,6 +184,7 @@ tests:
     - src # Adding src, see Note above
     - test-common
     - test-integration
+    - test-main
     ghc-options:
     - -threaded
     - -rtsopts
@@ -180,6 +200,7 @@ tests:
     - src # Adding src, see Note above
     - test-common
     - test-e2e
+    - test-main
     ghc-options:
     - -threaded
     - -rtsopts

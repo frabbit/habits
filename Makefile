@@ -4,7 +4,7 @@ build-watch:
 	stack build --file-watch
 
 build-watch-all:
-	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-unit habits:habits-test-integration habits:habits-test-e2e
+	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-all
 
 build-watch-unit:
 	stack build --file-watch --no-run-tests --ghc-options " -fprint-potential-instances" habits:habits-test-unit
