@@ -10,8 +10,8 @@ import Veins.Data.Has
   )
 import qualified Habits.UseCases.Register as R
 
-class Register m where
+class RegisterM m where
   register :: R.RegisterExec m
 
-instance (MonadReader env m, Has (R.Register m) env) => Register m where
+instance (MonadReader env m, Has (R.Register m) env) => RegisterM m where
   register = R.register

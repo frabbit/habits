@@ -25,6 +25,7 @@ import Veins.Data.Codec (Encoder, idCodec)
 import qualified Veins.Data.Codec as Codec
 import Veins.RecordDot.Utils (set)
 import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
+import Habits.UseCases.Register.Class (RegisterM)
 
 newtype RegisterResponseDto = RegisterResponseDto
   { accountId :: Text
@@ -77,7 +78,7 @@ instance FromJSON RegisterRequestDto
 
 type RegisterApi = "account" :> ReqBody '[JSON] RegisterRequestDto :> Post '[JSON] RegisterResponseDto
 
-registerRoute :: forall m. (MonadIO m, RC.Register m, _) => RegisterRequestDto -> ExceptT ServerError m RegisterResponseDto
+registerRoute :: forall m. (MonadIO m, RegisterM m, _) => RegisterRequestDto -> ExceptT ServerError m RegisterResponseDto
 registerRoute req = toExceptT . mapAllErrorsToServerError . liftE $ S.do
   req' <- fromValidation . toDomain $ req
   resp <- RC.register req'
