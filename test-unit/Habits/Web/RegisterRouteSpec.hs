@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Habits.Web.RegisterRouteSpec where
 
 import Habits.Test.Prelude

@@ -1,3 +1,4 @@
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 module Habits.Web.ProtectedRouteSpec where
 
 import Habits.Test.Prelude

@@ -3,6 +3,7 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 {-# HLINT ignore "Redundant bracket" #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.Web.Routes.RefreshRoute where
 
