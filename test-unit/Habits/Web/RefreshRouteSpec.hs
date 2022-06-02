@@ -49,7 +49,7 @@ setRefresh :: _
 setRefresh = L.over (refreshL . unRefreshL)
 
 spec :: Spec
-spec = fdescribe "refreshRoute should" $ do
+spec = describe "refreshRoute should" $ do
   it "return the converted response from Refresh service" . property $ \(rs, i) -> do
     let mocks = defaultMocks & setRefresh (mockReturn $ pure rs)
     run mocks $ do

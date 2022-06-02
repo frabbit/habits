@@ -141,74 +141,67 @@ executables:
 # Note
 # Adding src during development here makes the ide experience much smoother. It's caused by a stack bug that leads to staleness problems when adding new files or types to the habits library
 # related issues: https://github.com/haskell/haskell-language-server/issues/2058, https://github.com/haskell/haskell-language-server/issues/1822 https://github.com/haskell/haskell-language-server/issues/366
-#                 https://github.com/commercialhaskell/stack/issues/5380
+#
 
+_test-ghc-options: &test-ghc-options
+  - -threaded
+  - -rtsopts
+  - -with-rtsopts=-A128m
+  - -with-rtsopts=-N2m
+
+_test-dependencies: &test-ghc-dependencies
+  - hspec
+  - hspec-expectations-lifted
+  - testcontainers >= 0.3.0.1
 tests:
   habits-test-all:
-    main:                Spec.hs
+    main:                Main.hs
     source-dirs:
-    - src # Adding src, see Note above
+    - src
     - test-common
     - test-unit
     - test-integration
     - test-e2e
     - test-main
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-A128m
-    - -with-rtsopts=-N2m
-    - -O0
-    - -j8
-    dependencies:
-    - hspec
-    - hspec-expectations-lifted
-    - testcontainers >= 0.3.0.1
+    ghc-options: *test-ghc-options
+    dependencies: *test-ghc-dependencies
   habits-test-unit:
-    main:                Spec.hs
+    main:                UnitSpec.hs
     source-dirs:
-    - src # Adding src, see Note above
     - test-common
     - test-unit
-    - test-main
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - habits
-    - hspec
-    - hspec-expectations-lifted
-    - testcontainers >= 0.3.0.1
+    dependencies: *test-ghc-dependencies
+    ghc-options: *test-ghc-options
+    when:
+      condition: true
+      ghc-options:
+      - -main-is UnitSpec.main
+      dependencies:
+      - habits
   habits-test-integration:
-    main:                Spec.hs
+    main:                IntegrationSpec.hs
     source-dirs:
-    - src # Adding src, see Note above
     - test-common
     - test-integration
-    - test-main
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - habits
-    - hspec
-    - hspec-expectations-lifted
-    - testcontainers >= 0.3.0.1
+    dependencies: *test-ghc-dependencies
+    ghc-options: *test-ghc-options
+    when:
+      condition: true
+      ghc-options:
+      - -main-is IntegrationSpec.main
+      dependencies:
+      - habits
   habits-test-e2e:
-    main:                Spec.hs
+    main:                E2ESpec.hs
     source-dirs:
-    - src # Adding src, see Note above
     - test-common
     - test-e2e
-    - test-main
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - habits
-    - hspec
-    - hspec-expectations-lifted
-    - testcontainers >= 0.3.0.1
+    dependencies: *test-ghc-dependencies
+    ghc-options: *test-ghc-options
+    when:
+      condition: true
+      ghc-options:
+      - -main-is E2ESpec.main
+      dependencies:
+      - habits
+

@@ -22,7 +22,7 @@ run app = do
   runApp env app
 
 spec :: Spec
-spec = fdescribe "protectedRoute should" $ do
+spec = describe "protectedRoute should" $ do
   it "return response including accountId of AuthenticatedAccount" . property $ \a -> run $ do
     out <- runExceptT $ protectedRoute a
     out `shouldBe` Right ProtectedResponseDto{accountId = a.accountId}

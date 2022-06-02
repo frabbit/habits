@@ -2,3 +2,4 @@
 tmp
 habits.cabal
 dist-newstyle
+.reload-ghcid
