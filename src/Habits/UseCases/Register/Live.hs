@@ -13,7 +13,6 @@ import Habits.UseCases.Register
 import qualified Habits.UseCases.Register as R
 import qualified Veins.Data.ComposableEnv as CE
 import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(..))
-import Control.Monad (when)
 import Habits.Domain.PasswordHash (mkFromPassword)
 import qualified Habits.Domain.AccountRepo as AR
 
@@ -34,6 +33,4 @@ mkRegister = do
     S.pure $ RegisterResponse { accountId }
 
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[AR.AccountRepo m]) n (CE.ComposableEnv '[R.Register m])
-mkLive = CE.do
-  f <- mkRegister
-  CE.pure $ CE.singleton (R.Register f)
+mkLive = CE.singleton . R.Register <$> mkRegister

@@ -1,6 +1,9 @@
 {-# LANGUAGE ApplicativeDo #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
+{-# OPTIONS_GHC -Wno-partial-type-signatures #-}
 
 module Habits.Web.Routes.LoginRoute where
 
@@ -67,7 +70,7 @@ instance FromJSON LoginRequestDto
 
 type LoginApi = "account" :> "auth" :> ReqBody '[JSON] LoginRequestDto :> Post '[JSON] LoginResponseDto
 
-loginRoute :: forall m. (MonadIO m, LoginM m, _) => LoginRequestDto -> ExceptT ServerError m LoginResponseDto
+loginRoute :: forall m. (MonadIO m, LoginM m) => LoginRequestDto -> ExceptT ServerError m LoginResponseDto
 loginRoute req = toExceptT . mapAllErrorsToServerError $
   liftE $ S.do
     req' <- fromValidation . toDomain $ req
