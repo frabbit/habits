@@ -2,9 +2,7 @@
 
 module Habits.Infra.Postgres.AccountRepoPostgresSpec where
 
-import Prelude
-import Control.Monad.IO.Class (MonadIO)
-import Control.Monad.Reader (runReaderT)
+import Habits.Prelude
 import Data.Pool (Pool)
 import qualified Database.Persist.Postgresql as P
 import qualified Habits.Domain.AccountRepo as AR

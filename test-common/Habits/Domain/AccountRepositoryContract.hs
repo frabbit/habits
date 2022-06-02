@@ -1,11 +1,13 @@
 {-# LANGUAGE BlockArguments #-}
 {-# LANGUAGE PartialTypeSignatures #-}
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 module Habits.Domain.AccountRepositoryContract where
 
-import Prelude
-import Data.Function ((&))
+import Habits.Test.Prelude
+
 import qualified Data.Text as Text
 import GHC.Stack (HasCallStack)
 import qualified Habits.Domain.Account as A
@@ -18,19 +20,15 @@ import Habits.Domain.AccountRepo.Class
   )
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.Domain.Email (Email (Email))
-import Haskus.Utils.Variant.Excepts (Excepts, catchLiftLeft, evalE)
+import Haskus.Utils.Variant.Excepts (catchLiftLeft)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
-  ( Spec,
-    describe,
-    it,
-    parallel,
+  ( parallel,
   )
 import Test.Hspec.Expectations.Lifted
   ( expectationFailure,
     shouldBe,
   )
-import UnliftIO (MonadIO)
 import Utils
   ( catchAllToFail,
     sampleIO,

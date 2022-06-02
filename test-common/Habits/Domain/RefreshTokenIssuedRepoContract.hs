@@ -4,6 +4,8 @@
 
 module Habits.Domain.RefreshTokenIssuedRepoContract where
 
+import Habits.Prelude
+
 import GHC.Stack (HasCallStack)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.RefreshTokenIssued as RTI
@@ -11,7 +13,6 @@ import Habits.Domain.RefreshTokenIssuedRepo.Class
   ( RefreshTokenIssuedRepo,
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTIC
-import Haskus.Utils.Variant.Excepts (Excepts, evalE)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec
   ( Spec,
@@ -22,12 +23,10 @@ import Test.Hspec
 import Test.Hspec.Expectations.Lifted
   ( shouldBe,
   )
-import UnliftIO (MonadIO)
 import Utils
   ( catchAllToFail,
     sampleIO,
   )
-import Prelude hiding (id)
 
 insertToken :: forall m. (RefreshTokenIssuedRepo m, _) => Excepts _ m _
 insertToken = S.do
