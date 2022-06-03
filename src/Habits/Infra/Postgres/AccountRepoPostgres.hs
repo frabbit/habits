@@ -38,6 +38,7 @@ convertToDomain (P.Entity key a) =
   A.Account
     { name = S.accountName a,
       email = Email $ S.accountEmail a,
+      emailConfirmed = S.accountEmailConfirmed a,
       accountId = accountIdToDomain key,
       password = PasswordHash $ S.accountPassword a
     }
@@ -57,6 +58,7 @@ mkAdd pool = pure f
           S.Account
             { S.accountName = an.name,
               S.accountEmail = unEmail an.email,
+              S.accountEmailConfirmed = an.emailConfirmed,
               S.accountPassword = unPasswordHash an.password
             }
       pure $ accountIdToDomain accountKey

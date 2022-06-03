@@ -27,6 +27,7 @@ Account
     Id Text
     name Text
     email Text
+    emailConfirmed Bool
     password Text
     deriving Show
 |]
@@ -46,8 +47,8 @@ main = runStderrLoggingT $
       runMigration migrateAll'
       let johnId = AccountKey "john"
       let janeId = AccountKey "jane"
-      insertKey johnId $ Account "John Doe" "abc@de.de" "pw"
-      insertKey janeId $ Account "Jane Doe" "abc@de.de" "pw"
+      insertKey johnId $ Account "John Doe" "abc@de.de" False "pw"
+      insertKey janeId $ Account "Jane Doe" "abc@de.de" False "pw"
 
       john <- get johnId
       liftIO $ print (john :: Maybe Account)

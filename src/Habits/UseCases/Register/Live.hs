@@ -26,6 +26,7 @@ mkRegister = do
     accountId <- AR.add ar
       ( AccountNew
           { email = req.email,
+            emailConfirmed = False,
             name = req.name,
             password = pwHash
           }

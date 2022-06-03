@@ -34,20 +34,18 @@ import Utils
     sampleIO,
     toThrow,
   )
+import Veins.Test.QuickCheck (propertyRuns)
 
 mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "AccountRepositoryContract" $ do
     let embed = unlift . evalE
     describe "add should" $ do
-      it "persist the account to the repository" $
-        embed $
+      it "persist the account to the repository" . propertyRuns 4 $ \accountNew -> embed $
           S.do
-            accountNew <- S.coerce sampleIO
             accountId <- ARC.add accountNew
             acc <- ARC.getById accountId
             S.coerce $ acc `shouldBe` A.fromAccountNew accountNew accountId
-            S.coerce $ ((Text.length . AccountId.unwrap $ accountId) > 0) `shouldBe` True
             & toThrow @RepositoryError
             & toThrow @AccountNotFoundError
     describe "getById should" $ do

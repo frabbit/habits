@@ -10,6 +10,7 @@ import Veins.Test.QuickCheck (genValidUtf8WithoutNullByte)
 
 data AccountNew = AccountNew
   { email :: Email,
+    emailConfirmed :: Bool,
     name :: Text,
     password :: PasswordHash
   }
@@ -17,7 +18,6 @@ data AccountNew = AccountNew
 
 instance Arbitrary AccountNew where
   arbitrary = do
-    email <- arbitrary
+    (password, email, emailConfirmed) <- arbitrary
     name <- genValidUtf8WithoutNullByte
-    password <- arbitrary
     pure $ AccountNew {..}

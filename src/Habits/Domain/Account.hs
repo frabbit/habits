@@ -12,6 +12,7 @@ data Account = Account
   { accountId :: AccountId,
     name :: Text,
     email :: Email,
+    emailConfirmed :: Bool,
     password :: PasswordHash
   }
   deriving (Eq, Show, Ord)
