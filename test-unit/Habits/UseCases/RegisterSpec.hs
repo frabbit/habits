@@ -24,7 +24,7 @@ import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Test.Hspec.Expectations.Lifted (shouldBe, shouldNotBe)
-import Utils (catchAllToFail, expectError, sampleIO)
+import Utils (catchAllToFail, expectError)
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 

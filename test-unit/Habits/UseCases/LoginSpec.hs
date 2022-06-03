@@ -41,7 +41,7 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
-import Habits.Domain.EmailNotConfirmedError (EmailNotConfirmedError(EmailNotConfirmedError))
+import Habits.Domain.EmailNotConfirmedError (EmailNotConfirmedError)
 
 type Env m = CE.MkSorted '[AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m]
 
