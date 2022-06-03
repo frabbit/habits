@@ -5,7 +5,7 @@
 
 {-# HLINT ignore "Redundant bracket" #-}
 
-module Habits.Domain.AccountRepositoryContract where
+module Habits.Domain.AccountRepoContract where
 
 import GHC.Stack (HasCallStack)
 import qualified Habits.Domain.Account as A
@@ -33,7 +33,7 @@ import Veins.Test.QuickCheck (propertyRuns)
 
 mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
-  describe "AccountRepositoryContract" $ do
+  describe "AccountRepoContract" $ do
     let embed :: _ => _
         embed = unlift . evalE . catchAllToFail
     describe "add should" $ do

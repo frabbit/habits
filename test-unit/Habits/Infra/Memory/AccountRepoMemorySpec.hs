@@ -7,7 +7,7 @@ module Habits.Infra.Memory.AccountRepoMemorySpec (spec) where
 import Habits.Test.Prelude
 
 import qualified Habits.Domain.AccountRepo as AR
-import Habits.Domain.AccountRepositoryContract
+import Habits.Domain.AccountRepoContract
   ( mkSpec,
   )
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM

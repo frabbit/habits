@@ -6,7 +6,7 @@ import Habits.Prelude
 import Data.Pool (Pool)
 import qualified Database.Persist.Postgresql as P
 import qualified Habits.Domain.AccountRepo as AR
-import Habits.Domain.AccountRepositoryContract
+import Habits.Domain.AccountRepoContract
   ( mkSpec,
   )
 import qualified Habits.Infra.Postgres.AccountRepoPostgres as ARP
