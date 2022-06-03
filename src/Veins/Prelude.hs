@@ -10,6 +10,8 @@ import qualified Prelude
 import Data.Function as M ((&))
 import Data.Functor as M ((<&>))
 
+import Data.Word as M (Word8)
+
 import Control.Monad as M (replicateM, when, unless)
 
 import Data.Proxy as M (Proxy (Proxy))
@@ -22,7 +24,7 @@ import Control.Monad.Reader as M (ReaderT (runReaderT), MonadReader, asks)
 
 import Control.Monad.IO.Class as M (MonadIO, liftIO)
 
-import Test.QuickCheck as M (Arbitrary, arbitrary, generate)
+import Test.QuickCheck as M (Arbitrary, arbitrary, generate, Gen)
 
 import Control.Monad.Except as M (runExceptT, ExceptT(ExceptT), MonadError (throwError))
 

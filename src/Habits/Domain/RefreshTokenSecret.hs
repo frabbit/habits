@@ -6,7 +6,7 @@ where
 
 import Habits.Prelude
 import Test.QuickCheck.Instances ()
-import Test.QuickCheck (Gen, elements)
+import Test.QuickCheck (elements)
 import qualified Data.Text as Text
 
 newtype RefreshTokenSecret = RefreshTokenSecret {unRefreshTokenSecret :: Text} deriving (Show, Eq, Ord)

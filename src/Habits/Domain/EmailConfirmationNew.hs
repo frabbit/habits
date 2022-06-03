@@ -5,13 +5,15 @@ module Habits.Domain.EmailConfirmationNew where
 import Habits.Prelude
 
 import Habits.Domain.Email (Email)
+import Habits.Domain.EmailConfirmationNonce (EmailConfirmationNonce)
 
 data EmailConfirmationNew = EmailConfirmationNew
-  { email :: Email
+  { email :: Email,
+    emailConfirmationNonce:: EmailConfirmationNonce
   }
   deriving (Show, Eq, Ord)
 
 instance Arbitrary EmailConfirmationNew where
   arbitrary = do
-    email <- arbitrary
+    (email,emailConfirmationNonce) <- arbitrary
     pure $ EmailConfirmationNew {..}

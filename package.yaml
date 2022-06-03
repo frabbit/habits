@@ -80,6 +80,8 @@ dependencies:
 - containers
 - http-types
 - extra
+- nonce
+- base64-bytestring
 
 default-extensions:
   - TypeOperators

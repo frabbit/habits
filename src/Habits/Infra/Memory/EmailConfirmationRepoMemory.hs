@@ -17,9 +17,9 @@ import UnliftIO
   )
 import UnliftIO.STM (modifyTVar)
 import qualified Veins.Data.ComposableEnv as CE
-import Habits.Domain.EmailConfirmationRepo (EmailConfirmationRepo(..), GetById, Add)
+import Habits.Domain.EmailConfirmationRepo (EmailConfirmationRepo(..), GetById, Add, GetByNonce)
 import Habits.Domain.EmailConfirmationId (EmailConfirmationId(..))
-import Habits.Domain.EmailConfirmation (EmailConfirmation, fromEmailConfirmationNew)
+import Habits.Domain.EmailConfirmation (EmailConfirmation (), fromEmailConfirmationNew)
 
 mkAdd ::
   forall m n.
@@ -49,9 +49,22 @@ mkGetById var = pure f
       entities <- liftIO $ readTVarIO var
       pure $ find (\a -> a.emailConfirmationId == id) entities
 
+mkGetByNonce ::
+  forall m n.
+  (Applicative n, MonadIO m) =>
+  TVar [EmailConfirmation] ->
+  n (GetByNonce m)
+mkGetByNonce var = pure f
+  where
+    f :: GetByNonce m
+    f nonce = do
+      entities <- liftIO $ readTVarIO var
+      pure $ find (\a -> a.emailConfirmationNonce == nonce) entities
+
 mkEmailConfirmationRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[EmailConfirmationRepo m])
 mkEmailConfirmationRepoMemory = do
-  emailsVar <- liftIO $ newTVarIO []
-  _getById <- mkGetById emailsVar
-  _add <- mkAdd emailsVar
-  pure $ CE.singleton EmailConfirmationRepo {_getById, _add }
+  var <- liftIO $ newTVarIO []
+  _getById <- mkGetById var
+  _getByNonce <- mkGetByNonce var
+  _add <- mkAdd var
+  pure $ CE.singleton EmailConfirmationRepo {_getById, _add, _getByNonce }

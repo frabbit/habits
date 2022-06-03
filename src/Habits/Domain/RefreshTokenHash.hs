@@ -6,7 +6,7 @@ where
 import Habits.Prelude
 
 import Test.QuickCheck.Instances ()
-import Test.QuickCheck (Gen, vector)
+import Test.QuickCheck (vector)
 import qualified Data.Password.Bcrypt as PW
 import Habits.Domain.RefreshToken (RefreshToken (RefreshToken))
 import qualified Data.ByteString as BS

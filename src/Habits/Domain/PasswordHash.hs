@@ -5,7 +5,7 @@ import qualified Data.Password.Bcrypt as PW
 import Test.QuickCheck.Instances ()
 import Habits.Domain.Password (Password(..))
 import qualified Data.ByteString as BS
-import Test.QuickCheck (Gen, vector)
+import Test.QuickCheck (vector)
 
 newtype PasswordHash = PasswordHash {unPasswordHash :: Text} deriving (Show, Eq, Ord)
 
