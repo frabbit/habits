@@ -6,14 +6,16 @@ import Habits.Prelude
 
 import Habits.Domain.Email (Email)
 import Habits.Domain.EmailConfirmationNonce (EmailConfirmationNonce)
+import Habits.Domain.AccountId (AccountId)
 
 data EmailConfirmationNew = EmailConfirmationNew
   { email :: Email,
-    emailConfirmationNonce:: EmailConfirmationNonce
+    emailConfirmationNonce:: EmailConfirmationNonce,
+    accountId :: AccountId
   }
   deriving (Show, Eq, Ord)
 
 instance Arbitrary EmailConfirmationNew where
   arbitrary = do
-    (email,emailConfirmationNonce) <- arbitrary
+    (email, emailConfirmationNonce, accountId) <- arbitrary
     pure $ EmailConfirmationNew {..}

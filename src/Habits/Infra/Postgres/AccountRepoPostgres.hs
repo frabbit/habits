@@ -66,7 +66,10 @@ mkUpdate pool = pure f
     f au id = do
       let accountKey = S.AccountKey id.unAccountId
       withPool pool $ do
-        let updates = maybe [] (\x -> [S.AccountEmailConfirmed =. x]) au.emailConfirmed
+        let
+          updates =
+            maybe [] (\x -> [S.AccountEmailConfirmed =. x]) au.emailConfirmed
+            <> maybe [] (\x -> [S.AccountEmail =. x.unEmail]) au.email
         P.update accountKey updates
 
       pure ()

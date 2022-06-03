@@ -26,4 +26,4 @@ toAccountNew Account {..} = AN.AccountNew {..}
 
 updateAccount :: AccountUpdate -> Account -> Account
 updateAccount up a =
-  a{emailConfirmed = maybe a.emailConfirmed identity up.emailConfirmed}
+  a{emailConfirmed = maybe a.emailConfirmed identity up.emailConfirmed, email = maybe a.email identity up.email}

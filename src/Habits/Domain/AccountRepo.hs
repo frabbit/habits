@@ -58,6 +58,4 @@ getByEmail repo = repo._getByEmail
 getByEmailOrFail :: (Monad m) => AccountRepo m -> Email -> Excepts '[RepositoryError, AccountNotFoundError] m Account
 getByEmailOrFail repo e = S.do
   acc <- getByEmail repo e
-  case acc of
-    Just a -> liftE $ S.pure a
-    Nothing -> failureE AccountNotFoundError
+  maybe (failureE AccountNotFoundError) (liftE . S.pure) acc

@@ -8,6 +8,8 @@ import Habits.Domain.EmailConfirmationId (EmailConfirmationId)
 import Habits.Domain.EmailConfirmation (EmailConfirmation)
 import Habits.Domain.EmailConfirmationNew (EmailConfirmationNew)
 import Habits.Domain.EmailConfirmationNonce (EmailConfirmationNonce)
+import Habits.Domain.EmailConfirmationNotFoundError (EmailConfirmationNotFoundError (EmailConfirmationNotFoundError))
+import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 
 type GetById m =
   EmailConfirmationId ->
@@ -45,3 +47,10 @@ getByNonce = (._getByNonce)
 {- HLINT ignore "Redundant bracket" -}
 add :: forall m. EmailConfirmationRepo m -> Add m
 add = (._add)
+
+getByNonceOrFail :: (Monad m) => EmailConfirmationRepo m -> EmailConfirmationNonce -> Excepts '[RepositoryError, EmailConfirmationNotFoundError] m EmailConfirmation
+getByNonceOrFail repo e = S.do
+  e1 <- getByNonce repo e
+  case e1 of
+    Just a -> liftE $ S.pure a
+    Nothing -> failureE EmailConfirmationNotFoundError

@@ -3,15 +3,18 @@
 module Habits.Domain.AccountUpdate where
 
 import Habits.Prelude
+import Habits.Domain.Email (Email)
 
 data AccountUpdate = AccountUpdate
   {
-    emailConfirmed :: Maybe Bool
+    emailConfirmed :: Maybe Bool,
+    email :: Maybe Email
   }
   deriving (Show, Eq, Ord)
 
 instance Arbitrary AccountUpdate where
   arbitrary = do
-    emailConfirmed <- arbitrary
+    (email, emailConfirmed) <- arbitrary
+
     pure $ AccountUpdate {..}
 
