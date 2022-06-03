@@ -8,7 +8,7 @@
 module Habits.Domain.EmailConfirmationRepoContract where
 
 import GHC.Stack (HasCallStack)
-import Habits.Domain.EmailConfirmation (EmailConfirmation (emailConfirmationNonce), fromEmailConfirmationNew)
+import Habits.Domain.EmailConfirmation (fromEmailConfirmationNew)
 import Habits.Domain.EmailConfirmationRepo.Class (EmailConfirmationRepoM (add, getByNonce), getById)
 import Habits.Test.Prelude
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
