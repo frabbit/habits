@@ -9,11 +9,12 @@ import Veins.Data.ToSymbol (ToSymbol)
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError)
 import Veins.Control.Lens.Utils (makeLensesWithoutUnderscoreAndWithSuffixL)
+import Habits.Domain.EmailNotConfirmedError (EmailNotConfirmedError)
 
 
 type LoginExec m =
   LoginRequest ->
-  Excepts '[RepositoryError, AccountNotFoundError, PasswordIncorrectError] m LoginResponse
+  Excepts '[RepositoryError, AccountNotFoundError, PasswordIncorrectError, EmailNotConfirmedError] m LoginResponse
 
 newtype Login m = Login
   { unLogin :: LoginExec m

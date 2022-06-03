@@ -41,6 +41,7 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 import qualified Habits.Infra.Memory.RefreshTokenIssuedRepoMemory as RTL
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RefreshTokenIssuedRepo
 import qualified Habits.Domain.RefreshTokenHash as RefreshTokenHash
+import Habits.Domain.EmailNotConfirmedError (EmailNotConfirmedError(EmailNotConfirmedError))
 
 type Env m = CE.MkSorted '[AR.AccountRepo m, Login.Login m, RT.RefreshTokenIssuedRepo m]
 
@@ -66,7 +67,15 @@ addUserWithPassword :: _ => _
 addUserWithPassword = S.do
   pw <- S.coerce sampleIO
   pwHash <- S.coerce $ mkFromPassword pw
-  acc <- S.coerce $ sampleIO <&> \a -> a{password = pwHash}
+  acc <- S.coerce $ sampleIO <&> \a -> a{password = pwHash, emailConfirmed = True}
+  id <- ARC.add acc
+  S.pure (acc, pw, id)
+
+addUserWithUnconfirmedEmail :: _ => _
+addUserWithUnconfirmedEmail = S.do
+  pw <- S.coerce sampleIO
+  pwHash <- S.coerce $ mkFromPassword pw
+  acc <- S.coerce $ sampleIO <&> \a -> a{password = pwHash, emailConfirmed = False}
   id <- ARC.add acc
   S.pure (acc, pw, id)
 
@@ -124,6 +133,11 @@ spec = describe "Login.execute should" $ do
       email <- S.coerce sampleIO
       LC.login $ EmailPasswordLoginRequest email pw
       & expectError @AccountNotFoundError
+  xit "fail with EmailNotConfirmedError when account has unconfirmed email" . embed $
+    S.do
+      (acc, pw, _) <- addUserWithUnconfirmedEmail
+      LC.login $ EmailPasswordLoginRequest acc.email pw
+      & expectError @EmailNotConfirmedError
   it "fail with PasswordIncorrectError when account with email exists but password is wrong" . embed $
     S.do
       let pw = Password "InvalidPassword"

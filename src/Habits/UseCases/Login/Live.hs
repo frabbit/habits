@@ -35,6 +35,7 @@ mkLogin = do
   pure $ \(EmailPasswordLoginRequest email pw) -> liftE $ S.do
     acc <- AR.getByEmailOrFail ar email
     unless (isValid pw acc.password) (failureE PasswordIncorrectError)
+    -- unless (acc.emailConfirmed) (failureE EmailNotConfirmedError)
     time <- S.lift getNow
     accessSecret <- S.coerce getAccessSecret
     refreshSecret <- S.coerce getRefreshSecret
