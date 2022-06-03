@@ -54,7 +54,7 @@ spec = describe "Register should" $ do
     account <- ARC.getById resp.accountId
     S.coerce $ account.email `shouldBe` rr.email
     S.coerce $ account.name `shouldBe` rr.name
-  it "lead to an unconfirmed Email adress" . propWrap $ \rr -> S.do
+  it "lead to an unconfirmed email address" . propWrap $ \rr -> S.do
     resp <- RC.register rr
     account <- ARC.getById resp.accountId
     S.coerce $ account.emailConfirmed `shouldBe` False
