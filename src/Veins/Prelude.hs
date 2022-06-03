@@ -22,7 +22,7 @@ import Control.Monad.Reader as M (ReaderT (runReaderT), MonadReader, asks)
 
 import Control.Monad.IO.Class as M (MonadIO, liftIO)
 
-import Test.QuickCheck as M (Arbitrary, arbitrary)
+import Test.QuickCheck as M (Arbitrary, arbitrary, generate)
 
 import Control.Monad.Except as M (runExceptT, ExceptT(ExceptT), MonadError (throwError))
 
