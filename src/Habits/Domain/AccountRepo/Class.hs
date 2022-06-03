@@ -7,24 +7,27 @@ import Habits.Domain.RepositoryError (RepositoryError)
 import Habits.Domain.AccountRepo
   ( Add,
     GetByEmail,
-    GetById,
+    GetById, Update,
   )
 import qualified Habits.Domain.AccountRepo as AR
 import Habits.Domain.Email (Email)
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Veins.Data.Has (Has)
-import Habits.Utils (applyFirstM)
+import Habits.Utils (applyFirstM, applyFirst2M)
 
 class AccountRepo m where
   add :: Add m
   getById :: GetById m
+  update :: Update m
   getByEmail :: GetByEmail m
 
 
 instance (MonadReader env m, Has (AR.AccountRepo m) env) => AccountRepo m where
   add = applyFirstM AR.add
   getById = applyFirstM AR.getById
+  update = applyFirst2M AR.update
   getByEmail = applyFirstM AR.getByEmail
+
 
 getByEmailOrFail :: (Monad m, AccountRepo m) => Email -> Excepts '[RepositoryError, AccountNotFoundError] m Account
 getByEmailOrFail e = S.do

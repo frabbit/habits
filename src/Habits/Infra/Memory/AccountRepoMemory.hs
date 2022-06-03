@@ -10,12 +10,12 @@ import GHC.Conc
   ( newTVarIO,
     readTVarIO,
   )
-import Habits.Domain.Account (Account)
+import Habits.Domain.Account (Account, updateAccount)
 import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId (AccountId))
-import qualified Habits.Domain.AccountRepo as AR
 import Habits.Domain.AccountNotFoundError
-    ( AccountNotFoundError(AccountNotFoundError) )
+  ( AccountNotFoundError (AccountNotFoundError),
+  )
 import Habits.Domain.AccountRepo
   ( AccountRepo
       ( AccountRepo,
@@ -23,8 +23,11 @@ import Habits.Domain.AccountRepo
         _getById
       ),
     Add,
-    GetById, GetByEmail,
+    GetByEmail,
+    GetById,
+    Update,
   )
+import qualified Habits.Domain.AccountRepo as AR
 import UnliftIO
   ( TVar,
     atomically,
@@ -43,6 +46,15 @@ mkAdd accountsVar = pure f
       let newAccount = A.fromAccountNew an id'
       atomically $ modifyTVar accountsVar $ \a -> reverse (newAccount : reverse a)
       pure id'
+
+mkUpdate ::
+  forall n m. (Applicative n, MonadIO m) => TVar [Account] -> n (Update m)
+mkUpdate var = pure f
+  where
+    f :: Update m
+    f au id = do
+      atomically $ modifyTVar var $ fmap (\a -> if a.accountId == id then updateAccount au a else a)
+      pure ()
 
 {- HLINT ignore mkGetById "Redundant bracket" -}
 mkGetById ::
@@ -73,11 +85,11 @@ mkGetByEmail accountsVar = pure f
       accounts :: [Account] <- liftIO $ readTVarIO accountsVar
       pure $ find (\a -> a.email == email) accounts
 
-
 mkAccountRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AccountRepo m])
 mkAccountRepoMemory = do
   accountsVar <- liftIO $ newTVarIO []
   _getById <- mkGetById accountsVar
   _getByEmail <- mkGetByEmail accountsVar
   _add <- mkAdd accountsVar
-  pure $ CE.singleton AccountRepo {_add, _getById, AR._getByEmail = _getByEmail }
+  _update <- mkUpdate accountsVar
+  pure $ CE.singleton AccountRepo {_add, _getById, _getByEmail, _update}

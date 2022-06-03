@@ -3,32 +3,28 @@
 
 module Habits.Infra.Postgres.AccountRepoPostgres where
 
-import Habits.Prelude
 import qualified Data.Pool as P'
 import qualified Data.UUID as UUID
 import Data.UUID.V4 (nextRandom)
+import Database.Persist (SelectOpt (LimitTo), (==.), (=.))
 import qualified Database.Persist.Postgresql as P
 import Habits.Domain.Account (Account)
 import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId (AccountId))
-import Habits.Domain.AccountNotFoundError (AccountNotFoundError(AccountNotFoundError))
+import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
 import Habits.Domain.AccountRepo
-  (
-    AccountRepo
-      ( AccountRepo,
-        _add,
-        _getById,
-        _getByEmail
-      ),
+  ( AccountRepo (..),
     Add,
-    GetById, GetByEmail,
+    GetByEmail,
+    GetById,
+    Update,
   )
 import Habits.Domain.Email (Email (..))
+import Habits.Domain.PasswordHash (PasswordHash (PasswordHash, unPasswordHash))
 import qualified Habits.Infra.Postgres.Schema as S
-import Database.Persist ((==.), SelectOpt (LimitTo))
-import qualified Veins.Data.ComposableEnv as CE
 import Habits.Infra.Postgres.Utils (withPool)
-import Habits.Domain.PasswordHash (PasswordHash(PasswordHash, unPasswordHash))
+import Habits.Prelude
+import qualified Veins.Data.ComposableEnv as CE
 
 accountIdToDomain :: P.Key S.Account -> AccountId
 accountIdToDomain key = AccountId $ S.unAccountKey key
@@ -42,7 +38,6 @@ convertToDomain (P.Entity key a) =
       accountId = accountIdToDomain key,
       password = PasswordHash $ S.accountPassword a
     }
-
 
 {- HLINT ignore mkAdd "Redundant bracket" -}
 mkAdd :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Add m)
@@ -62,6 +57,19 @@ mkAdd pool = pure f
               S.accountPassword = unPasswordHash an.password
             }
       pure $ accountIdToDomain accountKey
+
+{- HLINT ignore mkAdd "Redundant bracket" -}
+mkUpdate :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (Update m)
+mkUpdate pool = pure f
+  where
+    f :: Update m
+    f au id = do
+      let accountKey = S.AccountKey id.unAccountId
+      withPool pool $ do
+        let updates = maybe [] (\x -> [S.AccountEmailConfirmed =. x]) au.emailConfirmed
+        P.update accountKey updates
+
+      pure ()
 
 mkGetById :: forall m n. (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> n (GetById m)
 mkGetById pool = pure f
@@ -84,11 +92,14 @@ mkGetByEmail pool = pure f
       let acc = convertToDomain <$> accountMaybe
       pure acc
 
-
-mkAccountRepoPostgres :: forall n m .
-  (Monad n, MonadIO m) => P'.Pool P.SqlBackend -> CE.LayerCE '[] n '[AccountRepo m]
+mkAccountRepoPostgres ::
+  forall n m.
+  (Monad n, MonadIO m) =>
+  P'.Pool P.SqlBackend ->
+  CE.LayerCE '[] n '[AccountRepo m]
 mkAccountRepoPostgres pool = do
   _add <- mkAdd pool
   _getById <- mkGetById pool
   _getByEmail <- mkGetByEmail pool
+  _update <- mkUpdate pool
   pure $ CE.singleton (AccountRepo {..})

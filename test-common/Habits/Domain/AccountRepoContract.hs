@@ -30,6 +30,7 @@ import Utils
     expectError,
   )
 import Veins.Test.QuickCheck (propertyRuns)
+import Habits.Domain.Account (updateAccount)
 
 mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
@@ -62,3 +63,11 @@ mkSpec unlift = parallel $
         ARC.add accountNew
         res <- ARC.getByEmail sampleEmail
         S.coerce $ res `shouldBe` Nothing
+    describe "update should" $ do
+      it "apply the update to the account" . propertyRuns 2 $ \(accountUp) -> embed $ S.do
+        accountNew <- S.coerce sampleIO
+        accountId <- ARC.add accountNew
+        accountOld <- ARC.getById accountId
+        ARC.update accountUp accountId
+        acc <- ARC.getById accountId
+        S.coerce $ acc `shouldBe` (updateAccount accountUp accountOld)
