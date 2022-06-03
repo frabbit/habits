@@ -43,7 +43,7 @@ test-unit-ghcid:
 	ghcid --restart=habits.cabal --reload=.reload-ghcid --test=UnitSpec.main \
 		--command="stack ghci \
 			$(ghci-options) $(ghci-disabled-warnings) \
-		habits:habits-test-unit"
+		habits:habits-test-all"
 	reset && clear
 
 test-e2e-ghcid:
@@ -51,12 +51,12 @@ test-e2e-ghcid:
 	ghcid --restart=habits.cabal --reload=.reload-ghcid --test=E2ESpec.main \
 		--command="stack ghci \
 			$(ghci-options) $(ghci-disabled-warnings) \
-			habits:habits-test-e2e"
+			habits:habits-test-all"
 	reset && clear
 
 test-all-ghcid:
 	reset && clear
-	ghcid --restart=habits.cabal --reload=.reload-ghcid --test=E2ESpec.main \
+	ghcid --restart=habits.cabal --reload=.reload-ghcid --test=Main.main \
 		--command="stack ghci \
 			$(ghci-options) $(ghci-disabled-warnings) \
 			habits:habits-test-all"
@@ -67,7 +67,7 @@ test-integration-ghcid:
 	ghcid --restart=habits.cabal --reload=.reload-ghcid --test=IntegrationSpec.main \
 		--command="stack ghci \
 		$(ghci-options) $(ghci-disabled-warnings) \
-		habits:habits-test-integration"
+		habits:habits-test-all"
 	reset && clear
 
 test-compile-ghcid:
