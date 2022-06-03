@@ -11,9 +11,6 @@
 
 module Habits.UseCases.RegisterSpec (spec) where
 
-
-import Habits.Test.Prelude
-
 import qualified Habits.Domain.AccountNew as AN
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AccountRepo.Class as ARC
@@ -21,6 +18,7 @@ import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError (..))
 import Habits.Domain.Password (Password (Password, unPassword))
 import Habits.Domain.PasswordHash (PasswordHash (PasswordHash), isValid)
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
+import Habits.Test.Prelude
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.Class as RC
 import qualified Habits.UseCases.Register.Live as RL
@@ -47,29 +45,30 @@ accountNewToRegisterRequest an pass = R.RegisterRequest {name = an.name, email =
 
 spec :: Spec
 spec = describe "Register should" $ do
-  let runEval = runWithEnv . evalE
-  let wrap = runWithEnv . evalE . catchAllToFail
-  it "succeed when creating a new account which email does not exist yet." . wrap $ S.do
-    rr <- S.coerce sampleIO
+  let wrap :: _ => _
+      wrap = runWithEnv . evalE . catchAllToFail
+      propWrap :: _ => _
+      propWrap f = property $ \x -> wrap (f x)
+  it "succeed when creating a new account which email does not exist yet." . propWrap $ \rr -> S.do
     resp <- RC.register rr
     account <- ARC.getById resp.accountId
     S.coerce $ account.email `shouldBe` rr.email
     S.coerce $ account.name `shouldBe` rr.name
-  it "encode the password and store it encrypted." . wrap $ S.do
-    rr <- S.coerce sampleIO
+  it "lead to an unconfirmed Email adress" . propWrap $ \rr -> S.do
+    resp <- RC.register rr
+    account <- ARC.getById resp.accountId
+    S.coerce $ account.emailConfirmed `shouldBe` False
+  it "encode the password and store it encrypted." . propWrap $ \rr -> S.do
     resp <- RC.register rr
     account <- ARC.getById resp.accountId
 
     S.coerce $ account.password `shouldNotBe` PasswordHash (rr.password & unPassword)
-  it "encode the password and store it encrypted." . wrap $ S.do
-    rr <- S.coerce sampleIO
+  it "encode the password and store it encrypted." . propWrap $ \rr -> S.do
     accountId <- RC.register rr <&> (.accountId)
     account <- ARC.getById accountId
     S.coerce $ isValid rr.password account.password `shouldBe` True
-
-  it "fail when creating a new account which email does not exist yet." . runEval . catchAllToFail $
+  it "fail to register a new account with an existing email." . propWrap $ \an ->
     S.do
-      an :: AN.AccountNew <- S.coerce sampleIO
       ARC.add an
       RC.register (accountNewToRegisterRequest an (Password "pw"))
       & expectError @EmailAlreadyUsedError
