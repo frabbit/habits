@@ -25,7 +25,7 @@ import Utils
 
 mkSpec :: forall m. (HasCallStack, MonadIO m, EmailConfirmationRepoM m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
-  fdescribe "EmailConfirmationRepoContract" $ do
+  describe "EmailConfirmationRepoContract" $ do
     let embed = unlift . evalE . catchAllToFail
     describe "add should" $ do
       it "persist the EmailConfirmation to the repository" . embed $
