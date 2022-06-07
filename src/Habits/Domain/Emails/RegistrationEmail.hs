@@ -21,9 +21,11 @@ mkRegistrationEmail :: Email -> EmailConfirmationNonce -> EmailMessage
 mkRegistrationEmail receiver' nonce = EmailMessage {
     body,
     receiver,
-    sender
+    sender,
+    subject
   }
   where
-    body = EmailBody $ "Welcome to Habits,\n\nYour activation code: " <> nonce.unEmailConfirmationNonce <> "\n\nBest regards, The Habits Team"
+    subject = EmailSubject "Successful Registration at Habits"
+    body = EmailBody $ "Hallo,\n\nThanks for your registration and welcome to habits.\n\nYour activation code: " <> nonce.unEmailConfirmationNonce <> "\n\nBest regards,\n\nThe Habits Team"
     receiver = EmailReceiver receiver'
     sender = EmailSender $ Email "contact@habits.de"
