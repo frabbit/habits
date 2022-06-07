@@ -31,12 +31,12 @@ mkLogin = do
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
   rtr <- RT.getRefreshTokenIssuedRepo
   ar <- getAccountRepo
-  getNow <- Clock.mkGetNow
+  clock <- Clock.getClock
   pure $ \(EmailPasswordLoginRequest email pw) -> liftE $ S.do
     acc <- AR.getByEmailOrFail ar email
     unless (isValid pw acc.password) (failureE PasswordIncorrectError)
     -- unless (acc.emailConfirmed) (failureE EmailNotConfirmedError)
-    time <- S.lift getNow
+    time <- S.lift clock._getNow
     accessSecret <- S.coerce getAccessSecret
     refreshSecret <- S.coerce getRefreshSecret
     let refreshTokenExpiration = addDaysToUTCTime 7 time

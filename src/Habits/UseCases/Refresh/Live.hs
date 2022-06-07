@@ -31,11 +31,11 @@ mkExecute = do
   getAccessSecret <- AC.mkGetAccessTokenSecret
   getRefreshSecret <- AC.mkGetRefreshTokenSecret
   rtr <- RT.getRefreshTokenIssuedRepo
-  getNow <- Clock.mkGetNow
+  clock <- Clock.getClock
   pure $ \(RefreshRequest token) -> liftE $ S.do
     atSecret <- S.coerce getAccessSecret
     rtSecret <- S.coerce getRefreshSecret
-    time <- S.lift getNow
+    time <- S.lift clock._getNow
     let expired = isExpired rtSecret token (utcTimeToPOSIXSeconds time)
 
     when expired (failureE RefreshTokenExpiredError)

@@ -7,7 +7,6 @@ import Habits.Prelude
 import Veins.Data.ToSymbol (ToSymbol)
 import qualified Veins.Data.Has as Has
 import Data.Time (UTCTime, getCurrentTime)
-import Control.Monad (join)
 import qualified Veins.Data.ComposableEnv as CE
 
 type GetNow m = m UTCTime
@@ -16,8 +15,11 @@ data Clock m = Clock
   { _getNow :: GetNow m
   }
 
-getNow :: forall m env. (Has.Has (Clock m) env, MonadReader env m) => GetNow m
-getNow = join . asks $ _getNow . Has.get
+getClock :: (MonadReader r n, Has.Has (Clock m) r) => n (Clock m)
+getClock = asks Has.get
+
+getNow :: forall m. Clock m -> GetNow m
+getNow = (._getNow)
 
 mkGetNow :: forall m env n. ( Has.Has (Clock m) env, MonadReader env n) => n (GetNow m)
 mkGetNow = asks (_getNow . Has.get)
