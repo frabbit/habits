@@ -18,6 +18,8 @@ import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError (..))
 import Habits.Domain.Password (Password (Password, unPassword))
 import Habits.Domain.PasswordHash (PasswordHash (PasswordHash), isValid)
 import qualified Habits.Infra.Memory.AccountRepoMemory as ARM
+import Habits.Infra.Memory.EmailServiceMemory (mkEmailServiceMemory)
+import Habits.Infra.VarStorage.Live (mkVarStorageLive)
 import Habits.Test.Prelude
 import qualified Habits.UseCases.Register as R
 import qualified Habits.UseCases.Register.Class as RC
@@ -31,7 +33,11 @@ import qualified Veins.Test.AppTH as AppTH
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
 
 envLayer :: forall m n. (MonadIO n, MonadIO m, _) => CE.ReaderCE '[] n (Env m)
-envLayer = RL.mkLive <<-&& ARM.mkAccountRepoMemory
+envLayer =
+  RL.mkLive
+    <<-&& ARM.mkAccountRepoMemory
+    <<- mkEmailServiceMemory
+    <<- mkVarStorageLive []
 
 AppTH.mkBoilerplate "runApp" ''Env
 

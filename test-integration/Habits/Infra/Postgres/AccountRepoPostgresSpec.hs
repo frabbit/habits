@@ -1,4 +1,5 @@
 {-# LANGUAGE UndecidableInstances #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Habits.Infra.Postgres.AccountRepoPostgresSpec where
 
@@ -11,20 +12,17 @@ import Habits.Domain.AccountRepoContract
   )
 import qualified Habits.Infra.Postgres.AccountRepoPostgres as ARP
 import qualified Habits.Infra.Postgres.Schema as S
-import qualified Habits.UseCases.Register as R
-import qualified Habits.UseCases.Register.Live as RL
 import Test.Hspec
   ( Spec,
   )
 import qualified Veins.Data.ComposableEnv as CE
 import qualified Veins.Test.AppTH as AppTH
 import Veins.TestContainers.Postgres (withPostgresPool)
-import Veins.Data.ComposableEnv ((<<-&&))
 
-type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m]
+type Env m = CE.MkSorted '[AR.AccountRepo m]
 
 envLayer :: forall n m. (MonadIO n, MonadIO m) => Pool P.SqlBackend -> CE.ReaderCE '[] n (Env m)
-envLayer pool = RL.mkLive <<-&& ARP.mkAccountRepoPostgres pool
+envLayer = ARP.mkAccountRepoPostgres
 
 AppTH.mkBoilerplate "runApp" ''Env
 

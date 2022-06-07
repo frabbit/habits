@@ -6,7 +6,7 @@ import Data.Text (Text)
 import Habits.Web.Routes.LoginRoute (LoginApi, LoginRequestDto, LoginResponseDto)
 import Habits.Web.Routes.ProtectedRoute (ProtectedApi, ProtectedResponseDto)
 import Habits.Web.Routes.RegisterRoute (RegisterApi, RegisterRequestDto, RegisterResponseDto)
-import Habits.Web.Server (ServerConfig (ServerConfig), mkApp, refreshTokenSecret, accessTokenSecret)
+import Habits.Web.Server (ServerConfig (ServerConfig), mkApp, refreshTokenSecret, accessTokenSecret, EmailServiceConfig (ESCMemory), emailServiceConfig)
 import Network.HTTP.Client (defaultManagerSettings, newManager)
 import qualified Network.Wai.Handler.Warp as Warp
 import Servant (AuthProtect)
@@ -20,7 +20,7 @@ type instance AuthClientData (AuthProtect "JWT") = Text
 
 
 testConfig :: ServerConfig
-testConfig = ServerConfig { refreshTokenSecret = RTS.mkRefreshTokenSecret "abcde",accessTokenSecret = ATS.mkAccessTokenSecret "abc" }
+testConfig = ServerConfig { refreshTokenSecret = RTS.mkRefreshTokenSecret "abcde",accessTokenSecret = ATS.mkAccessTokenSecret "abc", emailServiceConfig = ESCMemory }
 
 
 authenticateRequest :: Text -> Request -> Request

@@ -16,6 +16,10 @@ mkReadVar var = do
 mkVarStorageLive :: forall t n m . (MonadIO n, MonadIO m) => t -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[VarStorage t m])
 mkVarStorageLive t = do
   var <- liftIO $ newTVarIO t
+  mkVarStorageLiveFromVar var
+
+mkVarStorageLiveFromVar :: forall t n m . (MonadIO n, MonadIO m) => TVar t -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[VarStorage t m])
+mkVarStorageLiveFromVar var = do
   getVar <- mkGetVar var
   readVar <- mkReadVar var
   pure $ CE.singleton VarStorage { getVar, readVar }

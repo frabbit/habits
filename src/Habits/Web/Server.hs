@@ -37,10 +37,22 @@ import Habits.UseCases.Refresh.Class (RefreshM)
 import Habits.Infra.Memory.RefreshTokenIssuedRepoMemory (mkRefreshTokenIssuedRepoMemory)
 import Habits.Infra.Memory.AccountRepoMemory (mkAccountRepoMemory)
 import qualified Veins.Test.AppTH as AppTH
+import GHC.Conc (TVar)
+import Habits.Domain.EmailMessage (EmailMessage)
+import Habits.Infra.Memory.EmailServiceMemory (mkEmailServiceMemory)
+import Habits.Infra.VarStorage.Live (mkVarStorageLive, mkVarStorageLiveFromVar)
 
 type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig m]
 
-data ServerConfig = ServerConfig {refreshTokenSecret :: RefreshTokenSecret, accessTokenSecret :: AccessTokenSecret }
+data EmailServiceConfig
+  = ESCMemoryVar (TVar [EmailMessage])
+  | ESCMemory
+
+data ServerConfig = ServerConfig {
+  refreshTokenSecret :: RefreshTokenSecret,
+  accessTokenSecret :: AccessTokenSecret,
+  emailServiceConfig :: EmailServiceConfig
+}
 
 {- HLINT ignore envLayer "Redundant bracket" -}
 envLayer :: forall m n. (MonadIO n, MonadIO m) => ServerConfig -> ReaderT (CE.ComposableEnv '[]) n (Env m)
@@ -52,6 +64,12 @@ envLayer cfg =
     CE.<<-&& mkAccountRepoMemory
     CE.<<-&& AC.mkAuthConfigStatic cfg.accessTokenSecret cfg.refreshTokenSecret
     CE.<<-&& mkClockLive
+    CE.<<- mkEmailServiceMemory
+    CE.<<- emailStorage cfg.emailServiceConfig
+
+  where
+    emailStorage (ESCMemoryVar v) = mkVarStorageLiveFromVar v
+    emailStorage ESCMemory = mkVarStorageLive []
 
 
 
