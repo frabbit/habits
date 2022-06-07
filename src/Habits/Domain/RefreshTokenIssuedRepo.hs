@@ -34,29 +34,14 @@ type DeleteById m =
   Excepts '[RepositoryError] m ()
 
 data RefreshTokenIssuedRepo m = RefreshTokenIssuedRepo
-  { _add :: Add m,
-    _getById :: GetById m,
-    _getByAccountId :: GetByAccountId m,
-    _deleteByAccountId :: DeleteByAccountId m,
-    _deleteById :: DeleteById m
+  { add :: Add m,
+    getById :: GetById m,
+    getByAccountId :: GetByAccountId m,
+    deleteByAccountId :: DeleteByAccountId m,
+    deleteById :: DeleteById m
   }
 
 type instance ToSymbol (RefreshTokenIssuedRepo m) = "RefreshTokenIssuedRepo"
 
 getRefreshTokenIssuedRepo :: (MonadReader r n, Has.Has (RefreshTokenIssuedRepo m) r) => n (RefreshTokenIssuedRepo m)
 getRefreshTokenIssuedRepo = asks Has.get
-
-add :: forall m. RefreshTokenIssuedRepo m -> Add m
-add = (._add)
-
-getById :: forall m. RefreshTokenIssuedRepo m -> GetById m
-getById= (._getById)
-
-getByAccountId :: forall m. RefreshTokenIssuedRepo m -> GetByAccountId m
-getByAccountId = (._getByAccountId)
-
-deleteByAccountId :: forall m. RefreshTokenIssuedRepo m -> DeleteByAccountId m
-deleteByAccountId = (._deleteByAccountId)
-
-deleteById :: forall m. RefreshTokenIssuedRepo m -> DeleteById m
-deleteById = (._deleteById)

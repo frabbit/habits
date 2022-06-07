@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Habits.Infra.Memory.EmailConfirmationRepoMemory where
 
@@ -64,7 +65,7 @@ mkGetByNonce var = pure f
 mkEmailConfirmationRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[EmailConfirmationRepo m])
 mkEmailConfirmationRepoMemory = do
   var <- liftIO $ newTVarIO []
-  _getById <- mkGetById var
-  _getByNonce <- mkGetByNonce var
-  _add <- mkAdd var
-  pure $ CE.singleton EmailConfirmationRepo {_getById, _add, _getByNonce }
+  getById <- mkGetById var
+  getByNonce <- mkGetByNonce var
+  add <- mkAdd var
+  pure $ CE.singleton EmailConfirmationRepo { .. }

@@ -25,28 +25,15 @@ type Add m =
 
 data EmailConfirmationRepo m = EmailConfirmationRepo
   {
-    _getById :: GetById m,
-    _getByNonce :: GetByNonce m,
-    _add :: Add m
+    getById :: GetById m,
+    getByNonce :: GetByNonce m,
+    add :: Add m
   }
 
 type instance ToSymbol (EmailConfirmationRepo m) = "EmailConfirmationRepo"
 
 getEmailConfirmationRepo :: (MonadReader r n, Has.Has (EmailConfirmationRepo m) r) => n (EmailConfirmationRepo m)
 getEmailConfirmationRepo = asks Has.get
-
-
-{- HLINT ignore "Redundant bracket" -}
-getById :: forall m. EmailConfirmationRepo m -> GetById m
-getById = (._getById)
-
-{- HLINT ignore "Redundant bracket" -}
-getByNonce :: forall m. EmailConfirmationRepo m -> GetByNonce m
-getByNonce = (._getByNonce)
-
-{- HLINT ignore "Redundant bracket" -}
-add :: forall m. EmailConfirmationRepo m -> Add m
-add = (._add)
 
 getByNonceOrFail :: (Monad m) => EmailConfirmationRepo m -> EmailConfirmationNonce -> Excepts '[RepositoryError, EmailConfirmationNotFoundError] m EmailConfirmation
 getByNonceOrFail repo e = S.do

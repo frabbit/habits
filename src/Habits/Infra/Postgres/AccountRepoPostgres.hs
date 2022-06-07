@@ -101,8 +101,8 @@ mkAccountRepoPostgres ::
   P'.Pool P.SqlBackend ->
   CE.LayerCE '[] n '[AccountRepo m]
 mkAccountRepoPostgres pool = do
-  _add <- mkAdd pool
-  _getById <- mkGetById pool
-  _getByEmail <- mkGetByEmail pool
-  _update <- mkUpdate pool
+  add <- mkAdd pool
+  getById <- mkGetById pool
+  getByEmail <- mkGetByEmail pool
+  update <- mkUpdate pool
   pure $ CE.singleton (AccountRepo {..})

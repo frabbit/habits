@@ -1,4 +1,5 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
+{-# LANGUAGE RecordWildCards #-}
 
 module Habits.Infra.Memory.RefreshTokenIssuedRepoMemory where
 
@@ -18,7 +19,7 @@ import UnliftIO
   )
 import UnliftIO.STM (modifyTVar)
 import qualified Veins.Data.ComposableEnv as CE
-import Habits.Domain.RefreshTokenIssuedRepo (RefreshTokenIssuedRepo (RefreshTokenIssuedRepo, _getById, _add, _deleteByAccountId), Add, GetById, GetByAccountId, _getByAccountId, DeleteByAccountId, DeleteById, _deleteById)
+import Habits.Domain.RefreshTokenIssuedRepo (RefreshTokenIssuedRepo (..), Add, GetById, GetByAccountId, DeleteByAccountId, DeleteById)
 import Habits.Domain.RefreshTokenIssued (RefreshTokenIssued)
 import Habits.Domain.RefreshTokenIssuedId (RefreshTokenIssuedId(..))
 
@@ -88,9 +89,9 @@ mkDeleteById accountsVar = pure f
 mkRefreshTokenIssuedRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[RefreshTokenIssuedRepo m])
 mkRefreshTokenIssuedRepoMemory = do
   entitiesVar <- liftIO $ newTVarIO []
-  _getById <- mkGetById entitiesVar
-  _add <- mkAdd entitiesVar
-  _getByAccountId <- mkGetByAccountId entitiesVar
-  _deleteByAccountId <- mkDeleteByAccountId entitiesVar
-  _deleteById <- mkDeleteById entitiesVar
-  pure $ CE.singleton RefreshTokenIssuedRepo {_add, _getById, _getByAccountId, _deleteByAccountId, _deleteById }
+  getById <- mkGetById entitiesVar
+  add <- mkAdd entitiesVar
+  getByAccountId <- mkGetByAccountId entitiesVar
+  deleteByAccountId <- mkDeleteByAccountId entitiesVar
+  deleteById <- mkDeleteById entitiesVar
+  pure $ CE.singleton RefreshTokenIssuedRepo { .. }

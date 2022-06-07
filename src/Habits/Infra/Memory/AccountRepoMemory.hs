@@ -19,17 +19,13 @@ import Habits.Domain.AccountNotFoundError
   ( AccountNotFoundError (AccountNotFoundError),
   )
 import Habits.Domain.AccountRepo
-  ( AccountRepo
-      ( AccountRepo,
-        _add,
-        _getById
-      ),
+  ( AccountRepo ( .. ),
     Add,
     GetByEmail,
     GetById,
     Update,
   )
-import qualified Habits.Domain.AccountRepo as AR
+
 import UnliftIO
   ( TVar,
     atomically,
@@ -88,8 +84,8 @@ mkGetByEmail accountsVar = pure f
 mkAccountRepoMemory :: (MonadIO n, MonadIO m) => ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AccountRepo m])
 mkAccountRepoMemory = do
   accountsVar <- liftIO $ newTVarIO []
-  _getById <- mkGetById accountsVar
-  _getByEmail <- mkGetByEmail accountsVar
-  _add <- mkAdd accountsVar
-  _update <- mkUpdate accountsVar
-  pure $ CE.singleton AccountRepo {_add, _getById, _getByEmail, _update}
+  getById <- mkGetById accountsVar
+  getByEmail <- mkGetByEmail accountsVar
+  add <- mkAdd accountsVar
+  update <- mkUpdate accountsVar
+  pure $ CE.singleton AccountRepo {add, getById, getByEmail, update}
