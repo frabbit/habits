@@ -15,21 +15,21 @@ import qualified Haskus.Utils.Variant.Excepts.Syntax as S
 import Veins.Data.Has (Has)
 import Habits.Utils (applyFirstM, applyFirst2M)
 
-class AccountRepo m where
+class AccountRepoM m where
   add :: Add m
   getById :: GetById m
   update :: Update m
   getByEmail :: GetByEmail m
 
 
-instance (MonadReader env m, Has (AR.AccountRepo m) env) => AccountRepo m where
+instance (MonadReader env m, Has (AR.AccountRepo m) env) => AccountRepoM m where
   add = applyFirstM AR.add
   getById = applyFirstM AR.getById
   update = applyFirst2M AR.update
   getByEmail = applyFirstM AR.getByEmail
 
 
-getByEmailOrFail :: (Monad m, AccountRepo m) => Email -> Excepts '[RepositoryError, AccountNotFoundError] m Account
+getByEmailOrFail :: (Monad m, AccountRepoM m) => Email -> Excepts '[RepositoryError, AccountNotFoundError] m Account
 getByEmailOrFail e = S.do
   acc <- getByEmail e
   case acc of

@@ -12,7 +12,7 @@ import qualified Habits.Domain.Account as A
 import Habits.Domain.AccountId (AccountId)
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError)
 import Habits.Domain.AccountRepo.Class
-  ( AccountRepo,
+  ( AccountRepoM,
   )
 import qualified Habits.Domain.AccountRepo.Class as ARC
 import Habits.Domain.Email (Email (Email))
@@ -32,7 +32,7 @@ import Utils
 import Veins.Test.QuickCheck (propertyRuns)
 import Habits.Domain.Account (updateAccount)
 
-mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepo m) => (m () -> IO ()) -> Spec
+mkSpec :: forall m. (HasCallStack, MonadIO m, AccountRepoM m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "AccountRepoContract" $ do
     let embed :: _ => _
