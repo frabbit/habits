@@ -11,7 +11,7 @@ import Data.Validation (Validation (Success))
 import Habits.Domain.AccountNotFoundError (AccountNotFoundError (AccountNotFoundError))
 import Habits.Domain.PasswordIncorrectError (PasswordIncorrectError (PasswordIncorrectError))
 import Habits.Domain.RepositoryError (RepositoryError (RepositoryError))
-import Habits.UseCases.Login (unLoginL)
+import Habits.UseCases.Login (loginL)
 import qualified Habits.UseCases.Login as L
 import Habits.Web.Routes.LoginRoute (fromDomain, loginRoute, setEmail, setPassword, toDomain)
 import Servant (err400, err401, err500)
@@ -24,19 +24,19 @@ import qualified Veins.Test.AppTH as AppTH
 type Env m = CE.MkSorted '[L.Login m]
 
 data Mocks m = Mocks
-  { login :: L.Login m
+  { loginMock :: L.Login m
   }
 
 defaultMocks :: forall m. Mocks m
 defaultMocks =
   Mocks
-    { login = mockify L.Login
+    { loginMock = mockify L.Login
     }
 
 makeLensesWithSuffixL ''Mocks
 
 envLayer :: forall m n. (MonadIO n) => Mocks m -> CE.ReaderCE '[] n (Env m)
-envLayer mocks = pure $ CE.singleton mocks.login
+envLayer mocks = pure $ CE.singleton mocks.loginMock
 
 AppTH.mkBoilerplateForName "App" ''Env
 
@@ -46,7 +46,7 @@ run mocks app = do
   runApp env app
 
 setLogin :: _
-setLogin = L.over (loginL . unLoginL)
+setLogin = L.over (loginMockL . loginL)
 
 spec :: Spec
 spec = describe "loginRoute should" $ do
@@ -56,7 +56,7 @@ spec = describe "loginRoute should" $ do
       out <- runExceptT $ loginRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the converted request to Login service" . property $ \(rs, i) -> do
-    (spy, mocks) <- defaultMocks & setLogin (mockReturn $ pure rs) & withSpy (loginL . unLoginL)
+    (spy, mocks) <- defaultMocks & setLogin (mockReturn $ pure rs) & withSpy (loginMockL . loginL)
     run mocks $ do
       runExceptT $ loginRoute i
       Success i' <- pure $ toDomain i

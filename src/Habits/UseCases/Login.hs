@@ -17,7 +17,7 @@ type LoginExec m =
   Excepts '[RepositoryError, AccountNotFoundError, PasswordIncorrectError, EmailNotConfirmedError] m LoginResponse
 
 newtype Login m = Login
-  { unLogin :: LoginExec m
+  { login :: LoginExec m
   }
 
 type instance ToSymbol (Login m) = "Login"
@@ -26,7 +26,4 @@ makeLensesWithoutUnderscoreAndWithSuffixL ''Login
 
 askLogin :: (MonadReader r n, Has.Has (Login m) r) => n (Login m)
 askLogin = asks Has.get
-
-login :: forall m. Login m -> LoginExec m
-login = (.unLogin)
 
