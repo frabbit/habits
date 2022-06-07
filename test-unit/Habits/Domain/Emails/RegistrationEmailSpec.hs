@@ -13,9 +13,9 @@ spec = describe "RegistrationEmail" $ do
       let msg = mkRegistrationEmail email nonce
       getNonceFromRegistrationEmail msg.body `shouldBe` Just nonce
   describe "mkRegistrationEmail" $ do
-    fit "should use the given email as receiver" . property $ \(email, nonce) -> do
+    it "should use the given email as receiver" . property $ \(email, nonce) -> do
       let msg = mkRegistrationEmail email nonce
       msg.receiver `shouldBe` EmailReceiver email
-    fit "should use the right email as sender" . property $ \(email, nonce) -> do
+    it "should use the right email as sender" . property $ \(email, nonce) -> do
       let msg = mkRegistrationEmail email nonce
       msg.sender `shouldBe` (EmailSender . Email $ "contact@habits.de")
