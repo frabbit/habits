@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -Wno-redundant-constraints #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 
 module Habits.Infra.Memory.AccountRepoMemory where
 
@@ -56,7 +58,6 @@ mkUpdate var = pure f
       atomically $ modifyTVar var $ fmap (\a -> if a.accountId == id then updateAccount au a else a)
       pure ()
 
-{- HLINT ignore mkGetById "Redundant bracket" -}
 mkGetById ::
   forall m n.
   (Applicative n, MonadIO m) =>
@@ -72,7 +73,6 @@ mkGetById accountsVar = pure f
         Nothing -> throwE AccountNotFoundError
         Just account -> pure account
 
-{- HLINT ignore mkGetByEmail "Redundant bracket" -}
 mkGetByEmail ::
   forall m n.
   (Applicative n, MonadIO m) =>
