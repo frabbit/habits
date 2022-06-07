@@ -21,11 +21,11 @@ coerceIO = identity
 
 spec :: Spec
 spec = describe "AccessToken" $ do
-  describe "verifyAccessToken" $ do
-    it "should return true if token was signed with the given secret" . property $ \(secret, accountId) -> coerceIO $ do
+  describe "verifyAccessToken should" $ do
+    it "return true if token was signed with the given secret" . property $ \(secret, accountId) -> coerceIO $ do
       let token = mkAccessToken secret accountId timeNow
       verifyAccessToken secret token `shouldBe` True
-    it "should return false if token was not signed with the given secret" . coerceIO $ do
+    it "return false if token was not signed with the given secret" . coerceIO $ do
       (secret, accountId) <- sampleIO
       let token = mkAccessToken secret accountId timeNow
       verifyAccessToken (AccessTokenSecret "foo") token `shouldBe` False
