@@ -13,7 +13,7 @@ type ConfirmEmailExec m =
   ConfirmEmailRequest ->
   Excepts '[RepositoryError, EmailConfirmationNotFoundError] m ConfirmEmailResponse
 
-newtype ConfirmEmail m = ConfirmEmail { unConfirmEmail :: ConfirmEmailExec m }
+newtype ConfirmEmail m = ConfirmEmail { confirmEmail :: ConfirmEmailExec m }
 
 makeLensesWithoutUnderscoreAndWithSuffixL ''ConfirmEmail
 
@@ -21,9 +21,3 @@ type instance ToSymbol (ConfirmEmail m) = "ConfirmEmail"
 
 askConfirmEmail :: (MonadReader r n, Has.Has (ConfirmEmail m) r) => n (ConfirmEmail m)
 askConfirmEmail = asks Has.get
-
-confirmEmail :: forall m. ConfirmEmail m -> ConfirmEmailExec m
-confirmEmail = (.unConfirmEmail)
-
-
-
