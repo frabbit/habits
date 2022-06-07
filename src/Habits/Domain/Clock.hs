@@ -21,9 +21,6 @@ getClock = asks Has.get
 getNow :: forall m. Clock m -> GetNow m
 getNow = (._getNow)
 
-mkGetNow :: forall m env n. ( Has.Has (Clock m) env, MonadReader env n) => n (GetNow m)
-mkGetNow = asks (_getNow . Has.get)
-
 type instance ToSymbol (Clock m) = "Clock"
 
 mkClockStatic :: forall n m. (Monad n, Monad m) => UTCTime -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[Clock m])
