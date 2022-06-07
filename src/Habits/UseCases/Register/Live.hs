@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Habits.UseCases.Register.Live where
 
 import Habits.Prelude
@@ -16,17 +18,24 @@ import Habits.Domain.EmailAlreadyUsedError (EmailAlreadyUsedError(..))
 import Habits.Domain.PasswordHash (mkFromPassword)
 import qualified Habits.Domain.AccountRepo as AR
 import Habits.Domain.EmailService (EmailService)
+import qualified Habits.Domain.EmailService as ES
+import Habits.Domain.Emails.RegistrationEmail (mkRegistrationEmail)
+import Habits.Domain.EmailConfirmationNonce (newEmailConfirmationNonce)
+import Habits.Domain.EmailConfirmationNew (EmailConfirmationNew(EmailConfirmationNew), email, accountId, emailConfirmationNonce)
+import Habits.Domain.EmailConfirmationRepo (EmailConfirmationRepo, getEmailConfirmationRepo)
 
-type Deps m = '[AR.AccountRepo m, EmailService m]
+type Deps m = '[AR.AccountRepo m, EmailService m, EmailConfirmationRepo m]
 
 mkRegister :: (MonadIO m, Monad n) => ReaderT (CE.MkSorted (Deps m)) n (RegisterExec m)
 mkRegister = do
   ar <- AR.getAccountRepo
+  es <- ES.getEmailService
+  ecr <- getEmailConfirmationRepo
   pure $ \req -> liftE $ S.do
-    account <- AR.getByEmail ar req.email
+    account <- ar.getByEmail req.email
     when (isJust account) $ failureE EmailAlreadyUsedError
     pwHash <- S.coerce $ mkFromPassword req.password
-    accountId <- AR.add ar
+    accountId <- ar.add
       ( AccountNew
           { email = req.email,
             emailConfirmed = False,
@@ -34,6 +43,9 @@ mkRegister = do
             password = pwHash
           }
       )
+    nonce <- S.liftIO newEmailConfirmationNonce
+    ecr.add $ EmailConfirmationNew { email = req.email, accountId, emailConfirmationNonce = nonce }
+    es.sendMessage $ mkRegistrationEmail req.email nonce
     S.pure $ RegisterResponse { accountId }
 
 mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted (Deps m)) n (CE.ComposableEnv '[R.Register m])

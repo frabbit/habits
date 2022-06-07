@@ -33,7 +33,7 @@ run app = do
   runApp env app
 
 spec :: Spec
-spec = fdescribe "EmailServiceMemory" $ do
+spec = describe "EmailServiceMemory" $ do
   describe "sendMessage should" $ do
     it "store should be empty in the beginning" . run . evalE$ S.do
       S.lift $ readVar @[EmailMessage] `shouldBeIO` []

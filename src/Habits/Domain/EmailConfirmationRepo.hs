@@ -19,6 +19,10 @@ type GetByNonce m =
   EmailConfirmationNonce ->
   Excepts '[RepositoryError] m (Maybe EmailConfirmation)
 
+type GetByNonceOrFail m =
+  EmailConfirmationNonce ->
+  Excepts '[RepositoryError, EmailConfirmationNotFoundError] m EmailConfirmation
+
 type Add m =
   EmailConfirmationNew ->
   Excepts '[RepositoryError] m EmailConfirmationId
@@ -35,7 +39,7 @@ type instance ToSymbol (EmailConfirmationRepo m) = "EmailConfirmationRepo"
 getEmailConfirmationRepo :: (MonadReader r n, Has.Has (EmailConfirmationRepo m) r) => n (EmailConfirmationRepo m)
 getEmailConfirmationRepo = asks Has.get
 
-getByNonceOrFail :: (Monad m) => EmailConfirmationRepo m -> EmailConfirmationNonce -> Excepts '[RepositoryError, EmailConfirmationNotFoundError] m EmailConfirmation
+getByNonceOrFail :: (Monad m) => EmailConfirmationRepo m -> GetByNonceOrFail m
 getByNonceOrFail repo e = S.do
   e1 <- getByNonce repo e
   case e1 of

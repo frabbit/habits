@@ -82,6 +82,8 @@ dependencies:
 - extra
 - nonce
 - base64-bytestring
+- regex-tdfa
+
 
 default-extensions:
   - TypeOperators

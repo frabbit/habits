@@ -41,8 +41,10 @@ import GHC.Conc (TVar)
 import Habits.Domain.EmailMessage (EmailMessage)
 import Habits.Infra.Memory.EmailServiceMemory (mkEmailServiceMemory)
 import Habits.Infra.VarStorage.Live (mkVarStorageLive, mkVarStorageLiveFromVar)
+import Habits.Infra.Memory.EmailConfirmationRepoMemory (mkEmailConfirmationRepoMemory)
+import Habits.Domain.EmailConfirmationRepo (EmailConfirmationRepo)
 
-type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig m]
+type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig m, EmailConfirmationRepo m]
 
 data EmailServiceConfig
   = ESCMemoryVar (TVar [EmailMessage])
@@ -61,6 +63,7 @@ envLayer cfg =
     CE.<<-&& RL.mkLive
     CE.<<-&& RefreshLive.mkLive
     CE.<<-&& mkRefreshTokenIssuedRepoMemory
+    CE.<<-&& mkEmailConfirmationRepoMemory
     CE.<<-&& mkAccountRepoMemory
     CE.<<-&& AC.mkAuthConfigStatic cfg.accessTokenSecret cfg.refreshTokenSecret
     CE.<<-&& mkClockLive

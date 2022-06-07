@@ -11,7 +11,7 @@ data EmailService m = EmailService
   { sendMessage :: SendMessage m
   }
 
-getAuthConfig :: forall m n env. (Has.Has (EmailService m) env, MonadReader env n) => n (EmailService m)
-getAuthConfig = asks Has.get
+getEmailService :: forall m n env. (Has.Has (EmailService m) env, MonadReader env n) => n (EmailService m)
+getEmailService = asks Has.get
 
 type instance ToSymbol (EmailService m) = "EmailService"

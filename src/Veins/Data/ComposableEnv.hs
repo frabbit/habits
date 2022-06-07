@@ -35,9 +35,10 @@ module Veins.Data.ComposableEnv
     (<<-&&),
     (<<-),
     singleton,
-  ask,
-  lift,
-  coerce)
+    ask,
+    lift,
+    coerce,
+    runReaderCE)
 where
 
 import Control.Monad.Reader (ReaderT (ReaderT, runReaderT), asks)
@@ -59,6 +60,9 @@ import Prelude
 import qualified Prelude as P
 
 type ReaderCE env m x = ReaderT (ComposableEnv env) m x
+
+runReaderCE :: ReaderCE '[] m x -> m x
+runReaderCE app = runReaderT app empty
 
 type LayerCE env m out = ReaderCE env m (ComposableEnv out)
 
