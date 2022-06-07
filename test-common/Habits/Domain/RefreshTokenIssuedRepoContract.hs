@@ -10,7 +10,7 @@ import GHC.Stack (HasCallStack)
 import Habits.Domain.AccountId (AccountId)
 import qualified Habits.Domain.RefreshTokenIssued as RTI
 import Habits.Domain.RefreshTokenIssuedRepo.Class
-  ( RefreshTokenIssuedRepo,
+  ( RefreshTokenIssuedRepoM,
   )
 import qualified Habits.Domain.RefreshTokenIssuedRepo.Class as RTIC
 import qualified Haskus.Utils.Variant.Excepts.Syntax as S
@@ -28,21 +28,21 @@ import Utils
     sampleIO,
   )
 
-insertToken :: forall m. (RefreshTokenIssuedRepo m, _) => Excepts _ m _
+insertToken :: forall m. (RefreshTokenIssuedRepoM m, _) => Excepts _ m _
 insertToken = S.do
   new <- S.coerce sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)
 
-insertTokenForAccountId :: forall m. (RefreshTokenIssuedRepo m, _) => AccountId -> Excepts _ m _
+insertTokenForAccountId :: forall m. (RefreshTokenIssuedRepoM m, _) => AccountId -> Excepts _ m _
 insertTokenForAccountId accId = S.do
   new <- S.coerce $ fmap (\x -> x{accountId = accId}) sampleIO
   id <- RTIC.add new
   Just acc <- RTIC.getById id
   S.pure (acc, new, id)
 
-mkSpec :: forall m. (MonadFail m, HasCallStack, MonadIO m, RefreshTokenIssuedRepo m) => (m () -> IO ()) -> Spec
+mkSpec :: forall m. (MonadFail m, HasCallStack, MonadIO m, RefreshTokenIssuedRepoM m) => (m () -> IO ()) -> Spec
 mkSpec unlift = parallel $
   describe "RefreshTokenIssuedRepoContract" $ do
 

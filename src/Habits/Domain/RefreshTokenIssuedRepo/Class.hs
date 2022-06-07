@@ -10,14 +10,14 @@ import qualified Habits.Domain.RefreshTokenIssuedRepo as R
 import Veins.Data.Has (Has)
 import Habits.Utils (applyFirstM)
 
-class RefreshTokenIssuedRepo m where
+class RefreshTokenIssuedRepoM m where
   add :: Add m
   getById :: GetById m
   getByAccountId :: GetByAccountId m
   deleteByAccountId :: DeleteByAccountId m
   deleteById :: DeleteById m
 
-instance (MonadReader env m, Has (R.RefreshTokenIssuedRepo m) env) => RefreshTokenIssuedRepo m where
+instance (MonadReader env m, Has (R.RefreshTokenIssuedRepo m) env) => RefreshTokenIssuedRepoM m where
   add = applyFirstM R.add
   getById = applyFirstM R.getById
   getByAccountId = applyFirstM R.getByAccountId
