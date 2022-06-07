@@ -3,3 +3,6 @@ tmp
 habits.cabal
 dist-newstyle
 .reload-ghcid
+.vscode/configurationCache.log
+.vscode/dryrun.log
+.vscode/targets.log
