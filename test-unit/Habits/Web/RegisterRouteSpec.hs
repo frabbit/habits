@@ -6,7 +6,7 @@ module Habits.Web.RegisterRouteSpec where
 import Habits.Test.Prelude
 import qualified Control.Lens as L
 
-import Habits.UseCases.Register (unRegisterL)
+import Habits.UseCases.Register (registerL)
 import qualified Habits.UseCases.Register as R
 import Habits.Web.Routes.RegisterRoute (fromDomain, registerRoute, setEmail, setPassword, toDomain)
 import Test.Hspec.Expectations.Lifted (shouldBe)
@@ -22,19 +22,19 @@ import Data.Validation (Validation(Success))
 type Env m = CE.MkSorted '[R.Register m]
 
 data Mocks m = Mocks
-  { register :: R.Register m
+  { registerMock :: R.Register m
   }
 
 defaultMocks :: forall m. Mocks m
 defaultMocks =
   Mocks
-    { register = mockify R.Register
+    { registerMock = mockify R.Register
     }
 
 makeLensesWithSuffixL ''Mocks
 
 envLayer :: forall m n. (MonadIO n) => Mocks m -> CE.ReaderCE '[] n (Env m)
-envLayer mocks = pure $ CE.singleton mocks.register
+envLayer mocks = pure $ CE.singleton mocks.registerMock
 
 AppTH.mkBoilerplate "runApp" ''Env
 
@@ -44,7 +44,7 @@ runWithEnv mocks app = do
   runApp env app
 
 setRegister :: _
-setRegister = L.over (registerL . unRegisterL)
+setRegister = L.over (registerMockL . registerL)
 
 spec :: Spec
 spec = describe "registerRoute should" $ do
@@ -55,7 +55,7 @@ spec = describe "registerRoute should" $ do
       out <- runExceptT $ registerRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the request converted from Dto to Register service" . property $ \(rs,i) -> do
-    (spy, mocks) <- defaultMocks & setRegister (mockReturn $ pure rs) & withSpy (registerL . unRegisterL)
+    (spy, mocks) <- defaultMocks & setRegister (mockReturn $ pure rs) & withSpy (registerMockL . registerL)
     wrap mocks $ do
       runExceptT $ registerRoute i
       Success i' <- pure $ toDomain i
