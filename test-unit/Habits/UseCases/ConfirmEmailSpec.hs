@@ -51,7 +51,7 @@ embed :: _ => _
 embed = runWithEnv (envLayer :: _) . evalE . catchAllToFail
 
 spec :: Spec
-spec = fdescribe "ConfirmEmail should" $ do
+spec = describe "ConfirmEmail should" $ do
   it "fail with EmailConfirmationNotFoundError when corresponding email confirmation request does not exist" . property $ \nonce -> embed $
     S.do
       confirmEmail (ConfirmEmailRequest nonce)
