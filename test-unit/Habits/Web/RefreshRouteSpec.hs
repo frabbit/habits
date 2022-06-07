@@ -8,7 +8,7 @@ import Habits.Test.Prelude
 import qualified Control.Lens as L
 import Data.Validation (Validation (Success))
 import Habits.Domain.RepositoryError (RepositoryError (RepositoryError))
-import Habits.UseCases.Refresh (unRefreshL)
+import Habits.UseCases.Refresh (refreshL)
 import qualified Habits.UseCases.Refresh as R
 import Habits.Web.Routes.RefreshRoute (fromDomain, refreshRoute, toDomain, setRefreshToken)
 import Servant (err400, err401, err500)
@@ -24,19 +24,19 @@ import Habits.Domain.RefreshTokenIssuedNotFoundError (RefreshTokenIssuedNotFound
 type Env m = CE.MkSorted '[R.Refresh m]
 
 data Mocks m = Mocks
-  { refresh :: R.Refresh m
+  { refreshMock :: R.Refresh m
   }
 
 defaultMocks :: forall m. Mocks m
 defaultMocks =
   Mocks
-    { refresh = mockify R.Refresh
+    { refreshMock = mockify R.Refresh
     }
 
 makeLensesWithSuffixL ''Mocks
 
 envLayer :: forall m n. (MonadIO n) => Mocks m -> CE.ReaderCE '[] n (Env m)
-envLayer mocks = pure $ CE.singleton mocks.refresh
+envLayer mocks = pure $ CE.singleton mocks.refreshMock
 
 AppTH.mkBoilerplate "runApp" ''Env
 
@@ -46,7 +46,7 @@ run mocks app = do
   runApp env app
 
 setRefresh :: _
-setRefresh = L.over (refreshL . unRefreshL)
+setRefresh = L.over (refreshMockL . refreshL)
 
 spec :: Spec
 spec = describe "refreshRoute should" $ do
@@ -56,7 +56,7 @@ spec = describe "refreshRoute should" $ do
       out <- runExceptT $ refreshRoute i
       out `shouldBe` Right (fromDomain rs)
   it "pass the converted request to Refresh service" . property $ \(rs, i) -> do
-    (spy, mocks) <- defaultMocks & setRefresh (mockReturn $ pure rs) & withSpy (refreshL . unRefreshL)
+    (spy, mocks) <- defaultMocks & setRefresh (mockReturn $ pure rs) & withSpy (refreshMockL . refreshL)
     run mocks $ do
       runExceptT $ refreshRoute i
       Success i' <- pure $ toDomain i
