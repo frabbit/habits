@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Redundant bracket" #-}
 module Habits.UseCases.Login.Live where
 
 import Habits.Prelude
@@ -21,24 +23,22 @@ import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(RefreshTokenIs
 import Habits.Domain.RefreshTokenHash (mkFromRefreshToken)
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
-import Habits.Domain.AccountRepo (getAccountRepo)
 
-type Deps m = CE.MkSorted '[Clock.Clock m, AC.AuthConfig, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
+type Deps m = CE.MkSorted '[Clock.Clock m, AC.AuthConfig m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m]
 
 mkLogin :: forall n m. (Monad n, MonadIO m) => ReaderT (Deps m) n (LoginExec m)
 mkLogin = do
-  getAccessSecret <- AC.mkGetAccessTokenSecret
-  getRefreshSecret <- AC.mkGetRefreshTokenSecret
+  authConfig <- AC.getAuthConfig
   rtr <- RT.getRefreshTokenIssuedRepo
-  ar <- getAccountRepo
+  ar <- AR.getAccountRepo
   clock <- Clock.getClock
   pure $ \(EmailPasswordLoginRequest email pw) -> liftE $ S.do
     acc <- AR.getByEmailOrFail ar email
+    accessSecret <- S.lift authConfig.accessTokenSecret
+    refreshSecret <- S.lift authConfig.refreshTokenSecret
     unless (isValid pw acc.password) (failureE PasswordIncorrectError)
     -- unless (acc.emailConfirmed) (failureE EmailNotConfirmedError)
     time <- S.lift clock._getNow
-    accessSecret <- S.coerce getAccessSecret
-    refreshSecret <- S.coerce getRefreshSecret
     let refreshTokenExpiration = addDaysToUTCTime 7 time
     let accessToken = mkAccessToken accessSecret (acc.accountId) (utcTimeToPOSIXSeconds (addHoursToUTCTime 3 time))
     let refreshToken = mkRefreshToken refreshSecret (acc.accountId) (utcTimeToPOSIXSeconds refreshTokenExpiration)

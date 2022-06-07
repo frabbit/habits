@@ -8,6 +8,7 @@ import Habits.Prelude
 import Control.Monad.Morph (hoist)
 import qualified Habits.Domain.AccountRepo as AR
 import qualified Habits.Domain.AuthConfig as AC
+import qualified Habits.Domain.AuthConfig.Class as AuthConfigM
 import qualified Habits.Domain.Clock as Clock
 import qualified Habits.Domain.Clock.Class as ClockM
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
@@ -37,7 +38,7 @@ import Habits.Infra.Memory.RefreshTokenIssuedRepoMemory (mkRefreshTokenIssuedRep
 import Habits.Infra.Memory.AccountRepoMemory (mkAccountRepoMemory)
 import qualified Veins.Test.AppTH as AppTH
 
-type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig]
+type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig m]
 
 data ServerConfig = ServerConfig {refreshTokenSecret :: RefreshTokenSecret, accessTokenSecret :: AccessTokenSecret }
 
@@ -73,7 +74,7 @@ mkAuthHandler env = ServantAuth.mkAuthHandler handler
     throw401 msg = throwError $ err401 {errBody = msg}
     handler req = Handler $ do
       now <- liftIO $ runApp env ClockM.getNow
-      atSecret <- liftIO $ runApp env AC.getAccessTokenSecret
+      atSecret <- liftIO $ runApp env AuthConfigM.getAccessTokenSecret
       case parseAuthenticatedAccount now atSecret req of
         Left _ -> throw401 "Token invalid"
         Right a -> ExceptT $ pure $ Right a

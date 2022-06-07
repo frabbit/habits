@@ -26,15 +26,14 @@ import Habits.Domain.RefreshTokenIssuedNew (RefreshTokenIssuedNew(..))
 import Habits.Domain.RefreshTokenExpiredError (RefreshTokenExpiredError(RefreshTokenExpiredError))
 import qualified Habits.Domain.RefreshTokenIssuedRepo as RT
 
-mkExecute :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig, RT.RefreshTokenIssuedRepo m]) n (RefreshExec m)
+mkExecute :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.MkSorted '[Clock.Clock m, AC.AuthConfig m, RT.RefreshTokenIssuedRepo m]) n (RefreshExec m)
 mkExecute = do
-  getAccessSecret <- AC.mkGetAccessTokenSecret
-  getRefreshSecret <- AC.mkGetRefreshTokenSecret
+  authConfig <- AC.getAuthConfig
   rtr <- RT.getRefreshTokenIssuedRepo
   clock <- Clock.getClock
   pure $ \(RefreshRequest token) -> liftE $ S.do
-    atSecret <- S.coerce getAccessSecret
-    rtSecret <- S.coerce getRefreshSecret
+    atSecret <- S.lift authConfig.accessTokenSecret
+    rtSecret <- S.lift authConfig.refreshTokenSecret
     time <- S.lift clock._getNow
     let expired = isExpired rtSecret token (utcTimeToPOSIXSeconds time)
 
@@ -60,5 +59,5 @@ mkExecute = do
     RT.add rtr $ RefreshTokenIssuedNew { accountId, expiration = refreshTokenExpiration, refreshTokenHash = hash }
     S.pure $ RefreshResponse { accessToken, refreshToken }
 
-mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig, Clock.Clock m, RT.RefreshTokenIssuedRepo m]) n (CE.ComposableEnv '[R.Refresh m])
+mkLive :: forall n m. (Monad n, MonadIO m) => ReaderT (CE.ComposableEnv '[AC.AuthConfig m, Clock.Clock m, RT.RefreshTokenIssuedRepo m]) n (CE.ComposableEnv '[R.Refresh m])
 mkLive = CE.singleton . R.Refresh <$> mkExecute

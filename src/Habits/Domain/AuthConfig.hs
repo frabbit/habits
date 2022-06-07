@@ -7,27 +7,15 @@ import Veins.Data.ToSymbol (ToSymbol)
 import qualified Veins.Data.Has as Has
 import qualified Veins.Data.ComposableEnv as CE
 
-data AuthConfig = AuthConfig
-  { _accessTokenSecret :: AccessTokenSecret,
-    _refreshTokenSecret :: RefreshTokenSecret
+data AuthConfig m = AuthConfig
+  { accessTokenSecret :: m AccessTokenSecret,
+    refreshTokenSecret :: m RefreshTokenSecret
   }
 
-getAuthConfig :: forall m env. (Has.Has AuthConfig env, MonadReader env m) => m AuthConfig
+getAuthConfig :: forall m n env. (Has.Has (AuthConfig m) env, MonadReader env n) => n (AuthConfig m)
 getAuthConfig = asks Has.get
 
-getAccessTokenSecret :: forall m env. (Has.Has AuthConfig env, MonadReader env m) => m AccessTokenSecret
-getAccessTokenSecret = asks $ _accessTokenSecret . Has.get
+type instance ToSymbol (AuthConfig m) = "AuthConfig"
 
-getRefreshTokenSecret :: forall m env. (Has.Has AuthConfig env, MonadReader env m) => m RefreshTokenSecret
-getRefreshTokenSecret = asks $ _refreshTokenSecret . Has.get
-
-mkGetAccessTokenSecret :: forall n m env. (Applicative n, Has.Has AuthConfig env, MonadReader env m) => m (n AccessTokenSecret)
-mkGetAccessTokenSecret = asks $ pure . _accessTokenSecret . Has.get
-
-mkGetRefreshTokenSecret :: forall n m env. (Applicative n, Has.Has AuthConfig env, MonadReader env m) => m (n RefreshTokenSecret)
-mkGetRefreshTokenSecret = asks $ pure . _refreshTokenSecret . Has.get
-
-type instance ToSymbol AuthConfig = "AuthConfig"
-
-mkAuthConfigStatic :: forall n. (Monad n) => AccessTokenSecret -> RefreshTokenSecret -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig])
-mkAuthConfigStatic atSecret rtSecret = pure $ CE.singleton AuthConfig {_accessTokenSecret = atSecret, _refreshTokenSecret = rtSecret}
+mkAuthConfigStatic :: forall n m . (Monad n, Applicative m) => AccessTokenSecret -> RefreshTokenSecret -> ReaderT (CE.ComposableEnv '[]) n (CE.ComposableEnv '[AuthConfig m])
+mkAuthConfigStatic atSecret rtSecret = pure $ CE.singleton AuthConfig {accessTokenSecret = pure atSecret, refreshTokenSecret = pure rtSecret}

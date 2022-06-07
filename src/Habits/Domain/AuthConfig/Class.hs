@@ -5,12 +5,12 @@ import Habits.Domain.AccessTokenSecret (AccessTokenSecret)
 import qualified Habits.Domain.AuthConfig as AC
 import Habits.Domain.RefreshTokenSecret (RefreshTokenSecret)
 import Veins.Data.Has (Has)
-import qualified Veins.Data.Has as Has
+import Habits.Utils (applyFirst0M)
 
-class AuthConfig m where
+class AuthConfigM m where
   getAccessTokenSecret :: m AccessTokenSecret
   getRefreshTokenSecret :: m RefreshTokenSecret
 
-instance (MonadReader env m, Has AC.AuthConfig env) => AuthConfig m where
-  getAccessTokenSecret = asks (AC._accessTokenSecret . Has.get)
-  getRefreshTokenSecret = asks (AC._refreshTokenSecret . Has.get)
+instance (MonadReader env m, Has (AC.AuthConfig m) env) => AuthConfigM m where
+  getAccessTokenSecret = applyFirst0M AC.accessTokenSecret
+  getRefreshTokenSecret = applyFirst0M AC.refreshTokenSecret
