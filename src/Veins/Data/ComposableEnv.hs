@@ -35,10 +35,12 @@ module Veins.Data.ComposableEnv
     (<<-&&),
     (<<-),
     singleton,
-  )
+  ask,
+  lift,
+  coerce)
 where
 
-import Control.Monad.Reader (ReaderT (ReaderT, runReaderT))
+import Control.Monad.Reader (ReaderT (ReaderT, runReaderT), asks)
 import Data.Kind (Type)
 import qualified Veins.Data.HList as HL
 import qualified Veins.Data.HSet as H
@@ -46,6 +48,7 @@ import qualified Veins.Data.HSortedList as HSL
 import qualified Veins.Data.Has as Has
 import Veins.Data.ToSymbol (CmpToSymbol)
 import qualified Veins.Data.Type.List as L
+import qualified Control.Monad.Trans as MT
 import Prelude
   ( Eq (..),
     Monad,
@@ -126,8 +129,11 @@ insert ::
   ComposableEnv (HSL.Insert x xs)
 insert x = ComposableEnv . H.insert x . unwrap
 
-get :: (HL.HGetFirst x xs) => ComposableEnv xs -> x
+get :: forall x xs . (HL.HGetFirst x xs) => ComposableEnv xs -> x
 get = H.get . unwrap
+
+ask :: forall x m . (HL.HGetFirst x '[x], Monad m) => ReaderCE '[x] m x
+ask = asks get
 
 union ::
   forall xs ys.
@@ -170,12 +176,18 @@ provideAll ::
   ReaderCE out m r
 provideAll f e = ReaderT $ provideAll' (runReaderT f) e
 
-lift ::
+lift :: (Monad m) => m a -> ReaderCE '[] m a
+lift = MT.lift
+
+coerce :: ReaderCE '[] m a -> ReaderCE '[] m a
+coerce = P.id
+
+liftCE ::
   forall e0 e1 m a.
   (H.CExcluding (H.Difference e1 e0) e0 e1) =>
   ReaderCE e1 m a ->
   ReaderCE e0 m a
-lift r = ReaderT $ \(e :: ComposableEnv e0) ->
+liftCE r = ReaderT $ \(e :: ComposableEnv e0) ->
   runReaderT r (wrap (H.excluding @(H.Difference e1 e0) (unwrap e)))
 
 type Bind =
@@ -190,8 +202,8 @@ type Bind =
 
 bind :: Bind
 bind r f = do
-  a <- lift r
-  lift (f a)
+  a <- liftCE r
+  liftCE (f a)
 
 provideLayerFlipped :: _ => _
 provideLayerFlipped = P.flip provideLayer
