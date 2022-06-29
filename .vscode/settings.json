@@ -12,12 +12,7 @@
 	"haskell.plugin.refineImports.codeLensOn": false,
 	"haskell.plugin.importLens.codeLensOn": false,
 	"cSpell.enabled": false,
-	"haskell.formattingProvider": "ormolu",
-	"haskell.toolchain": {
-		"ghc": null,
-		"cabal": null,
-		"stack": null
-	}
+	"haskell.formattingProvider": "ormolu"
 
 
 }
