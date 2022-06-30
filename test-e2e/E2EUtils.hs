@@ -15,6 +15,7 @@ import Servant.Client.Core (AuthClientData, AuthenticatedRequest, mkAuthenticate
 import qualified Habits.Domain.RefreshTokenSecret as RTS
 import qualified Habits.Domain.AccessTokenSecret as ATS
 import Habits.Web.Routes.RefreshRoute (RefreshRequestDto, RefreshResponseDto, RefreshApi)
+import Habits.Web.Routes.CreateHabitRoute (CreateHabitRequestDto, CreateHabitResponseDto, CreateHabitApi)
 
 type instance AuthClientData (AuthProtect "JWT") = Text
 
@@ -49,6 +50,14 @@ runRegister :: Int -> RegisterRequestDto -> IO (Either ClientError RegisterRespo
 runRegister port req = do
   env <- getClientTestEnv port
   runClientM (register req) env
+
+createHabit :: AuthenticatedRequest (AuthProtect "JWT") -> CreateHabitRequestDto -> ClientM CreateHabitResponseDto
+createHabit = client (Proxy :: Proxy CreateHabitApi)
+
+runCreateHabit :: Int -> Text -> CreateHabitRequestDto -> IO (Either ClientError CreateHabitResponseDto)
+runCreateHabit port token dto = do
+  env <- getClientTestEnv port
+  runClientM (authenticated token createHabit dto) env
 
 login :: LoginRequestDto -> ClientM LoginResponseDto
 login = client (Proxy :: Proxy LoginApi)

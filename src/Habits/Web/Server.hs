@@ -43,8 +43,25 @@ import Habits.Infra.Memory.EmailServiceMemory (mkEmailServiceMemory)
 import Habits.Infra.VarStorage.Live (mkVarStorageLive, mkVarStorageLiveFromVar)
 import Habits.Infra.Memory.EmailConfirmationRepoMemory (mkEmailConfirmationRepoMemory)
 import Habits.Domain.EmailConfirmationRepo (EmailConfirmationRepo)
+import Habits.Web.Routes.CreateHabitRoute (CreateHabitApi, createHabitRoute)
+import Habits.UseCases.CreateHabit.Class (CreateHabitM)
+import Habits.UseCases.CreateHabit (CreateHabit)
+import Habits.Domain.HabitRepo (HabitRepo)
+import Habits.UseCases.CreateHabit.Live (mkCreateHabitLive)
+import Habits.Infra.Memory.HabitRepoMemory (mkHabitRepoMemory)
 
-type Env m = CE.MkSorted '[Refresh.Refresh m, R.Register m, L.Login m, AR.AccountRepo m, RT.RefreshTokenIssuedRepo m, Clock.Clock m, AC.AuthConfig m, EmailConfirmationRepo m]
+type Env m = CE.MkSorted '[
+  Refresh.Refresh m,
+  R.Register m,
+  CreateHabit m,
+  L.Login m,
+  AR.AccountRepo m,
+  HabitRepo m,
+  RT.RefreshTokenIssuedRepo m,
+  Clock.Clock m,
+  AC.AuthConfig m,
+  EmailConfirmationRepo m
+  ]
 
 data EmailServiceConfig
   = ESCMemoryVar (TVar [EmailMessage])
@@ -62,9 +79,11 @@ envLayer cfg =
   LL.mkLive
     CE.<<-&& RL.mkLive
     CE.<<-&& RefreshLive.mkLive
+    CE.<<-&& mkCreateHabitLive
     CE.<<-&& mkRefreshTokenIssuedRepoMemory
     CE.<<-&& mkEmailConfirmationRepoMemory
     CE.<<-&& mkAccountRepoMemory
+    CE.<<-&& mkHabitRepoMemory
     CE.<<-&& AC.mkAuthConfigStatic cfg.accessTokenSecret cfg.refreshTokenSecret
     CE.<<-&& mkClockLive
     CE.<<- mkEmailServiceMemory
@@ -76,10 +95,10 @@ envLayer cfg =
 
 
 
-server :: (RefreshM m, RegisterM m, LoginM m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
-server = refreshRoute :<|> protectedRoute :<|> loginRoute :<|> registerRoute
+server :: (CreateHabitM m, RefreshM m, RegisterM m, LoginM m, MonadIO m) => ServerT ServerApi (ExceptT ServerError m)
+server = refreshRoute :<|> protectedRoute :<|> loginRoute :<|> registerRoute :<|> createHabitRoute
 
-type ServerApi = RefreshApi :<|> ProtectedApi :<|> LoginApi :<|> RegisterApi
+type ServerApi = RefreshApi :<|> ProtectedApi :<|> LoginApi :<|> RegisterApi :<|> CreateHabitApi
 
 serverApi :: Proxy ServerApi
 serverApi = Proxy

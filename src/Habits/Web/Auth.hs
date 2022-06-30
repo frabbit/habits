@@ -16,6 +16,7 @@ import Network.Wai (requestHeaders)
 import qualified Network.Wai as Wai
 import Data.Time (UTCTime)
 import Veins.Data.List.Utils (safeHead)
+import Habits.Domain.AccountId (unAccountId)
 
 data AuthenticatedAccount = AuthenticatedAccount {
   accountId :: Text
@@ -23,7 +24,7 @@ data AuthenticatedAccount = AuthenticatedAccount {
 
 instance Arbitrary AuthenticatedAccount where
   arbitrary = do
-    accountId <- arbitrary
+    accountId <- unAccountId <$> arbitrary
     pure $ AuthenticatedAccount { accountId }
 
 type instance AuthServerData (AuthProtect "JWT") = AuthenticatedAccount

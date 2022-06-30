@@ -12,6 +12,7 @@ import Habits.Prelude
 import Haskus.Utils.Variant.Excepts.Utils (catchExcepts)
 import Servant (ServerError, err400, err401, err403, err409, err500)
 import qualified Veins.Data.Codec as Codec
+import Habits.Web.UnauthorizedError (UnauthorizedError)
 
 mapAllErrorsToServerError ::
   (Monad m) =>
@@ -24,7 +25,8 @@ mapAllErrorsToServerError ::
        Codec.ValidationError,
        RepositoryError,
        AccountNotFoundError,
-       PasswordIncorrectError
+       PasswordIncorrectError,
+       UnauthorizedError
      ]
     m
     a ->
@@ -40,3 +42,4 @@ mapAllErrorsToServerError e =
     & catchExcepts (\(_ :: RefreshTokenInvalidError) -> failureE err401)
     & catchExcepts (\(_ :: RefreshTokenExpiredError) -> failureE err401)
     & catchExcepts (\(_ :: EmailNotConfirmedError) -> failureE err403)
+    & catchExcepts (\(_ :: UnauthorizedError) -> failureE err401)
