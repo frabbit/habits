@@ -42,7 +42,7 @@ run mocks app = do
   runApp env app
 
 spec :: Spec
-spec = fdescribe "createHabitRoute should" $ do
+spec = describe "createHabitRoute should" $ do
   it "return 401 when AccountId of authenticated account does not match the request's AccountId" . property $ \(a, req, res) -> do
     let mocks = defaultMocks & setCreateHabit (mockReturn $ pure res)
     run mocks $ do
