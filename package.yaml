@@ -82,6 +82,7 @@ dependencies:
 - nonce
 - base64-bytestring
 - regex-tdfa
+- optparse-applicative
 
 
 default-extensions:

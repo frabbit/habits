@@ -1,6 +1,10 @@
 module Main where
 
-import Prelude
+import Habits.Prelude
+import qualified Habits.HabitsApp as HabitsApp
+import Habits.Options (parseCommand)
 
 main :: IO ()
-main = putStrLn "Hello World"
+main = do
+  cmd <- parseCommand
+  HabitsApp.main cmd.port
