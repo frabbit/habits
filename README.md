@@ -1,6 +1,6 @@
 # Habits
 
-![unit workflow](https://github.com/frabbit/habits/actions/workflows/unit/badge.svg)
+![unit workflow](https://github.com/frabbit/habits/actions/workflows/unit.yml/badge.svg)
 
 This application will allow you to manage your habits. It's still in the early stage so there is not a lot of functionality currently. It's mainly a Haskell learning exercise for me. The application is based on servant and exposes a rest interface. The structure of the application is heavily inspired by the [ports and adapters (also called hexagonal) architecture](https://alistair.cockburn.us/hexagonal-architecture/). 
 
