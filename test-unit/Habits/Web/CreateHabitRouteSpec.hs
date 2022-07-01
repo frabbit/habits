@@ -1,4 +1,6 @@
 {-# OPTIONS_GHC -Wno-partial-type-signatures #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+{-# HLINT ignore "Move brackets to avoid $" #-}
 module Habits.Web.CreateHabitRouteSpec where
 
 import Habits.Test.Prelude
@@ -14,6 +16,7 @@ import qualified Control.Lens as L
 import Servant (ServerError (errHTTPCode))
 import Data.Either.Extra (mapLeft)
 import Test.QuickCheck (suchThat)
+import Habits.Domain.AccountId (AccountId(..))
 
 type Env (m :: Type -> Type) = CE.MkSorted '[CreateHabit m]
 
@@ -47,7 +50,7 @@ spec = describe "createHabitRoute should" $ do
   it "return 401 when AccountId of authenticated account does not match the request's AccountId" . property $ \(a, req, res) -> do
     let mocks = defaultMocks & setCreateHabit (mockReturn $ pure res)
     run mocks $ do
-      accountId <- liftIO $ generate $ arbitrary `suchThat` (/= a.accountId)
+      accountId <- unAccountId <$> (liftIO $ generate $ arbitrary `suchThat` (/= AccountId a.accountId))
       out <- runExceptT $ createHabitRoute a (req{accountId})
       mapLeft errHTTPCode out `shouldBe` Left 401
   it "return 400 when AccountId is invalid" . property $ \(a, req, res) -> do
