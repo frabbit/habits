@@ -37,6 +37,7 @@ import Habits.Domain.EmailConfirmationRepo.Class (getByNonceOrFail)
 
 import Habits.Infra.Memory.EmailConfirmationRepoMemory (mkEmailConfirmationRepoMemory)
 import Habits.Domain.Emails.RegistrationEmail (getNonceFromRegistrationEmail)
+import Veins.Test.QuickCheck (propertyRuns)
 
 type Env m = CE.MkSorted '[R.Register m, AR.AccountRepo m, VarStorage [EmailMessage] m, EmailConfirmationRepo m]
 
@@ -64,6 +65,8 @@ spec = describe "Register should" $ do
       wrap = runWithEnv . evalE . catchAllToFail
       propWrap :: _ => _
       propWrap f = property $ \x -> wrap (f x)
+      propWrapRuns :: _ => _ -> _
+      propWrapRuns i f = propertyRuns i $ \x -> wrap (f x)
   it "succeed when creating a new account which email does not exist yet." . propWrap $ \rr -> S.do
     resp <- RC.register rr
     account <- ARC.getById resp.accountId
@@ -87,12 +90,12 @@ spec = describe "Register should" $ do
     S.coerce $ messages `shouldSatisfy` (not . null)
     [msg] <- S.pure messages
     S.liftIO $ msg.receiver `shouldBe` EmailReceiver rr.email
-  it "encode the password and store it encrypted." . propWrap $ \rr -> S.do
+  it "encode the password and store it encrypted." . propWrapRuns 5 $ \rr -> S.do
     resp <- RC.register rr
     account <- ARC.getById resp.accountId
 
     S.coerce $ account.password `shouldNotBe` PasswordHash (rr.password & unPassword)
-  it "encode the password and store it encrypted." . propWrap $ \rr -> S.do
+  it "encode the password and store it encrypted." . propWrapRuns 5 $ \rr -> S.do
     accountId <- RC.register rr <&> (.accountId)
     account <- ARC.getById accountId
     S.coerce $ isValid rr.password account.password `shouldBe` True
